@@ -1,8 +1,10 @@
-package com.example.medkit;
+package com.example.medkit.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.medkit.R;
 
 public class MainActivity extends AppCompatActivity {
 
