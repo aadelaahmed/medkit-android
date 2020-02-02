@@ -4,26 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.SlideShowActivity">
+    tools:context=".activities.SlideShowActivity"
+
+    android:background="@color/lightBackGroundColor">
 
 
     <androidx.viewpager.widget.ViewPager
+        android:overScrollMode="never"
+        android:layout_alignParentTop="true"
         android:id="@+id/view_pager_slide_show"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/dots_linear_layout"></androidx.viewpager.widget.ViewPager>
-        <LinearLayout
-            android:layout_alignParentBottom="true"
-            android:id="@+id/dots_linear_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <Button
-                android:background="@color/lightBackGroundColor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="aaaaa">
-            </Button>
-        </LinearLayout>
-
+        android:layout_above="@+id/dots_container"
+        android:paddingBottom="24dp"></androidx.viewpager.widget.ViewPager>
+<LinearLayout
+    android:orientation="horizontal"
+    android:layout_alignParentBottom="true"
+    android:id="@+id/dots_container"
+    android:layout_width="match_parent"
+    android:layout_height="60dp">
+    <Button
+        android:textSize="18sp"
+        android:textColor="@color/darkGrayText"
+        android:background="@color/transparent"
+        android:id="@+id/slider_skip_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Skip"></Button>
+    <LinearLayout
+        android:layout_weight="1"
+        android:id="@+id/dots_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:orientation="horizontal"></LinearLayout>
+    <Button
+        android:textSize="18sp"
+        android:textColor="@color/textActiveColor"
+        android:background="@color/transparent"
+        android:id="@+id/slider_next_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Next"></Button>
+</LinearLayout>
 </RelativeLayout>
