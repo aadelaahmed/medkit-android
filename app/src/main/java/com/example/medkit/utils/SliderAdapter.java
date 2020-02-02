@@ -15,21 +15,21 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.example.medkit.R;
 
 public class SliderAdapter extends PagerAdapter {
-    Context context;
-    LayoutInflater layoutInflater;
+    private Context context;
+
     public SliderAdapter(Context context) {
         this.context = context;
     }
-    public int[] images = {
+    private int[] images = {
             R.drawable.communicate,
-            R.drawable.donate,
             R.drawable.multi,
             R.drawable.notification,
+            R.drawable.donate,
             R.drawable.start
 
     };
 
-    public String[] heads = {
+    private String[] heads = {
             "Share & Communicate!",
             "Allow Multitasking for you!",
             "Allow Notification!",
@@ -37,7 +37,7 @@ public class SliderAdapter extends PagerAdapter {
             "It's time to START NOW!"
     };
 
-    public String[] description = {
+    private String[] description = {
             "Find your doctor, get better communication and\n" +
                     "create impactful change to better health",
             "Make your profile, set up your information\n" +
@@ -51,7 +51,7 @@ public class SliderAdapter extends PagerAdapter {
                     "MEDKIT services and a lot!"
     };
 
-    public String[] buttons = {
+    private String[] buttons = {
             "LEARN MORE!!",
             "JOIN NOW!"
     };
@@ -63,13 +63,13 @@ public class SliderAdapter extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-        return view == (RelativeLayout)object;
+        return view == object;
     }
 
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-        layoutInflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.slide_show_layout,container,false);
 
         ImageView imageView = view.findViewById(R.id.slide_img);

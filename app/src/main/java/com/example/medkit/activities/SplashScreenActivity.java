@@ -10,7 +10,6 @@ import android.os.Handler;
 import com.example.medkit.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
-    private static int SPLASH_TIME_OUT = 1000;
     private Intent intent;
     private SharedPreferences sharedpreferences;
     @Override
@@ -21,6 +20,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
         private void displaySplashScreen() {
+            int SPLASH_TIME_OUT = 1000;
             new Handler().postDelayed(new Runnable() {
 
                 /*
