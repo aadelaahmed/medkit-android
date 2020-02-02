@@ -20,6 +20,7 @@ public class SliderAdapter extends PagerAdapter {
     public SliderAdapter(Context context) {
         this.context = context;
     }
+
     private int[] images = {
             R.drawable.communicate,
             R.drawable.multi,
@@ -70,7 +71,7 @@ public class SliderAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.slide_show_layout,container,false);
+        View view = layoutInflater.inflate(R.layout.slide_show_layout, container, false);
 
         ImageView imageView = view.findViewById(R.id.slide_img);
         TextView headtv = view.findViewById(R.id.slide_head);
@@ -79,10 +80,15 @@ public class SliderAdapter extends PagerAdapter {
         imageView.setImageResource(images[position]);
         headtv.setText(heads[position]);
         desctv.setText(description[position]);
-        if (position >=3){
+        if (position >= 3) {
             Button btn = view.findViewById(R.id.slide_btn);
             btn.setVisibility(View.VISIBLE);
-            btn.setText(buttons[position-3]);
+            btn.setText(buttons[position - 3]);
+            if (position == 3) {
+                //TODO: implement learn more activity
+            } else {
+                //TODO: implement sign up activity
+            }
         }
         container.addView(view);
         return view;
@@ -90,6 +96,6 @@ public class SliderAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        container.removeView((RelativeLayout)object);
+        container.removeView((RelativeLayout) object);
     }
 }

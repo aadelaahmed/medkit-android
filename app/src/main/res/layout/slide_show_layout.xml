@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -10,7 +11,7 @@
         android:layout_height="250dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="50dp"
         app:srcCompat="@drawable/communicate" />
 
     <TextView
@@ -20,10 +21,10 @@
         android:layout_below="@+id/slide_img"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="36dp"
-        android:text="TextView"
         android:textAlignment="center"
         android:textColor="#000000"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        tools:text="TextView" />
 
     <TextView
         android:id="@+id/slide_desc"
@@ -32,9 +33,9 @@
         android:layout_below="@+id/slide_head"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:text="TextView"
         android:textAlignment="center"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        tools:text="TextView" />
 
     <Button
         android:id="@+id/slide_btn"
@@ -46,8 +47,8 @@
         android:background="@drawable/purble_round_button"
         android:paddingLeft="28dp"
         android:paddingRight="28dp"
-        android:text="a"
         android:textColor="@color/lightBackGroundColor"
         android:textSize="20sp"
-        android:visibility="gone"></Button>
+        android:visibility="gone"
+        tools:text="a" />
 </RelativeLayout>

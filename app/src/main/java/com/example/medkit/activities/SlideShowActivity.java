@@ -22,6 +22,31 @@ public class SlideShowActivity extends AppCompatActivity {
     private Button nextBtn;
     private Button skipBtn;
     private int nCurrentPage;
+    ViewPager.OnPageChangeListener viewlistener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(final int position) {
+            addDots(position);
+            nCurrentPage = position;
+            if (position == 4) {
+                nextBtn.setVisibility(View.GONE);
+                skipBtn.setVisibility(View.GONE);
+            } else {
+                nextBtn.setVisibility(View.VISIBLE);
+                skipBtn.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,20 +63,21 @@ public class SlideShowActivity extends AppCompatActivity {
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewPager.setCurrentItem(nCurrentPage+1);
+                viewPager.setCurrentItem(nCurrentPage + 1);
             }
         });
         skipBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: implement
+                //TODO: implement sign up activity
             }
         });
     }
-    public void addDots(int position){
+
+    public void addDots(int position) {
         nDots = new TextView[5];
         dotsLinearLayout.removeAllViews();
-        for (int i = 0;i<5;i++){
+        for (int i = 0; i < 5; i++) {
             nDots[i] = new TextView(this);
             nDots[i].setText(Html.fromHtml("&#8226;"));
             nDots[i].setTextSize(40);
@@ -60,28 +86,4 @@ public class SlideShowActivity extends AppCompatActivity {
         }
         nDots[position].setTextColor(getResources().getColor(R.color.buttonMainColor));
     }
-    ViewPager.OnPageChangeListener viewlistener = new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-        }
-
-        @Override
-        public void onPageSelected(final int position) {
-            addDots(position);
-            nCurrentPage = position;
-            if(position == 4){
-                nextBtn.setVisibility(View.GONE);
-                skipBtn.setVisibility(View.GONE);
-            }else{
-                nextBtn.setVisibility(View.VISIBLE);
-                skipBtn.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-
-        }
-    };
 }
