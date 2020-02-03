@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">MEDKIT</string>
+    <string name="edit_text_name_label">Your name</string>
+    <string name="edit_text_email_label">Email address</string>
+    <string name="edit_text_password_label">Password</string>
+    <string name="edit_text_confirm_password_label">Confirm password</string>
+
+
 </resources>

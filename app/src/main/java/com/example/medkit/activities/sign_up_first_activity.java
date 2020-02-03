@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import com.example.medkit.R;
 
-public class MainActivity extends AppCompatActivity {
+public class sign_up_first_activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

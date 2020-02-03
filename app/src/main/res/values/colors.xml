@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#8F73D5</color>
-    <color name="colorPrimaryDark">#6B4CC5</color>
+    <color name="colorPrimary">#764BCB</color>
+    <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="lightBackGroundColor">#F6F7FA</color>
-    <color name="buttonMainColor">#6B4CC5</color>
-    <color name="textActiveColor">#764BCB</color>
-    <color name="dotsNotActiveColor">#817E5BCC</color>
-    <color name="darkGrayText">#505A65</color>
-    <color name="transparent">#00FFFFFF</color>
+    <color name="colorBackground">#F6F7FA</color>
+    <color name="colorHintText">#B2B2B2</color>
+    <color name="colorFont">#764BCB</color>
 </resources>
