@@ -4,6 +4,11 @@
     <string name="edit_text_email_label">Email address</string>
     <string name="edit_text_password_label">Password</string>
     <string name="edit_text_confirm_password_label">Confirm password</string>
+    <string name="introductory">Get in touch, and</string>
+    <string name="login">Login</string>
+    <string name="login_dot">Login.</string>
+    <string name="or">Or</string>
 
+    <string name="forgot_password">Forgot Password?</string>
 
 </resources>
