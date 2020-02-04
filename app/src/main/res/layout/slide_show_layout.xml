@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/slide_img"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="30dp"
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="24sp"
@@ -32,9 +32,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/slide_head"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_margin="16dp"
         android:textAlignment="center"
         android:textSize="20sp"
+        android:textColor="@color/darkGrayText"
         tools:text="TextView" />
 
     <Button
@@ -43,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/slide_desc"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/purble_round_button"
         android:paddingLeft="28dp"
         android:paddingRight="28dp"

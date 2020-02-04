@@ -3,6 +3,7 @@ package com.example.medkit.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.example.medkit.utils.SliderAdapter;
 
 public class SlideShowActivity extends AppCompatActivity {
 
+    private Intent intent;
     private ViewPager viewPager;
     private LinearLayout dotsLinearLayout;
     private SliderAdapter sliderAdapter;
@@ -69,7 +71,8 @@ public class SlideShowActivity extends AppCompatActivity {
         skipBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: implement sign up activity
+                intent = new Intent(SlideShowActivity.this, SignUpActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -81,9 +84,9 @@ public class SlideShowActivity extends AppCompatActivity {
             nDots[i] = new TextView(this);
             nDots[i].setText(Html.fromHtml("&#8226;"));
             nDots[i].setTextSize(40);
-            nDots[i].setTextColor(getResources().getColor(R.color.dotsNotActiveColor));
+            nDots[i].setTextColor(getResources().getColor(R.color.textNotActiveColor));
             dotsLinearLayout.addView(nDots[i]);
         }
-        nDots[position].setTextColor(getResources().getColor(R.color.buttonMainColor));
+        nDots[position].setTextColor(getResources().getColor(R.color.colorPrimaryDark));
     }
 }

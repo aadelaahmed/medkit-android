@@ -1,6 +1,7 @@
 package com.example.medkit.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.example.medkit.R;
+import com.example.medkit.activities.SignUpActivity;
+import com.example.medkit.activities.SlideShowActivity;
 
 public class SliderAdapter extends PagerAdapter {
     private Context context;
@@ -76,10 +79,10 @@ public class SliderAdapter extends PagerAdapter {
         ImageView imageView = view.findViewById(R.id.slide_img);
         TextView headtv = view.findViewById(R.id.slide_head);
         TextView desctv = view.findViewById(R.id.slide_desc);
-
         imageView.setImageResource(images[position]);
         headtv.setText(heads[position]);
         desctv.setText(description[position]);
+
         if (position >= 3) {
             Button btn = view.findViewById(R.id.slide_btn);
             btn.setVisibility(View.VISIBLE);
@@ -87,7 +90,13 @@ public class SliderAdapter extends PagerAdapter {
             if (position == 3) {
                 //TODO: implement learn more activity
             } else {
-                //TODO: implement sign up activity
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent= new Intent(context, SignUpActivity.class);
+                        context.startActivity(intent);
+                    }
+                });
             }
         }
         container.addView(view);

@@ -6,11 +6,11 @@ import android.os.Bundle;
 
 import com.example.medkit.R;
 
-public class sign_up_first_activity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up_first_activity);
+        setContentView(R.layout.activity_sign_up);
     }
 }
