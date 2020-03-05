@@ -2,6 +2,7 @@ package com.example.medkit.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,11 +17,14 @@ public class SplashScreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+        sharedpreferences = this.getSharedPreferences("sign",Context.MODE_PRIVATE);
         displaySplashScreen();
+
     }
 
         private void displaySplashScreen() {
             int SPLASH_TIME_OUT = 1000;
+            final boolean isFirstTime = sharedpreferences.getBoolean("isFirstTime",true);
             new Handler().postDelayed(new Runnable() {
 
                 /*
@@ -30,11 +34,16 @@ public class SplashScreenActivity extends AppCompatActivity {
 
                 @Override
                 public void run() {
-
                         finish();
-                        overridePendingTransition(0, android.R.anim.fade_out);
-                        Intent dialogIntent = new Intent(SplashScreenActivity.this, SlideShowActivity.class);
-                        startActivity(dialogIntent);
+                        //TODO: Change later to isFirstTime
+                        //if first time open slideshow, else open home
+                        if (true) {
+                            overridePendingTransition(0, android.R.anim.fade_out);
+                            Intent intent = new Intent(SplashScreenActivity.this, SignHomeActivity.class);
+                            startActivity(intent);
+                        }else{
+                            //TODO
+                        }
 
                 }
             }, SPLASH_TIME_OUT);

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MEDKIT</string>
+    <string name="app_name">Medkit</string>
     <string name="edit_text_name_label">Your name</string>
     <string name="edit_text_email_label">Email address</string>
     <string name="edit_text_password_label">Password</string>
@@ -8,7 +8,24 @@
     <string name="login">Login</string>
     <string name="login_dot">Login.</string>
     <string name="or">Or</string>
-
+    <string name="choose">Choose or take</string>
+    <string name="picture">a picture!</string>
     <string name="forgot_password">Forgot Password?</string>
+    <string name="introductory_picture">Upload your photo to easy communicate with others.</string>
+    <string name="finish">Finish</string>
+    <string name="skip">skip</string>
 
+    <string name="specialty">What\'s your specialty?</string>
+    <string name="enter_speciality">(Required)</string>
+    <string name="bio">What\'s your bio?</string>
+    <string name="enter_bio">(Optional)</string>
+    <string name="location">What\'s your location?</string>
+    <string name="enter_location">(Required)</string>
+    <string name="graduation">What\'s your graduation?</string>
+    <string name="enter_graduation">(Required)</string>
+    <string name="hint_speciality">Speciality</string>
+    <string name="hint_bio">Bio</string>
+    <string name="hint_location">Location</string>
+    <string name="hint_graduation_faculty">Enter graduation faculty</string>
+    <string name="hint_graduation_year">Enter graduation year</string>
 </resources>
