@@ -9,6 +9,7 @@
 
 
     <TextView
+        android:textAlignment="center"
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -17,8 +18,8 @@
         android:textColor="#56565A"
         android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toTopOf="@+id/guideline2"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -35,12 +36,11 @@
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
-        android:id="@+id/first_edit_text"
+        android:id="@+id/et_email_signIn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:ems="10"
-
         android:hint="Enter your email"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
@@ -51,7 +51,7 @@
         app:layout_constraintVertical_bias="0.13999999" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/et_password_signIn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -60,11 +60,11 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
-        app:layout_constraintTop_toBottomOf="@+id/first_edit_text"
+        app:layout_constraintTop_toBottomOf="@+id/et_email_signIn"
         tools:ignore="MissingConstraints" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btn_lognIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
@@ -75,7 +75,7 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
-        app:layout_constraintTop_toBottomOf="@+id/editText2" />
+        app:layout_constraintTop_toBottomOf="@+id/et_password_signIn" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -144,7 +144,7 @@
         app:layout_constraintEnd_toStartOf="@+id/view5"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/view4"
-        app:layout_constraintTop_toBottomOf="@+id/button2"
+        app:layout_constraintTop_toBottomOf="@+id/btn_lognIn"
         app:layout_constraintVertical_bias="0.26" />
 
     <ImageButton
@@ -174,6 +174,16 @@
         app:layout_constraintStart_toEndOf="@+id/imageButton"
         app:layout_constraintTop_toTopOf="@+id/imageButton"
         app:srcCompat="@drawable/icon_awesome_facebook" />
+
+    <ProgressBar
+        android:id="@+id/progress_signIn"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_lognIn"
+        app:layout_constraintEnd_toEndOf="@+id/btn_lognIn"
+        app:layout_constraintStart_toStartOf="@+id/btn_lognIn"
+        app:layout_constraintTop_toTopOf="@+id/btn_lognIn" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -31,7 +31,7 @@
         android:id="@+id/textView4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="Join to Medkit"
         android:textColor="#56565A"
@@ -162,11 +162,24 @@
         android:layout_height="wrap_content"
         android:background="@drawable/blue_rounded_button"
         android:padding="8dp"
+        android:textAllCaps="false"
         android:text="Continue"
+        android:textSize="15sp"
         android:textColor="@color/lightBackGroundColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline6"
         app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:layout_constraintTop_toBottomOf="@+id/male_radio" />
+
+    <ProgressBar
+        android:id="@+id/progress_sign_up"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/continue_btn"
+        app:layout_constraintEnd_toEndOf="@+id/continue_btn"
+        app:layout_constraintStart_toStartOf="@+id/continue_btn"
+        app:layout_constraintTop_toTopOf="@+id/continue_btn" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

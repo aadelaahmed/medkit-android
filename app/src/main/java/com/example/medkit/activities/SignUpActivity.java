@@ -1,5 +1,6 @@
 package com.example.medkit.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -17,10 +18,22 @@ import android.widget.Toast;
 
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignUpBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SignUpActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
     private ActivitySignUpBinding binding;
     SharedPreferences sharedPreferences;
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +67,84 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
             });
         }
 
+        binding.continueBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.continueBtn.setVisibility(View.INVISIBLE);
+                binding.progressSignUp.setVisibility(View.VISIBLE);
+                String email = binding.emailEd.getText().toString();
+                String password = binding.passwordEd.getText().toString();
+                signUp(email, password);
+            }
+        });
+
+    }
+
+   /* private void updateUI()
+    {
+
+    }*/
+
+    private void signUp(String email, String password) {
+        //firebaseAuth = FirebaseAuth.getInstance();
+        if (!email.isEmpty() || !password.isEmpty()) {
+            firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    binding.progressSignUp.setVisibility(View.INVISIBLE);
+                    binding.continueBtn.setVisibility(View.VISIBLE);
+                    if (task.isSuccessful()) {
+                        sendEmailVerification();
+                    } else {
+                        try {
+                            throw task.getException();
+                        } catch (FirebaseAuthWeakPasswordException weakPassword) {
+                            showMessage("weak password");
+                        } catch (FirebaseAuthInvalidCredentialsException malformedEmail) {
+                            showMessage("malformed exception");
+                        } catch (FirebaseAuthUserCollisionException existedEmail) {
+                            showMessage("existed Email");
+                        } catch (Exception e) {
+                            showMessage(e.getMessage());
+                        }
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    binding.progressSignUp.setVisibility(View.INVISIBLE);
+                    binding.continueBtn.setVisibility(View.VISIBLE);
+                    showMessage(e.getMessage());
+                }
+            });
+        } else {
+            binding.progressSignUp.setVisibility(View.INVISIBLE);
+            binding.continueBtn.setVisibility(View.VISIBLE);
+            showMessage("please enter your email and password");
+        }
+    }
+
+    private void sendEmailVerification() {
+        currentUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                showMessage("please verify your account");
+                if (task.isSuccessful()) {
+                    Intent intent = new Intent(SignUpActivity.this, SignInActivity.class);
+                    startActivity(intent);
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage(e.getMessage());
+            }
+        });
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
