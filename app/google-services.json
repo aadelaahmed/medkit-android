@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "155055518569",
+    "firebase_url": "https://medkitc.firebaseio.com",
+    "project_id": "medkitc",
+    "storage_bucket": "medkitc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155055518569:android:895fbd1216a617ad7203f8",
+        "android_client_info": {
+          "package_name": "com.example.medkit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "155055518569-b7fnrrvh3d2i01bglsbehekn1cq6tf2g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.medkit",
+            "certificate_hash": "ef050c97d5324c77c33fc2dc44f78f036ec56d90"
+          }
+        },
+        {
+          "client_id": "155055518569-v3gavbf4umk21ng2pedfpk3rn2tq2jce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqNwz2PTf2CIE3ndUSortKDOLHBPXcwN4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "155055518569-v3gavbf4umk21ng2pedfpk3rn2tq2jce.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

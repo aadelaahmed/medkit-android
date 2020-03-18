@@ -11,14 +11,21 @@
         android:roundIcon="@mipmap/ic_launcher_circle"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.UserTypeActivity" android:label="User Type"/>
+        <activity
+            android:name=".activities.HomeActivity"
+            android:label="@string/title_activity_home" />
+        <activity
+            android:name=".activities.UserTypeActivity"
+            android:label="User Type" />
         <activity
             android:name=".activities.SignHomeActivity"
             android:theme="@style/NoActionBarAppTheme" />
-        <activity android:name=".activities.SignInActivity" android:label="Sign In" />
-        <activity android:name=".activities.DoctorRegistrationActivity" android:label="Details" >
-
-        </activity>
+        <activity
+            android:name=".activities.SignInActivity"
+            android:label="Sign In" />
+        <activity
+            android:name=".activities.DoctorRegistrationActivity"
+            android:label="Details" />
         <activity
             android:name=".activities.SplashScreenActivity"
             android:theme="@style/NoActionBarAppTheme">
@@ -29,9 +36,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.MainActivity" />
-        <activity android:name=".activities.SignUpActivity" android:label="Sign Up"/>
-
-
+        <activity
+            android:name=".activities.SignUpActivity"
+            android:label="Sign Up" />
     </application>
 
 </manifest>

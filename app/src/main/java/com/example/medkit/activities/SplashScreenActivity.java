@@ -39,7 +39,8 @@ public class SplashScreenActivity extends AppCompatActivity {
                         //if first time open slideshow, else open home
                         if (true) {
                             overridePendingTransition(0, android.R.anim.fade_out);
-                            Intent intent = new Intent(SplashScreenActivity.this, SignHomeActivity.class);
+                            //Intent intent = new Intent(SplashScreenActivity.this, SignHomeActivity.class);
+                            Intent intent = new Intent(SplashScreenActivity.this, HomeActivity.class);
                             startActivity(intent);
                         }else{
                             //TODO
