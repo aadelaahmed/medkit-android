@@ -146,7 +146,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
     private void updateUI() {
-        Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
+        Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
         startActivity(intent);
     }
 

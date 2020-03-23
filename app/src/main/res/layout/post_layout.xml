@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
     android:background="@color/white"
     android:elevation="0.5dp"
-    android:layout_marginBottom="8dp"
     android:paddingBottom="8dp">
 
     <ImageView
@@ -58,17 +59,17 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_marginTop="8dp"
-        android:visibility="gone"
+        android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/post_user_profile_picture"
-        app:srcCompat="@drawable/ic_donation" />
+        app:srcCompat="@drawable/test" />
 
     <TextView
         android:id="@+id/post_title_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:text="I need help for my arm"
         android:textColor="@color/textActiveColor"
         android:textStyle="bold"
@@ -90,14 +91,65 @@
         app:layout_constraintTop_toTopOf="@+id/post_title_tv" />
 
     <TextView
-        android:layout_marginEnd="8dp"
         android:id="@+id/post_content_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:lineSpacingExtra="6dp"
-        android:text="Contrary to popular belief, Lorem Ipsum is not simply random  text. It has roots in a piece of classical Latin literature from 45  BC, making it over 2000 years old."
+        android:padding="8dp"
+        android:text="Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/post_title_tv"
         app:layout_constraintTop_toBottomOf="@+id/post_title_tv" />
+
+    <Button
+        android:id="@+id/up_vote_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/transparent"
+        android:drawableStart="@drawable/ic_arrow_up"
+        android:drawablePadding="0dp"
+        android:text="12 Up"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="@+id/post_content_tv"
+        app:layout_constraintTop_toBottomOf="@+id/post_content_tv" />
+
+    <Button
+        android:id="@+id/down_vote_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/transparent"
+        android:drawableStart="@drawable/ic_arrow_down"
+        android:drawablePadding="0dp"
+        android:text="3 Down"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/up_vote_btn"
+        app:layout_constraintTop_toTopOf="@+id/up_vote_btn" />
+
+    <TextView
+        android:id="@+id/n_comments_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="28 Comments"
+        app:layout_constraintBottom_toBottomOf="@+id/down_vote_btn"
+        app:layout_constraintEnd_toEndOf="@+id/post_content_tv"
+        app:layout_constraintTop_toTopOf="@+id/down_vote_btn" />
+
+    <TextView
+        android:id="@+id/comment_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edit_text"
+        android:clickable="true"
+        android:drawableEnd="@drawable/ic_send"
+        android:ems="10"
+        android:hint="Tap here to add comment"
+        app:layout_constraintEnd_toEndOf="@+id/n_comments_tv"
+        app:layout_constraintStart_toStartOf="@+id/up_vote_btn"
+        app:layout_constraintTop_toBottomOf="@+id/down_vote_btn" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
