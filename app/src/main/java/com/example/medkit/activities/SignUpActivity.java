@@ -1,20 +1,19 @@
 package com.example.medkit.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignUpBinding;
@@ -28,12 +27,24 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.regex.Pattern;
+
 public class SignUpActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^" +
+                    "(?=.*[0-9])" +
+                    "(?=.*[a-zA-Z])" +
+                    "(?=\\S+$)" +
+                    ".{4,}$");
+    private static final Pattern NAME_PATTERN =
+            Pattern.compile("^" +
+                    "(?=.*[a-zA-Z])" +
+                    ".{4,}$");
     private ActivitySignUpBinding binding;
     SharedPreferences sharedPreferences;
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-
+    String name, email, password, age;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,9 +83,11 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
             public void onClick(View view) {
                 binding.continueBtn.setVisibility(View.INVISIBLE);
                 binding.progressSignUp.setVisibility(View.VISIBLE);
-                String email = binding.emailEd.getText().toString();
-                String password = binding.passwordEd.getText().toString();
-                signUp(email, password);
+                email = binding.emailEd.getEditText().getText().toString().trim();
+                password = binding.passwordEd.getEditText().getText().toString().trim();
+                name = binding.nameEd.getEditText().getText().toString().trim();
+                age = binding.ageEd.getEditText().getText().toString().trim();
+                signUp(email, password, name, age);
             }
         });
 
@@ -85,9 +98,10 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
 
     }*/
 
-    private void signUp(String email, String password) {
+    private void signUp(String email, String password, String name, String age) {
+
         //firebaseAuth = FirebaseAuth.getInstance();
-        if (!email.isEmpty() || !password.isEmpty()) {
+        if (validateName() && validateEmail() && validatePassword() && validateAge()) {
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -99,11 +113,11 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                         try {
                             throw task.getException();
                         } catch (FirebaseAuthWeakPasswordException weakPassword) {
-                            showMessage("weak password");
+                            binding.passwordEd.setError("weak password");
                         } catch (FirebaseAuthInvalidCredentialsException malformedEmail) {
-                            showMessage("malformed exception");
+                            binding.emailEd.setError("malformed email");
                         } catch (FirebaseAuthUserCollisionException existedEmail) {
-                            showMessage("existed Email");
+                            binding.emailEd.setError("existed Email");
                         } catch (Exception e) {
                             showMessage(e.getMessage());
                         }
@@ -120,10 +134,65 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         } else {
             binding.progressSignUp.setVisibility(View.INVISIBLE);
             binding.continueBtn.setVisibility(View.VISIBLE);
-            showMessage("please enter your email and password");
+            Toast.makeText(this, "Invalid", Toast.LENGTH_LONG).show();
         }
     }
 
+    private boolean validatePassword() {
+
+        if (password.isEmpty()) {
+            binding.passwordEd.setError("Field can't be empty");
+            return false;
+        } else if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            binding.passwordEd.setError("*must contain at least one number and one letter, and at least 8 or more characters");
+            return false;
+        } else {
+            binding.passwordEd.setError(null);
+            binding.passwordEd.setErrorEnabled(false);
+            return true;
+        }
+    }
+
+    private boolean validateName() {
+
+        if (name.isEmpty()) {
+            binding.nameEd.setError("*Required");
+            return false;
+        } else if (!NAME_PATTERN.matcher(name).matches()) {
+            binding.nameEd.setError("invalid name");
+            return false;
+        } else {
+            binding.nameEd.setError(null);
+            binding.nameEd.setErrorEnabled(false);
+            return true;
+        }
+    }
+
+    private boolean validateAge() {
+
+        if (age.isEmpty()) {
+            binding.ageEd.setError("*Required");
+            return false;
+        } else {
+            binding.ageEd.setError(null);
+            binding.ageEd.setErrorEnabled(false);
+            return true;
+        }
+    }
+
+    private boolean validateEmail() {
+        if (email.isEmpty()) {
+            binding.emailEd.setError("*Required");
+            return false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.emailEd.setError("*Incorrect email");
+            return false;
+        } else {
+            binding.emailEd.setError(null);
+            binding.emailEd.setErrorEnabled(false);
+            return true;
+        }
+    }
     private void sendEmailVerification() {
         currentUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -168,7 +237,6 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         super.onBackPressed();
     }
 
-
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked){
@@ -178,4 +246,5 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 binding.maleRadio.setChecked(false);
         }
     }
+
 }
