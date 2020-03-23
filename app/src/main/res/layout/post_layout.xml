@@ -54,11 +54,11 @@
         app:layout_constraintTop_toTopOf="@+id/imageView4" />
 
     <ImageView
-        android:visibility="gone"
         android:id="@+id/post_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_marginTop="8dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/post_user_profile_picture"

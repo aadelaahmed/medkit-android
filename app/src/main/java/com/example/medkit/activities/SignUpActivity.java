@@ -87,7 +87,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
 
     private void signUp(String email, String password) {
         //firebaseAuth = FirebaseAuth.getInstance();
-        if (!email.isEmpty() || !password.isEmpty()) {
+        if (!email.isEmpty() && !password.isEmpty()) {
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
