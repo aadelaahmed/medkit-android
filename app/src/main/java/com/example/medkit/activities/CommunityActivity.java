@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -46,6 +47,7 @@ public class CommunityActivity extends AppCompatActivity {
         binding = ActivityCommunityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
     }
 }

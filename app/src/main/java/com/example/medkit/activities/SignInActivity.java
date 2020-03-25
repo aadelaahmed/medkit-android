@@ -79,7 +79,7 @@ public class SignInActivity extends AppCompatActivity {
         });
 
         firebaseAuth = FirebaseAuth.getInstance();
-        //currentUser = firebaseAuth.getCurrentUser();
+        currentUser = firebaseAuth.getCurrentUser();
         binding.btnLognIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -148,6 +148,7 @@ public class SignInActivity extends AppCompatActivity {
     private void updateUI() {
         Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
         startActivity(intent);
+        finish();
     }
 
     @Override

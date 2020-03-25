@@ -31,8 +31,8 @@ import com.google.firebase.auth.FirebaseUser;
 public class SignUpActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
     private ActivitySignUpBinding binding;
     SharedPreferences sharedPreferences;
-    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+    FirebaseAuth firebaseAuth;
+    FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +45,8 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         actionBar.setDisplayHomeAsUpEnabled(true);
         sharedPreferences = this.getSharedPreferences("sign", Context.MODE_PRIVATE);
         boolean isDoctor = sharedPreferences.getBoolean("isDoctor",false);
+
+        firebaseAuth = FirebaseAuth.getInstance();
 
         binding.maleRadio.setOnCheckedChangeListener(this);
         binding.femaleRadio.setOnCheckedChangeListener(this);
@@ -62,7 +64,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 public void onClick(View v) {
                     //startActivity(new Intent(SignUpActivity.this,DoctorRegistrationActivity.class));
                     Toast.makeText(SignUpActivity.this, "go to home", Toast.LENGTH_SHORT).show();
-                    //TODO
+
                 }
             });
         }
@@ -94,6 +96,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                     binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);
                     if (task.isSuccessful()) {
+                        currentUser = firebaseAuth.getCurrentUser();
                         sendEmailVerification();
                     } else {
                         try {

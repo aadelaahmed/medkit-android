@@ -14,11 +14,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".activities.CommunityActivity">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".activities.DoctorLicenseActivity">
 
@@ -31,7 +27,14 @@
             android:theme="@style/NoActionBarAppTheme" />
         <activity
             android:name=".activities.SignInActivity"
-            android:label="Sign In" />
+            android:label="Sign In">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.DoctorRegistrationActivity"
             android:label="Details" />
@@ -39,11 +42,7 @@
             android:name=".activities.SplashScreenActivity"
             android:theme="@style/NoActionBarAppTheme">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".activities.MainActivity" />
         <activity
