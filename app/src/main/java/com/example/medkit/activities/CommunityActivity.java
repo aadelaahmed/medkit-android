@@ -47,7 +47,7 @@ public class CommunityActivity extends AppCompatActivity {
         binding = ActivityCommunityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);
-
+        //TODO --> add badge to notification and backlight on item click
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
     }
 }

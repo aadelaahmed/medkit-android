@@ -82,7 +82,6 @@
         android:background="@color/white"
         android:padding="@dimen/design_bottom_navigation_size"
         app:labelVisibilityMode="unlabeled"
-
         app:itemIconTint="@drawable/bg_select_bottom_nav"
         app:menu="@menu/bottom_navigation_items" />
 
