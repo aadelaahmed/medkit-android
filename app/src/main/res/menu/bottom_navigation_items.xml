@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/home_item"
+        android:icon="@drawable/ic_home_button"
+        tools:ignore="MenuTitle" />
+
+    <item
+        android:id="@+id/notify_item"
+        android:icon="@drawable/ic_alarm"
+
+        tools:ignore="MenuTitle" />
+
+    <item
+        android:id="@+id/message_item"
+        android:icon="@drawable/ic_chat"
+
+        tools:ignore="MenuTitle" />
+
+</menu>

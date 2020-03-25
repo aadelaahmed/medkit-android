@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.CompoundButton;
 
 import com.example.medkit.R;
 
@@ -40,7 +41,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                         if (true) {
                             overridePendingTransition(0, android.R.anim.fade_out);
                             //Intent intent = new Intent(SplashScreenActivity.this, SignHomeActivity.class);
-                            Intent intent = new Intent(SplashScreenActivity.this, HomeActivity.class);
+                            Intent intent = new Intent(SplashScreenActivity.this, CommunityActivity.class);
                             startActivity(intent);
                         }else{
                             //TODO
