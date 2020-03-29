@@ -15,6 +15,7 @@ import com.example.medkit.fragments.HomeFragment;
 import com.example.medkit.fragments.MessageFragment;
 import com.example.medkit.fragments.NotificationFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class CommunityActivity extends AppCompatActivity {
 

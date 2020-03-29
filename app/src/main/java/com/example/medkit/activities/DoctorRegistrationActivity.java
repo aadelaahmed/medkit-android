@@ -8,14 +8,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.medkit.R;
 import com.example.medkit.model.CustomViewPager;
+import com.example.medkit.model.User;
 import com.example.medkit.utils.SliderAdapter;
 
 public class DoctorRegistrationActivity extends AppCompatActivity {
@@ -27,6 +31,9 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
     private Button nextBtn;
     private Button backBtn;
     private int nCurrentPage;
+    EditText firstEdText;
+    EditText secondEdText;
+    View view;
     CustomViewPager.OnPageChangeListener viewlistener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -36,6 +43,13 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         @Override
         public void onPageSelected(final int position) {
             addDots(position);
+
+            //get view item here
+            view = getLayoutInflater().inflate(R.layout.doctor_details_layout, null, false);
+            firstEdText = view.findViewById(R.id.first_edit_text);
+            secondEdText = view.findViewById(R.id.second_edit_text);
+
+
             nCurrentPage = position;
             if (position == 3) {
                 nextBtn.setText("Finish");
@@ -64,8 +78,8 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         overridePendingTransition(0,android.R.anim.fade_out);
         setContentView(R.layout.activity_doctor_registration);
 
-        sharedpreferences = this.getSharedPreferences("sign",Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
+        sharedpreferences = this.getSharedPreferences(UserTypeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putBoolean("isFirstTime", false);
         editor.apply();
 
@@ -84,9 +98,49 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.slider_skip_btn);
 
         nextBtn.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
-                viewPager.setCurrentItem(nCurrentPage + 1);
+
+                //get text from view item
+                String tempFirstStr = firstEdText.getText().toString();
+                //showMessage(firstEdText);
+
+                String tempSecondStr = secondEdText.getText().toString();
+                if (nCurrentPage < 3) {
+                    if (!tempFirstStr.trim().isEmpty()) {
+
+                        switch (nCurrentPage) {
+                            case 0:
+                                editor.putString(User.SPECIALITY, tempFirstStr);
+                                editor.apply();
+                                break;
+
+                            case 1:
+                                editor.putString("BIO_KEY", tempFirstStr);
+                                editor.apply();
+                                break;
+
+                            case 2:
+                                editor.putString(User.LOCATION, tempFirstStr);
+                                editor.apply();
+                                break;
+
+                        }
+                        viewPager.setCurrentItem(nCurrentPage + 1);
+                    } else
+                        showMessage("please fill all input fields");
+                } else if (nCurrentPage == 3) {
+                    if (!tempFirstStr.trim().isEmpty() || !tempSecondStr.trim().isEmpty()) {
+                        editor.putString(User.G_FACULTY, tempFirstStr);
+                        editor.putString(User.G_YEAR, tempSecondStr);
+                        editor.apply();
+                        viewPager.setCurrentItem(nCurrentPage + 1);
+                    } else
+                        showMessage("please fill all input fields");
+                } else
+                    startActivity(new Intent(DoctorRegistrationActivity.this, SignInActivity.class));
+
             }
         });
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +152,10 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
             }
         });
         viewPager.setOnTouchListener( touchListener);
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(DoctorRegistrationActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
     public void addDots(int position) {
