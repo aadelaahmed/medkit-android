@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,12 +44,6 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         @Override
         public void onPageSelected(final int position) {
             addDots(position);
-
-            //get view item here
-            view = getLayoutInflater().inflate(R.layout.doctor_details_layout, null, false);
-            firstEdText = view.findViewById(R.id.first_edit_text);
-            secondEdText = view.findViewById(R.id.second_edit_text);
-
 
             nCurrentPage = position;
             if (position == 3) {
@@ -90,7 +85,7 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
 
         viewPager = findViewById(R.id.view_pager_slide_show);
         dotsLinearLayout = findViewById(R.id.dots_linear_layout);
-        SliderAdapter sliderAdapter = new SliderAdapter(this);
+        final SliderAdapter sliderAdapter = new SliderAdapter(this);
         viewPager.setAdapter(sliderAdapter);
         addDots(0);
         viewPager.addOnPageChangeListener(viewlistener);
@@ -101,12 +96,14 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-
+                view = viewPager.getChildAt(nCurrentPage);
                 //get text from view item
+                firstEdText = view.findViewById(R.id.first_edit_text);
+                secondEdText = view.findViewById(R.id.second_edit_text);
                 String tempFirstStr = firstEdText.getText().toString();
-                //showMessage(firstEdText);
-
                 String tempSecondStr = secondEdText.getText().toString();
+                Log.e("first", tempFirstStr);
+                showMessage(tempFirstStr);
                 if (nCurrentPage < 3) {
                     if (!tempFirstStr.trim().isEmpty()) {
 
@@ -130,6 +127,7 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
                         viewPager.setCurrentItem(nCurrentPage + 1);
                     } else
                         showMessage("please fill all input fields");
+
                 } else if (nCurrentPage == 3) {
                     if (!tempFirstStr.trim().isEmpty() || !tempSecondStr.trim().isEmpty()) {
                         editor.putString(User.G_FACULTY, tempFirstStr);
@@ -139,13 +137,14 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
                     } else
                         showMessage("please fill all input fields");
                 } else
-                    startActivity(new Intent(DoctorRegistrationActivity.this, SignInActivity.class));
 
+                    startActivity(new Intent(DoctorRegistrationActivity.this, SignInActivity.class));
             }
         });
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        backBtn.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick (View v){
 //                intent = new Intent(SlideShowActivity.this, SignUpActivity.class);
 //                startActivity(intent);
                 viewPager.setCurrentItem(nCurrentPage - 1);
