@@ -21,7 +21,10 @@
         </activity>
         <activity
             android:name=".activities.UserTypeActivity"
-            android:label="User Type" />
+            android:label="User Type">
+
+
+        </activity>
         <activity
             android:name=".activities.SignHomeActivity"
             android:theme="@style/NoActionBarAppTheme" />
@@ -29,15 +32,18 @@
             android:name=".activities.SignInActivity"
             android:label="Sign In">
 
+
+        </activity>
+        <activity
+            android:name=".activities.DoctorRegistrationActivity"
+            android:label="Details"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.DoctorRegistrationActivity"
-            android:label="Details" />
         <activity
             android:name=".activities.SplashScreenActivity"
             android:theme="@style/NoActionBarAppTheme">

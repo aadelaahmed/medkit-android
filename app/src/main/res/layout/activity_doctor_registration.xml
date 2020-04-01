@@ -18,7 +18,6 @@
         android:layout_height="0dp"
         android:overScrollMode="never"
         android:paddingBottom="24dp"
-
         />
 
     <LinearLayout

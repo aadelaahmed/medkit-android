@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignInBinding;
+import com.example.medkit.model.User;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -36,8 +38,14 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 public class SignInActivity extends AppCompatActivity {
     //TextView textViewLogin, textViewTouch;
@@ -48,12 +56,16 @@ public class SignInActivity extends AppCompatActivity {
     CallbackManager mCallbackManager;
     GoogleSignInClient mGoogleSignInClient;
     private ActivitySignInBinding binding;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    CollectionReference usersCollection;
+    SharedPreferences userSharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(0,android.R.anim.fade_out);
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
+        usersCollection = db.collection("Users");
         setContentView(binding.getRoot());
         ActionBar actionBar= getSupportActionBar();
         assert actionBar != null;
@@ -62,7 +74,9 @@ public class SignInActivity extends AppCompatActivity {
         textViewLogin = findViewById(R.id.text_view_login);
         buttonLogin = findViewById(R.id.button_login);
         setFontType(); */
-
+        firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = firebaseAuth.getCurrentUser();
+        userSharedPref = this.getSharedPreferences(UserTypeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         binding.iconGoogleSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,8 +92,6 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        currentUser = firebaseAuth.getCurrentUser();
         binding.btnLognIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -209,10 +221,22 @@ public class SignInActivity extends AppCompatActivity {
     private void verifyEmailAddress() {
         currentUser = firebaseAuth.getCurrentUser();
         if (currentUser.isEmailVerified()) {
+            //TODO get data fields of user and store it into cloud firestore
+            String createdTime = FieldValue.serverTimestamp().toString();
+            String email = currentUser.getEmail();
+            String age = userSharedPref.getString(User.AGE, "null");
+            String gender = userSharedPref.getString(User.GENDER, "null");
+            String lastSignIn = SignUpActivity.timestampToString(currentUser.getMetadata().getLastSignInTimestamp());
+            String userID = currentUser.getUid();
+            String gradFaculty = userSharedPref.getString(User.G_FACULTY, "null");
+            String gradYear = userSharedPref.getString(User.G_YEAR, "null");
+            String speciality = userSharedPref.getString(User.SPECIALITY, "null");
+            String userType = userSharedPref.getString(User.USERTYPE, "null");
+            User user = new User(createdTime, email, age, gender, lastSignIn, userID, gradFaculty, gradYear, speciality, userType);
+            usersCollection.add(user);
             showMessage("login successfully");
             updateUI();
         } else {
-
             showMessage("please verify your account");
         }
     }
