@@ -28,6 +28,7 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
     EditText firstEdText;
     EditText secondEdText;
     View view;
+    String emailUser = null;
     ViewPager.OnTouchListener touchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -69,11 +70,11 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         overridePendingTransition(0,android.R.anim.fade_out);
         setContentView(R.layout.activity_doctor_registration);
 
-        sharedpreferences = this.getSharedPreferences(UserTypeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        sharedpreferences = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putBoolean("isFirstTime", false);
         editor.apply();
-
+        emailUser = sharedpreferences.getString(User.EMAIL, null);
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
 //        getSupportActionBar().setLogo(R.drawable.medkit_text);
 //        getSupportActionBar().setDisplayUseLogoEnabled(true);
@@ -133,12 +134,11 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
                         editor.putString(User.G_YEAR, tempSecondStr);
                         editor.apply();
                         nCurrentPage++;
-                        viewPager.setCurrentItem(nCurrentPage,true);;
+                        viewPager.setCurrentItem(nCurrentPage, true);
+                        startActivity(new Intent(DoctorRegistrationActivity.this, GetStartedActivity.class));
                     } else
                         showMessage("please fill all input fields");
-                } else
-                    startActivity(new Intent(DoctorRegistrationActivity.this, SignInActivity.class));
-
+                }
             }
         });
         backBtn.setOnClickListener(new View.OnClickListener()
@@ -149,7 +149,7 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
                     //if user in first page and clicked back send him to the previous activity
                     //else take him to previous page
                     if(nCurrentPage == 0){
-//                      intent = new Intent(DoctorRegistrationActivity.this, SignUpActivity.class);
+                        intent = new Intent(DoctorRegistrationActivity.this, UserTypeActivity.class);
 //                      startActivity(intent);
                     }else{
                         nCurrentPage--;

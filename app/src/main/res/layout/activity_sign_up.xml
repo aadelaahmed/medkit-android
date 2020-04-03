@@ -59,27 +59,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
-        android:hint="Your first name"
+        android:hint="Your full name"
         android:inputType="textPersonName"
         android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/lname_ed"
+        app:layout_constraintEnd_toEndOf="@+id/guideline6"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@id/guideline5"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
-
-    <EditText
-        android:id="@+id/lname_ed"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:ems="10"
-        android:hint="Your last name"
-        android:inputType="textPersonName"
-        android:textSize="15sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/fname_ed"
-        app:layout_constraintEnd_toEndOf="@id/guideline6"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/fname_ed" />
 
     <EditText
         android:id="@+id/email_ed"

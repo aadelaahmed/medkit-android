@@ -39,20 +39,17 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 public class SignInActivity extends AppCompatActivity {
     //TextView textViewLogin, textViewTouch;
     //Button buttonLogin;
     FirebaseAuth firebaseAuth = null;
-    FirebaseUser currentUser = null;
-    public static final int RC_SIGN_IN = 4;
+    //FirebaseUser currentUser = null;
+    public static final int RC_SIGN_IN = 8;
     CallbackManager mCallbackManager;
     GoogleSignInClient mGoogleSignInClient;
     private ActivitySignInBinding binding;
@@ -75,20 +72,11 @@ public class SignInActivity extends AppCompatActivity {
         buttonLogin = findViewById(R.id.button_login);
         setFontType(); */
         firebaseAuth = FirebaseAuth.getInstance();
-        currentUser = firebaseAuth.getCurrentUser();
-        userSharedPref = this.getSharedPreferences(UserTypeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
+        userSharedPref = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         binding.iconGoogleSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Configure Google Sign In
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken(getString(R.string.default_web_client_id))
-                        .requestEmail()
-                        .build();
-
-                //create googleSignInClient with the previous request(options) gso
-                mGoogleSignInClient = GoogleSignIn.getClient(SignInActivity.this, gso);
-                signInWithGoogle();
+                requestClientGoogle();
             }
         });
 
@@ -130,6 +118,17 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
+    public void requestClientGoogle() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        //create googleSignInClient with the previous request(options) gso
+        mGoogleSignInClient = GoogleSignIn.getClient(SignInActivity.this, gso);
+        signInWithGoogle();
+    }
+
 
     private void handleFacebookAccessToken(AccessToken token) {
         //Log.d(TAG, "handleFacebookAccessToken:" + token);
@@ -142,8 +141,8 @@ public class SignInActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             // Log.d(TAG, "signInWithCredential:success");
-                            //FirebaseUser user = firebaseAuth.getCurrentUser();
-                            updateUI();
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             // Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -157,24 +156,25 @@ public class SignInActivity extends AppCompatActivity {
     }
 
 
-    private void updateUI() {
-        Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
-        startActivity(intent);
-        finish();
+    private void updateUI(FirebaseUser currentUser) {
+        if (currentUser != null) {
+            Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        //FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (currentUser != null) {
-            updateUI();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            updateUI(user);
         }
     }
 
     private void logIn(String email, String password) {
         if (!email.isEmpty() && !password.isEmpty()) {
-
 
             firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -183,7 +183,6 @@ public class SignInActivity extends AppCompatActivity {
                         binding.btnLognIn.setVisibility(View.VISIBLE);
                         binding.progressSignIn.setVisibility(View.INVISIBLE);
                         verifyEmailAddress();
-
                     } else {
                         try {
                             throw task.getException();
@@ -219,23 +218,10 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void verifyEmailAddress() {
-        currentUser = firebaseAuth.getCurrentUser();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser.isEmailVerified()) {
-            //TODO get data fields of user and store it into cloud firestore
-            String createdTime = FieldValue.serverTimestamp().toString();
-            String email = currentUser.getEmail();
-            String age = userSharedPref.getString(User.AGE, "null");
-            String gender = userSharedPref.getString(User.GENDER, "null");
-            String lastSignIn = SignUpActivity.timestampToString(currentUser.getMetadata().getLastSignInTimestamp());
-            String userID = currentUser.getUid();
-            String gradFaculty = userSharedPref.getString(User.G_FACULTY, "null");
-            String gradYear = userSharedPref.getString(User.G_YEAR, "null");
-            String speciality = userSharedPref.getString(User.SPECIALITY, "null");
-            String userType = userSharedPref.getString(User.USERTYPE, "null");
-            User user = new User(createdTime, email, age, gender, lastSignIn, userID, gradFaculty, gradYear, speciality, userType);
-            usersCollection.add(user);
             showMessage("login successfully");
-            updateUI();
+            updateUI(currentUser);
         } else {
             showMessage("please verify your account");
         }
@@ -314,10 +300,10 @@ public class SignInActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("TAG", "signInWithCredential:success");
-                            //FirebaseUser user = firebaseAuth.getCurrentUser();
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
                             //create method to get user profile information
                             //getUserInfo();
-                            updateUI();
+                            updateUI(user);
                             //updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
