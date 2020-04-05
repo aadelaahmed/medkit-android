@@ -1,9 +1,5 @@
 package com.example.medkit.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +8,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignInBinding;
@@ -39,13 +39,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 public class SignInActivity extends AppCompatActivity {
     //TextView textViewLogin, textViewTouch;
@@ -211,6 +208,7 @@ public class SignInActivity extends AppCompatActivity {
             binding.btnLognIn.setVisibility(View.VISIBLE);
             binding.progressSignIn.setVisibility(View.INVISIBLE);
             showMessage("please enter your email and password");
+            binding.etEmailSignIn.setError("Email iccorrect");
         }
     }
 
