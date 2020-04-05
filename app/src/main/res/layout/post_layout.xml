@@ -30,6 +30,7 @@
         android:textColor="@color/textActiveColor"
         android:textSize="13sp"
         android:textStyle="bold"
+        android:paddingLeft="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/post_user_profile_picture"
         app:layout_constraintStart_toEndOf="@+id/post_user_profile_picture"
         app:layout_constraintTop_toTopOf="@+id/post_user_profile_picture" />

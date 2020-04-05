@@ -48,7 +48,7 @@ public class SignInActivity extends AppCompatActivity {
     //TextView textViewLogin, textViewTouch;
     //Button buttonLogin;
     FirebaseAuth firebaseAuth = null;
-    //FirebaseUser currentUser = null;
+    //FirebaseUser currentUser ;
     public static final int RC_SIGN_IN = 8;
     CallbackManager mCallbackManager;
     GoogleSignInClient mGoogleSignInClient;
@@ -56,7 +56,7 @@ public class SignInActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection;
     SharedPreferences userSharedPref;
-
+    boolean isFirstTime;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,10 +139,9 @@ public class SignInActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            // Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = firebaseAuth.getCurrentUser();
-                            updateUI(user);
+                            isFirstTime = task.getResult().getAdditionalUserInfo().isNewUser();
+                            isEmailAlreadyExisted(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             // Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -155,6 +154,27 @@ public class SignInActivity extends AppCompatActivity {
                 });
     }
 
+    private void isEmailAlreadyExisted(FirebaseUser currentUser) {
+        if (isFirstTime)
+            updateUI(currentUser);
+        else {
+            currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    //TODO progress bar here
+                    startActivity(new Intent(SignInActivity.this, SignHomeActivity.class));
+                    finish();
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            showMessage(e.getMessage());
+                        }
+                    });
+        }
+    }
+
 
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
@@ -164,14 +184,14 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-    @Override
+ /*   @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
             updateUI(user);
         }
-    }
+    }*/
 
     private void logIn(String email, String password) {
         if (!email.isEmpty() && !password.isEmpty()) {
@@ -277,6 +297,7 @@ public class SignInActivity extends AppCompatActivity {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
+
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
@@ -301,9 +322,10 @@ public class SignInActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("TAG", "signInWithCredential:success");
                             FirebaseUser user = firebaseAuth.getCurrentUser();
+                            isEmailAlreadyExisted(user);
                             //create method to get user profile information
                             //getUserInfo();
-                            updateUI(user);
+
                             //updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.

@@ -29,6 +29,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -47,6 +48,7 @@ public class SignHomeActivity extends AppCompatActivity {
     public static final String SHARED_PREFERENCE_NAME = "USER_DATA";
     private ActivitySignHomeBinding binding;
     private static final int RC_SIGN_IN = 200;
+    boolean isFirstTime;
     SharedPreferences sharedPreferences;
     FirebaseAuth firebaseAuth = null;
     FirebaseUser currentUser = null;
@@ -71,6 +73,8 @@ public class SignHomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SignHomeActivity.this,UserTypeActivity.class));
+                //TODO enable action back click
+                finish();
             }
         });
         binding.facebookSignUpButton.setOnClickListener(new View.OnClickListener() {
@@ -112,6 +116,7 @@ public class SignHomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SignHomeActivity.this,SignInActivity.class));
+                finish();
             }
         });
     }
@@ -123,13 +128,13 @@ public class SignHomeActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    @Override
+   /* @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null)
             startActivity(new Intent(SignHomeActivity.this, CommunityActivity.class));
-    }
+    }*/
 
     public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -183,6 +188,11 @@ public class SignHomeActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             currentUser = firebaseAuth.getCurrentUser();
                             editor.putString(User.EMAIL, acct.getId());
+                            isFirstTime = task.getResult().getAdditionalUserInfo().isNewUser();
+                            if (!isFirstTime) {
+                                showMessage("Email already existed");
+                                return;
+                            }
                             Log.d("TAG", "signInWithCredential:success");
                             //create method to get user profile information
                             //getUserInfo();
@@ -249,4 +259,5 @@ public class SignHomeActivity extends AppCompatActivity {
     private void showMessage(String message) {
         Toast.makeText(SignHomeActivity.this, message, Toast.LENGTH_SHORT).show();
     }
+
 }
