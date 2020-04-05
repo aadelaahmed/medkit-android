@@ -25,39 +25,10 @@ import com.example.medkit.utils.SliderAdapter;
 
 public class DoctorRegistrationActivity extends AppCompatActivity {
 
-    private SharedPreferences sharedpreferences;
-    private Intent intent;
-    private CustomViewPager viewPager;
-    private LinearLayout dotsLinearLayout;
-    private Button nextBtn;
-    private Button backBtn;
-    private int nCurrentPage;
     EditText firstEdText;
     EditText secondEdText;
     View view;
-    CustomViewPager.OnPageChangeListener viewlistener = new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-        }
-
-        @Override
-        public void onPageSelected(final int position) {
-            addDots(position);
-
-            nCurrentPage = position;
-            if (position == 3) {
-                nextBtn.setText("Finish");
-            } else {
-                nextBtn.setText("Next");
-            }
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-
-        }
-    };
+    String emailUser = null;
     ViewPager.OnTouchListener touchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -65,7 +36,33 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         }
 
     };
+    private SharedPreferences sharedpreferences;
+    private Intent intent;
+    private CustomViewPager viewPager;
+    private LinearLayout dotsLinearLayout;
+    private Button nextBtn;
+    CustomViewPager.OnPageChangeListener viewlistener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
+        }
+        @Override
+        public void onPageSelected(final int position) {
+            addDots(position);
+            if (position == 3) {
+                nextBtn.setText("Finish");
+            } else {
+                nextBtn.setText("Next");
+            }
+            viewPager.setCurrentItem(nCurrentPage,true);
+        }
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
+    private Button backBtn;
+    private int nCurrentPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +70,11 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         overridePendingTransition(0,android.R.anim.fade_out);
         setContentView(R.layout.activity_doctor_registration);
 
-        sharedpreferences = this.getSharedPreferences(UserTypeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        sharedpreferences = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putBoolean("isFirstTime", false);
         editor.apply();
-
+        emailUser = sharedpreferences.getString(User.EMAIL, null);
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
 //        getSupportActionBar().setLogo(R.drawable.medkit_text);
 //        getSupportActionBar().setDisplayUseLogoEnabled(true);
@@ -91,22 +88,25 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
         viewPager.addOnPageChangeListener(viewlistener);
         nextBtn = findViewById(R.id.slider_next_btn);
         backBtn = findViewById(R.id.slider_skip_btn);
-
+        viewPager.setOffscreenPageLimit(3);
+        nCurrentPage = viewPager.getCurrentItem();
         nextBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                //get the view for the current page
                 view = viewPager.getChildAt(nCurrentPage);
+
                 //get text from view item
                 firstEdText = view.findViewById(R.id.first_edit_text);
                 secondEdText = view.findViewById(R.id.second_edit_text);
                 String tempFirstStr = firstEdText.getText().toString();
                 String tempSecondStr = secondEdText.getText().toString();
                 Log.e("first", tempFirstStr);
+                Log.e("currentPage", String.valueOf(nCurrentPage));
                 showMessage(tempFirstStr);
                 if (nCurrentPage < 3) {
                     if (!tempFirstStr.trim().isEmpty()) {
-
                         switch (nCurrentPage) {
                             case 0:
                                 editor.putString(User.SPECIALITY, tempFirstStr);
@@ -122,9 +122,9 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
                                 editor.putString(User.LOCATION, tempFirstStr);
                                 editor.apply();
                                 break;
-
                         }
-                        viewPager.setCurrentItem(nCurrentPage + 1);
+                        nCurrentPage++;
+                        viewPager.setCurrentItem(nCurrentPage,true);
                     } else
                         showMessage("please fill all input fields");
 
@@ -133,28 +133,36 @@ public class DoctorRegistrationActivity extends AppCompatActivity {
                         editor.putString(User.G_FACULTY, tempFirstStr);
                         editor.putString(User.G_YEAR, tempSecondStr);
                         editor.apply();
-                        viewPager.setCurrentItem(nCurrentPage + 1);
+                        nCurrentPage++;
+                        viewPager.setCurrentItem(nCurrentPage, true);
+                        startActivity(new Intent(DoctorRegistrationActivity.this, GetStartedActivity.class));
                     } else
                         showMessage("please fill all input fields");
-                } else
-
-                    startActivity(new Intent(DoctorRegistrationActivity.this, SignInActivity.class));
+                }
             }
         });
         backBtn.setOnClickListener(new View.OnClickListener()
             {
+
                 @Override
                 public void onClick (View v){
-//                intent = new Intent(SlideShowActivity.this, SignUpActivity.class);
-//                startActivity(intent);
-                viewPager.setCurrentItem(nCurrentPage - 1);
-            }
+                    //if user in first page and clicked back send him to the previous activity
+                    //else take him to previous page
+                    if(nCurrentPage == 0){
+                        intent = new Intent(DoctorRegistrationActivity.this, UserTypeActivity.class);
+//                      startActivity(intent);
+                    }else{
+                        nCurrentPage--;
+                        viewPager.setCurrentItem(nCurrentPage,true);
+                        Log.e("currentPage", String.valueOf(nCurrentPage));
+                    }
+                }
         });
         viewPager.setOnTouchListener( touchListener);
     }
 
     private void showMessage(String message) {
-        Toast.makeText(DoctorRegistrationActivity.this, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(DoctorRegistrationActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
     public void addDots(int position) {

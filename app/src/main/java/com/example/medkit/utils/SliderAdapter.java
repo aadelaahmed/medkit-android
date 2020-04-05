@@ -51,7 +51,7 @@ public class SliderAdapter extends PagerAdapter{
         secondEditText.setVisibility(View.INVISIBLE);
         if(position == 3)
         {
-            secondEditText.setHint(hintArrText[position]);
+            secondEditText.setHint(hintArrText[position + 1]);
             secondEditText.setVisibility(View.VISIBLE);
         }
         container.addView(view);
