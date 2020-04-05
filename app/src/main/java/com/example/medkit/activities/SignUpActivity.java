@@ -1,21 +1,20 @@
 package com.example.medkit.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignUpBinding;
@@ -29,28 +28,26 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.regex.Pattern;
 
 public class SignUpActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
     private ActivitySignUpBinding binding;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
-    public static final String USER_KEY = "USER_KEY";
-    public FirebaseAuth mAuth;
+    FirebaseAuth firebaseAuth;
+    FirebaseUser currentUser;
     boolean isDoctor = false;
-    String email;
-    public FirebaseUser currentUser;
-    //public static FirebaseUser currentUser;
-    FirebaseAuth.AuthStateListener mAuthStateListener;
-
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^" +
+                    "(?=.*[0-9])" +         //at least 1 digit
+                    "(?=.*[a-zA-Z])" +      //any letter
+                    "(?=\\S+$)" +           //no white spaces
+                    ".{8,}" +               //at least 8 characters
+                    "$");
+    String email, name, password, age;
     public static String timestampToString(long time) {
 
         SimpleDateFormat sfd = new SimpleDateFormat("ddd, dd MMM yyyy HH':'mm':'ss 'GMT'");
@@ -64,20 +61,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         overridePendingTransition(0, android.R.anim.fade_out);
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
@@ -85,33 +69,11 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
-        sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        sharedPreferences = this.getSharedPreferences(UserTypeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
-        isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
-        mAuth = FirebaseAuth.getInstance();
-        /* listener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                currentUser = firebaseAuth.getCurrentUser();
-            }
-        };
-        mAuth.addAuthStateListener(listener);*/
-
-       /* mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser() != null)
-                {
-                    currentUser = firebaseAuth.getCurrentUser();
-                    showMessage("user correct");
-                }
-                else
-                {
-                    showMessage("user failed");
-                }
-            }
-        };*/
-
+        isDoctor = sharedPreferences.getBoolean(UserTypeActivity.ISDOCTOR_KEY, true);
+        firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = firebaseAuth.getCurrentUser();
         binding.maleRadio.setOnCheckedChangeListener(this);
         binding.femaleRadio.setOnCheckedChangeListener(this);
         binding.continueBtn.setOnClickListener(new View.OnClickListener() {
@@ -119,40 +81,41 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 public void onClick(View v) {
                     binding.continueBtn.setVisibility(View.INVISIBLE);
                     binding.progressSignUp.setVisibility(View.VISIBLE);
-                    email = binding.emailEd.getText().toString();
-                    String password = binding.passwordEd.getText().toString();
-                    String age = binding.ageEd.getText().toString();
+                    name = binding.nameEd.getEditText().getText().toString();
+                    email = binding.emailEd.getEditText().getText().toString();
+                    password = binding.passwordEd.getEditText().getText().toString();
+                    age = binding.ageEd.getEditText().getText().toString();
                     RadioButton mRadio = binding.maleRadio;
                     RadioButton fRadio = binding.femaleRadio;
-                    signUp(email, password, age, mRadio, fRadio);
+                    signUp(name, email, password, age, mRadio, fRadio);
                 }
         });
     }
 
-    private void signUp(String email, String password, String age, RadioButton mRadio, RadioButton fRadio) {
+    private void signUp(String name, String email, String password, String age, RadioButton mRadio, RadioButton fRadio) {
         //firebaseAuth = FirebaseAuth.getInstance();
-        if (!email.isEmpty() && !password.isEmpty() && (mRadio.isChecked() || fRadio.isChecked()) && !age.isEmpty()) {
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        if (validatename() && validateEmail() && validatePassword() && validateAge() && (mRadio.isChecked() || fRadio.isChecked())) {
+            firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);
                     if (task.isSuccessful()) {
-                        currentUser = mAuth.getCurrentUser();
-                        UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
-                                .setDisplayName(binding.fnameEd.getText().toString())
+                        //TODO request update profile
+                        /*UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(name)
                                 .build();
-                        currentUser.updateProfile(profleUpdate);
+                        currentUser.*/
                         sendEmailVerification();
                     } else {
                         try {
                             throw task.getException();
                         } catch (FirebaseAuthWeakPasswordException weakPassword) {
-                            showMessage("weak password");
+                            binding.passwordEd.setError("weak password");
                         } catch (FirebaseAuthInvalidCredentialsException malformedEmail) {
-                            showMessage("malformed exception");
+                            binding.emailEd.setError("malformed email");
                         } catch (FirebaseAuthUserCollisionException existedEmail) {
-                            showMessage("existed Email");
+                            binding.emailEd.setError("existed Email");
                         } catch (Exception e) {
                             showMessage(e.getMessage());
                         }
@@ -169,8 +132,80 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         } else {
             binding.progressSignUp.setVisibility(View.INVISIBLE);
             binding.continueBtn.setVisibility(View.VISIBLE);
-            showMessage("please enter your email and password");
+            showMessage("please check the required fields");
         }
+    }
+
+    private boolean validatePassword() {
+
+        if (password.isEmpty()) {
+            binding.passwordEd.setError("Field can't be empty");
+            return false;
+        } else if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            binding.passwordEd.setError("A minimum 8 characters password contains atleast a letter and number are required.");
+            return false;
+        } else {
+            binding.passwordEd.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validatename() {
+
+        if (name.isEmpty()) {
+            binding.nameEd.setError("*Required");
+            return false;
+        } else {
+            binding.nameEd.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validateAge() {
+
+        if (age.isEmpty()) {
+            binding.ageEd.setError("*Required");
+            return false;
+        } else {
+            binding.ageEd.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validateEmail() {
+        if (email.isEmpty()) {
+            binding.emailEd.setError("*Required");
+            return false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.emailEd.setError("*Incorrect email");
+            return false;
+        } else {
+            binding.emailEd.setErrorEnabled(false);
+            return true;
+        }
+    }
+    private void sendEmailVerification() {
+        currentUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                if (task.isSuccessful()) {
+                    setSharedData();
+                    showMessage("Verification email sent to: " + currentUser.getEmail());
+                    startActivity(new Intent(SignUpActivity.this, DoctorRegistrationActivity.class));
+
+                   /* if(!isDoctor)
+                        startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
+                    else
+                        startActivity(new Intent(SignUpActivity.this, DoctorRegistrationActivity.class));*/
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage(e.getMessage());
+            }
+        });
     }
 
     private void showMessage(String message) {
@@ -209,53 +244,36 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         }
     }
 
-    private void sendEmailVerification() {
-
-        currentUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-
-                if (task.isSuccessful()) {
-                    setSharedData();
-                    showMessage("Verification email sent to: " + currentUser.getEmail());
-                    //startActivity(new Intent(SignUpActivity.this, DoctorRegistrationActivity.class));
-
-                    if (!isDoctor) {
-                        Intent intent = new Intent(SignUpActivity.this, GetStartedActivity.class);
-                        intent.putExtra(USER_KEY, currentUser);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Intent intent = new Intent(SignUpActivity.this, DoctorRegistrationActivity.class);
-                        intent.putExtra(USER_KEY, currentUser);
-                        startActivity(intent);
-                        finish();
-                    }
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                showMessage(e.getMessage());
-            }
-        });
-    }
-
     private void setSharedData() {
-       /* String email = binding.emailEd.getText().toString();
-        String fullName = binding.fnameEd.getText().toString();
-        int age = Integer.parseInt(binding.ageEd.getText().toString());
+
         String gender = "";
         if (binding.maleRadio.isChecked())
             gender = "Male";
         else
             gender = "Female";
-        editor.putString(User.EMAIL,email);
-        editor.putString(User.FULLNAME,fullName);
-        editor.putInt(User.AGE, age);
-        editor.putString(User.GENDER, gender);*/
-        String createdTime = timestampToString(currentUser.getMetadata().getCreationTimestamp());
-        editor.putString(User.CREATED_TIME, createdTime);
-        editor.commit();
+       /* Map<String ,String> generalInfo = new HashMap<>();
+        generalInfo.put(User.AGE,);
+        generalInfo.put(User.GENDER,gender);*/
+        editor.putString(User.AGE, binding.ageEd.getEditText().getText().toString());
+        editor.putString(User.GENDER, gender);
+        if (!isDoctor) {
+            /*Map<String, String> userType = new HashMap<>();
+            userType.put(User.G_FACULTY, "empty");
+            userType.put(User.G_YEAR, "empty");
+            userType.put(User.SPECIALITY, "empty");
+            userType.put(User.USERTYPE, "empty");*/
+            editor.putString(User.G_FACULTY, "empty");
+            editor.putString(User.G_YEAR, "empty");
+            editor.putString(User.SPECIALITY, "empty");
+            editor.putString(User.USERTYPE, "Paient");
+        } else
+            editor.putString(User.USERTYPE, "Doctor");
+        editor.apply();
+
+        /*String userId = currentUser.getUid();
+        String lastSignIn = timestampToString(currentUser.getMetadata().getLastSignInTimestamp());
+        usersCollection.add(new User(FieldValue.serverTimestamp().toString(),email,generalInfo,lastSignIn,userId,userType));*/
     }
+
+
 }

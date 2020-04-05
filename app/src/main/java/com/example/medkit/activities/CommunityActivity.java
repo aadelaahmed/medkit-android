@@ -1,21 +1,18 @@
 package com.example.medkit.activities;
 
+import android.os.Bundle;
+import android.view.MenuItem;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.os.Build;
-import android.os.Bundle;
-import android.view.MenuItem;
-
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
-import com.example.medkit.databinding.ActivityDoctorLicenseBinding;
 import com.example.medkit.fragments.HomeFragment;
 import com.example.medkit.fragments.MessageFragment;
 import com.example.medkit.fragments.NotificationFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class CommunityActivity extends AppCompatActivity {
 
