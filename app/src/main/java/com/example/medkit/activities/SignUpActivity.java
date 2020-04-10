@@ -254,8 +254,8 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
        /* Map<String ,String> generalInfo = new HashMap<>();
         generalInfo.put(User.AGE,);
         generalInfo.put(User.GENDER,gender);*/
-        editor.putString(User.AGE, binding.ageEd.getEditText().getText().toString());
-        editor.putString(User.GENDER, gender);
+//        editor.putString(User.AGE, binding.ageEd.getEditText().getText().toString());
+//        editor.putString(User.GENDER, gender);
         if (!isDoctor) {
             /*Map<String, String> userType = new HashMap<>();
             userType.put(User.G_FACULTY, "empty");

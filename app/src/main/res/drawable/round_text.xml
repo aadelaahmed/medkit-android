@@ -10,6 +10,6 @@
         android:bottom="8dp"
         android:right="8dp"
         android:left="8dp"/>
-   <gradient android:startColor="#F1F1F1" android:endColor="@color/lightBackGroundColor"/>
+    <solid android:color="#1A000000" />
 
 </shape>

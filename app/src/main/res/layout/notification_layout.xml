@@ -13,11 +13,10 @@
     android:elevation="0.5dp"
     android:focusable="true">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/notification_user_photo"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/circle_image"
         android:src="@drawable/ic_type_user"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -41,4 +41,17 @@
         <item>Bones</item>
         <item>Muscles</item>
     </string-array>
+    <string-array name="speciality_spinner">
+        <item>الجراحة العامة - General Surgery</item>
+        <item>العظام - Orthopedics</item>
+        <item>القلب - cardiology</item>
+        <item>التجميل - Aesthetic medicine</item>
+        <item>الأمراض الجلدية - Dermatology</item>
+        <item>المسالك البولية - Urology</item>
+        <item>الباطنة و الجهاز الهضمي - Gastroenterology</item>
+        <item>الأسنان - dentist</item>
+        <item>الأطفال - Pediatrics</item>
+        <item>العيون - ophthalmology</item>
+        <item>التحاليل الطبية - Medical tests</item>
+    </string-array>
 </resources>

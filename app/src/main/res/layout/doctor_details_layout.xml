@@ -70,4 +70,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_email_signIn"
         app:layout_constraintVertical_bias="0.25" />
+
+    <com.reginald.editspinner.EditSpinner
+        android:id="@+id/speciality_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="16dp"
+        android:editable="false"
+        app:dropDownDrawable="@drawable/ic_arrow_down"
+        app:dropDownDrawableHeight="30dp"
+        app:dropDownDrawableSpacing="15dp"
+        app:dropDownDrawableWidth="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/second_text_view" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/location_fragment"
+        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/second_text_view" />
 </androidx.constraintlayout.widget.ConstraintLayout>

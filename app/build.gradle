@@ -23,7 +23,6 @@ android {
     }
 }
 
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -43,5 +42,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.1.2'
     implementation 'com.google.firebase:firebase-firestore:21.4.2'
     implementation 'com.facebook.android:facebook-login:[5,6)'
+    implementation 'com.google.android.libraries.places:places:2.2.0'
     implementation 'com.xwray:groupie:2.8.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.reginald:editspinner:1.1.0'
 }

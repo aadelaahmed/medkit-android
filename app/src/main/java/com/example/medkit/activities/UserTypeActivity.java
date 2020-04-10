@@ -20,8 +20,8 @@ public class UserTypeActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     String emailUser = null;
 
-    // public static final String ISDOCTOR_KEY = "ISDOCTOR";
-    //public static final String SHARED_PREFERENCE_NAME = "USER_DATA";
+    public static final String ISDOCTOR_KEY = "ISDOCTOR";
+    public static final String SHARED_PREFERENCE_NAME = "USER_DATA";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
