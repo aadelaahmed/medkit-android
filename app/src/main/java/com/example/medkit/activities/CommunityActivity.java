@@ -24,7 +24,7 @@ public class CommunityActivity extends AppCompatActivity {
                     Fragment selectedFreagment = null;
                     switch (item.getItemId()) {
                         case R.id.home_item:
-                            selectedFreagment = new HomeFragment();
+                            selectedFreagment = new HomeFragment(CommunityActivity.this);
                             break;
                         case R.id.notify_item:
                             selectedFreagment = new NotificationFragment();
@@ -46,6 +46,6 @@ public class CommunityActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);
         //TODO --> add badge to notification and backlight on item click
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment(this)).commit();
     }
 }

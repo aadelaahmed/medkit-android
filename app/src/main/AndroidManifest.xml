@@ -12,34 +12,41 @@
         android:roundIcon="@mipmap/ic_launcher_circle"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.ChatActivity"></activity>
-        <activity android:name=".activities.CommunityActivity">
+        <activity android:name=".activities.AddPostActivity">
+
+
+        </activity>
+        <activity android:name=".activities.ChatActivity" />
+        <activity android:name=".activities.CommunityActivity" />
+        <activity android:name=".activities.DoctorLicenseActivity" />
+        <activity
+            android:name=".activities.UserTypeActivity"
+            android:label="User Type" />
+        <activity
+            android:name=".activities.SignHomeActivity"
+            android:theme="@style/NoActionBarAppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.DoctorLicenseActivity"></activity>
-        <activity
-            android:name=".activities.UserTypeActivity"
-            android:label="User Type"></activity>
-        <activity
-            android:name=".activities.SignHomeActivity"
-            android:theme="@style/NoActionBarAppTheme" />
         <activity
             android:name=".activities.SignInActivity"
-            android:label="Sign In"></activity>
+            android:label="Sign In" />
+        <activity
+            android:name=".activities.GetStartedActivity"
+            android:label="Get Started" />
         <activity
             android:name=".activities.DoctorRegistrationActivity"
-            android:label="Details"></activity>
+            android:label="Details" />
         <activity
             android:name=".activities.SplashScreenActivity"
-            android:theme="@style/NoActionBarAppTheme"></activity>
+            android:theme="@style/NoActionBarAppTheme" />
         <activity android:name=".activities.MainActivity" />
         <activity
             android:name=".activities.SignUpActivity"
-            android:label="Sign Up"></activity>
+            android:label="Sign Up" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

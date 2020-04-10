@@ -28,7 +28,7 @@ public class UserTypeActivity extends AppCompatActivity {
         overridePendingTransition(0,android.R.anim.fade_out);
         binding = ActivityUserTypeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        sharedPreferences = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
         ActionBar actionBar= getSupportActionBar();
         assert actionBar != null;

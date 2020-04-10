@@ -8,6 +8,10 @@ public class NotificationModel {
     private String notificationContent;
     private boolean isRead;
 
+    public NotificationModel() {
+
+    }
+
     public NotificationModel(String userName, Bitmap userPhoto, String notificationContent, boolean isRead) {
         this.userName = userName;
         this.userPhoto = userPhoto;

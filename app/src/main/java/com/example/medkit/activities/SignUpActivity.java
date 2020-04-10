@@ -3,6 +3,7 @@ package com.example.medkit.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.Menu;
@@ -21,6 +22,7 @@ import com.example.medkit.databinding.ActivitySignUpBinding;
 import com.example.medkit.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,6 +30,9 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,6 +44,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     SharedPreferences.Editor editor;
     FirebaseAuth firebaseAuth;
     FirebaseUser currentUser;
+    StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("users");
     boolean isDoctor = false;
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^" +
@@ -69,11 +75,11 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
-        sharedPreferences = this.getSharedPreferences(UserTypeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        sharedPreferences = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
-        isDoctor = sharedPreferences.getBoolean(UserTypeActivity.ISDOCTOR_KEY, true);
+        isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, true);
         firebaseAuth = FirebaseAuth.getInstance();
-        currentUser = firebaseAuth.getCurrentUser();
+        //currentUser = firebaseAuth.getCurrentUser();
         binding.maleRadio.setOnCheckedChangeListener(this);
         binding.femaleRadio.setOnCheckedChangeListener(this);
         binding.continueBtn.setOnClickListener(new View.OnClickListener() {
@@ -92,7 +98,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         });
     }
 
-    private void signUp(String name, String email, String password, String age, RadioButton mRadio, RadioButton fRadio) {
+    private void signUp(final String name, String email, String password, String age, RadioButton mRadio, RadioButton fRadio) {
         //firebaseAuth = FirebaseAuth.getInstance();
         if (validatename() && validateEmail() && validatePassword() && validateAge() && (mRadio.isChecked() || fRadio.isChecked())) {
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -101,11 +107,8 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                     binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);
                     if (task.isSuccessful()) {
-                        //TODO request update profile
-                        /*UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
-                                .setDisplayName(name)
-                                .build();
-                        currentUser.*/
+                        currentUser = firebaseAuth.getCurrentUser();
+                        updateUserProfile();
                         sendEmailVerification();
                     } else {
                         try {
@@ -134,6 +137,36 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
             binding.continueBtn.setVisibility(View.VISIBLE);
             showMessage("please check the required fields");
         }
+    }
+
+    private void updateUserProfile() {
+        //Uri uri = Uri.parse("android.resource://"+this.getPackageName()+"/drawable/man.jpg");
+        //Uri uri=Uri.parse("R.drawable.man.jpg");
+        UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .build();
+        currentUser.updateProfile(profleUpdate).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage("Something wrong with update user profile");
+            }
+        });
+
+       /*rootRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
+                        .setDisplayName(name)
+                        .setPhotoUri(uri)
+                        .build();
+                currentUser.updateProfile(profleUpdate);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage("Something wrong with update user profile");
+            }
+        });*/
     }
 
     private boolean validatePassword() {
@@ -188,12 +221,13 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         currentUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-
                 if (task.isSuccessful()) {
                     setSharedData();
                     showMessage("Verification email sent to: " + currentUser.getEmail());
-                    startActivity(new Intent(SignUpActivity.this, DoctorRegistrationActivity.class));
-
+                    if (isDoctor)
+                        startActivity(new Intent(SignUpActivity.this, DoctorRegistrationActivity.class));
+                    else
+                        startActivity(new Intent(SignUpActivity.this, GetStartedActivity.class));
                    /* if(!isDoctor)
                         startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                     else
@@ -246,16 +280,16 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
 
     private void setSharedData() {
 
-        String gender = "";
+        /*String gender = "";
         if (binding.maleRadio.isChecked())
             gender = "Male";
         else
-            gender = "Female";
+            gender = "Female";*/
        /* Map<String ,String> generalInfo = new HashMap<>();
         generalInfo.put(User.AGE,);
         generalInfo.put(User.GENDER,gender);*/
-        editor.putString(User.AGE, binding.ageEd.getEditText().getText().toString());
-        editor.putString(User.GENDER, gender);
+        //editor.putString(User.AGE, binding.ageEd.getEditText().getText().toString());
+        //editor.putString(User.GENDER, gender);
         if (!isDoctor) {
             /*Map<String, String> userType = new HashMap<>();
             userType.put(User.G_FACULTY, "empty");

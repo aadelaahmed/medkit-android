@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,11 +22,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GetStartedActivity extends AppCompatActivity {
-
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     CollectionReference userCollection;
@@ -55,6 +57,8 @@ public class GetStartedActivity extends AppCompatActivity {
 
         binding = ActivityGetStartedBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+       /* StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);*/
         mAuth = FirebaseAuth.getInstance();
         //mAuth.addAuthStateListener(mAuthStateListener);
         //final FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -67,7 +71,7 @@ public class GetStartedActivity extends AppCompatActivity {
         //while(!currentUser.isEmailVerified()){ showMessage("please verify your account");mAuth.getCurrentUser().reload(); }
         db = FirebaseFirestore.getInstance();
         userCollection = db.collection("Users");
-        sharedPreferences = getSharedPreferences("USER_DATA", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         editor = sharedPreferences.edit();
         emailUser = sharedPreferences.getString(User.EMAIL, null);
         binding.btnGetStarted.setOnClickListener(new View.OnClickListener() {
@@ -114,30 +118,36 @@ public class GetStartedActivity extends AppCompatActivity {
         User newUser = new User(age,createdTime,email,fullName,gender,userPhoto,userId,gFaculty,gYear,speciality,userType);*/
         boolean isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
         String createdTime = sharedPreferences.getString(User.CREATED_TIME, "null");
-        String userType = "";
+        String uType = "";
         User newUser;
-        Map<String, Object> mapType = new HashMap<>();
+        Map<String, Object> userType = new HashMap<>();
         if (isDoctor) {
-            userType = "Doctor";
+            uType = "Doctor";
             String gFaculty = sharedPreferences.getString(User.G_FACULTY, null);
             String gYear = sharedPreferences.getString(User.G_YEAR, null);
             String speciality = sharedPreferences.getString(User.SPECIALITY, null);
             String location = sharedPreferences.getString(User.LOCATION, null);
-            mapType.put(User.G_FACULTY, gFaculty);
-            mapType.put(User.G_YEAR, gYear);
-            mapType.put(User.SPECIALITY, speciality);
-            mapType.put(User.LOCATION, location);
-            mapType.put(User.USERTYPE, userType);
-            newUser = new User(createdTime, mapType);
+            userType.put(User.G_FACULTY, gFaculty);
+            userType.put(User.G_YEAR, gYear);
+            userType.put(User.SPECIALITY, speciality);
+            userType.put(User.LOCATION, location);
+            userType.put(User.USERTYPE, uType);
+            newUser = new User(createdTime, userType);
         } else {
-            userType = "Patient";
-            mapType.put(User.USERTYPE, userType);
-            newUser = new User(createdTime, mapType);
+            uType = "Patient";
+            userType.put(User.USERTYPE, uType);
+            newUser = new User(createdTime, userType);
         }
         //FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String userId = currentUser.getUid();
         editor.clear();
         editor.commit();
+      /*  List<String> lstPostKeys = new ArrayList<>();
+        lstPostKeys.add("post key 1");
+        lstPostKeys.add("post key 3");
+        lstPostKeys.add("post key 2");
+        lstPostKeys.add("post key 4");
+        newUser.setPostKeys(lstPostKeys);*/
+        String userId = currentUser.getUid();
         userCollection.document(userId).set(newUser).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -146,7 +156,7 @@ public class GetStartedActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                showMessage("something wrong with upload data into firestore");
+                showMessage(e.getMessage());
             }
         });
     }
