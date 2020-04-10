@@ -3,13 +3,22 @@ package com.example.medkit.model;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import com.google.firebase.firestore.Exclude;
+
 import androidx.annotation.NonNull;
 
 public class PostModel {
     private String userName;
+
     private String title;
-    private String content;
+    private String description;
+    private String createdTime;
+    private String postPhoto;
+    private String userPhoto;
+    private String userID;
+    private String postKey;
     private String category;
+
     private Bitmap userProfilePicture;
     private Bitmap image;
     private int upVotes;
@@ -19,10 +28,23 @@ public class PostModel {
     private boolean isDownVoted;
 
 
+    public PostModel(String title, String description, String createdTime, String postPhoto, String userPhoto, String userID, String category) {
+        this.title = title;
+        this.description = description;
+        this.createdTime = createdTime;
+        this.postPhoto = postPhoto;
+        this.userPhoto = userPhoto;
+        this.userID = userID;
+        this.category = category;
+    }
+
+    public PostModel() {
+
+    }
 
     public PostModel(String userName,
                      String title,
-                     String content,
+                     String description,
                      String category,
                      Bitmap userProfilePicture,
                      Bitmap image,
@@ -33,7 +55,7 @@ public class PostModel {
                      boolean isDownVoted) {
         this.userName = userName;
         this.title = title;
-        this.content = content;
+        this.description = description;
         this.category = category;
         this.userProfilePicture = userProfilePicture;
         this.image = image;
@@ -44,6 +66,47 @@ public class PostModel {
         this.isDownVoted = isDownVoted;
     }
 
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public String getPostPhoto() {
+        return postPhoto;
+    }
+
+    public void setPostPhoto(String postPhoto) {
+        this.postPhoto = postPhoto;
+    }
+
+    public String getUserPhoto() {
+        return userPhoto;
+    }
+
+    public void setUserPhoto(String userPhoto) {
+        this.userPhoto = userPhoto;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public String getPostKey() {
+        return postKey;
+    }
+
+    public void setPostKey(String postKey) {
+        this.postKey = postKey;
+    }
+
+    @Exclude
     public String getUserName() {
         return userName;
     }
@@ -60,12 +123,12 @@ public class PostModel {
         this.title = title;
     }
 
-    public String getContent() {
-        return content;
+    public String getDescription() {
+        return description;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCategory() {
@@ -76,6 +139,7 @@ public class PostModel {
         this.category = category;
     }
 
+    @Exclude
     public Bitmap getUserProfilePicture() {
         return userProfilePicture;
     }
@@ -84,6 +148,7 @@ public class PostModel {
         this.userProfilePicture = userProfilePicture;
     }
 
+    @Exclude
     public Bitmap getImage() {
         return image;
     }
@@ -92,6 +157,7 @@ public class PostModel {
         this.image = image;
     }
 
+    @Exclude
     public int getUpVotes() {
         return upVotes;
     }
@@ -100,6 +166,7 @@ public class PostModel {
         this.upVotes = upVotes;
     }
 
+    @Exclude
     public int getDownVotes() {
         return downVotes;
     }
@@ -108,6 +175,7 @@ public class PostModel {
         this.downVotes = downVotes;
     }
 
+    @Exclude
     public int getnComments() {
         return nComments;
     }
@@ -115,6 +183,8 @@ public class PostModel {
     public void setnComments(int nComments) {
         this.nComments = nComments;
     }
+
+    @Exclude
     public boolean isUpVoted() {
         return isUpVoted;
     }
@@ -123,6 +193,7 @@ public class PostModel {
         isUpVoted = upVoted;
     }
 
+    @Exclude
     public boolean isDownVoted() {
         return isDownVoted;
     }

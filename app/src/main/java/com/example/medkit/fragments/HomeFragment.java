@@ -1,5 +1,7 @@
 package com.example.medkit.fragments;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -12,9 +14,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.medkit.R;
+import com.example.medkit.activities.AddPostActivity;
 import com.example.medkit.databinding.FragmentHomeBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.PostAdapter;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -29,6 +39,12 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class HomeFragment extends Fragment {
     private List<PostModel> posts;
     private FragmentHomeBinding binding;
+    public Context mContext;
+    CollectionReference rootPost = FirebaseFirestore.getInstance().collection("Posts");
+
+    public HomeFragment(Context mContext) {
+        this.mContext = mContext;
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -42,7 +58,6 @@ public class HomeFragment extends Fragment {
         posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,true,true));
         posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,false,false));
 
-
         PostAdapter postAdapter = new PostAdapter(posts);
         binding.postsList.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.postsList.setAdapter(postAdapter);
@@ -52,6 +67,12 @@ public class HomeFragment extends Fragment {
                 android.R.layout.simple_spinner_item);
         diseases.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         binding.categorySpinner.setAdapter(diseases);
+        binding.postTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(mContext, AddPostActivity.class));
+            }
+        });
         binding.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -69,6 +90,25 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        rootPost.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null)
+                    return;
+
+                for (QueryDocumentSnapshot resDoc : queryDocumentSnapshots) {
+                    PostModel tempPost = resDoc.toObject(PostModel.class);
+
+                }
+            }
+        });
+    }
+
+
 
     @Override
     public void onDestroyView() {

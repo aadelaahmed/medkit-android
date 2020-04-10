@@ -1,5 +1,8 @@
 package com.example.medkit.model;
 
+import com.google.firebase.firestore.Exclude;
+
+import java.util.List;
 import java.util.Map;
 
 public class User {
@@ -32,12 +35,14 @@ public class User {
     private String speciality;
     private String userType;*/
 
+    private String userId;
     private String createdTime;
     /* private String gradFaculty;
      private String gradYear;
      private String speciality;
      private String userType;*/
     private Map<String, Object> userType;
+    private List<String> postKeys;
 
    /* public User(String createdTime, String gradFaculty, String gradYear, String speciality, String userType) {
         this.createdTime = createdTime;
@@ -53,16 +58,38 @@ public class User {
         this.createdTime = createdTime;
         this.userType = userType;
     }*/
+  @Exclude
+  public String getUserId() {
+      return userId;
+  }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Map<String, Object> getUserType() {
+        return userType;
+    }
+
+    public void setUserType(Map<String, Object> userType) {
+        this.userType = userType;
+    }
 
     public User(String createdTime, Map<String, Object> userType) {
         this.createdTime = createdTime;
         this.userType = userType;
     }
 
+    public List<String> getPostKeys() {
+        return postKeys;
+    }
+
+    public void setPostKeys(List<String> postKeys) {
+        this.postKeys = postKeys;
+    }
 
 
-
-    /*public User(int age, String createdTime, String email, String fullName, String gender, String imgUrl, String userId, String gradFaculty, String gradYear, String speciality, String userType) {
+/*public User(int age, String createdTime, String email, String fullName, String gender, String imgUrl, String userId, String gradFaculty, String gradYear, String speciality, String userType) {
         this.age = age;
         this.createdTime = createdTime;
         this.email = email;
@@ -101,13 +128,6 @@ public class User {
         this.userType = userType;
     }*/
 
-    public Map<String, Object> getMapType() {
-        return userType;
-    }
-
-    public void setMapType(Map<String, Object> userType) {
-        this.userType = userType;
-    }
 
     public User() {
     }

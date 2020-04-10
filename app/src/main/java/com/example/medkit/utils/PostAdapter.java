@@ -60,7 +60,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         titleTV = holder.titleTV;
         titleTV.setText(post.getTitle());
         contentTV = holder.contentTV;
-        contentTV.setText(post.getContent());
+        contentTV.setText(post.getDescription());
         categoryTV = holder.categoryTV;
         categoryTV.setText(post.getCategory());
         n_comments = holder.n_comments;

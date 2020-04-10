@@ -2,17 +2,20 @@ package com.example.medkit.model;
 
 public class ChatItem {
     private String name;
-    private String lastmessage;
+    private String lastMessage;
     private String time;
-    private Integer imageurl;
+    private Integer imageUrl;
 
     public ChatItem(String name, String lastmessage, String time, Integer imageurl) {
         this.name = name;
-        this.lastmessage = lastmessage;
+        this.lastMessage = lastmessage;
         this.time = time;
-        this.imageurl = imageurl;
+        this.imageUrl = imageurl;
     }
 
+    public ChatItem() {
+
+    }
     public String getName() {
         return name;
     }
@@ -22,11 +25,11 @@ public class ChatItem {
     }
 
     public String getLastmessage() {
-        return lastmessage;
+        return lastMessage;
     }
 
     public void setLastmessage(String lastmessage) {
-        this.lastmessage = lastmessage;
+        this.lastMessage = lastmessage;
     }
 
     public String getTime() {
@@ -38,11 +41,11 @@ public class ChatItem {
     }
 
     public Integer getImageurl() {
-        return imageurl;
+        return imageUrl;
     }
 
     public void setImageurl(Integer imageurl) {
-        this.imageurl = imageurl;
+        this.imageUrl = imageurl;
     }
     //    @Override
 //    public void bind(@NonNull GroupieViewHolder viewHolder, int position) {
