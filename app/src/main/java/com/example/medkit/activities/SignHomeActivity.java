@@ -1,19 +1,12 @@
 package com.example.medkit.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.medkit.R;
@@ -31,8 +24,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -40,11 +31,13 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class SignHomeActivity extends AppCompatActivity {
     public static final String SHARED_PREFERENCE_NAME = "USER_DATA";
@@ -146,13 +139,13 @@ public class SignHomeActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-   /* @Override
+    @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null)
             startActivity(new Intent(SignHomeActivity.this, CommunityActivity.class));
-    }*/
+    }
 
     public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

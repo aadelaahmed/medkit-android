@@ -12,35 +12,37 @@
         android:roundIcon="@mipmap/ic_launcher_circle"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".activities.PhotoPostActivity"></activity>
         <activity
             android:name=".activities.ProfileActivity"
-            android:theme="@style/NoActionBarAppTheme">
-
-        </activity>
+            android:theme="@style/NoActionBarAppTheme" />
         <activity android:name=".activities.ChatActivity" />
-        <activity android:name=".activities.CommunityActivity">
-
-        </activity>
+        <activity android:name=".activities.CommunityActivity" />
         <activity android:name=".activities.DoctorLicenseActivity" />
         <activity
             android:name=".activities.UserTypeActivity"
             android:label="User Type" />
         <activity
-            android:name=".activities.SignHomeActivity"
-            android:theme="@style/NoActionBarAppTheme" />
+            android:name=".activities.AddPostActivity"
+            android:label="Add Post" />
         <activity
             android:name=".activities.SignInActivity"
             android:label="Sign In" />
         <activity
-            android:name=".activities.DoctorRegistrationActivity"
-            android:label="Details">
+            android:name=".activities.GetStartedActivity"
+            android:label="Get Started" />
+        <activity
+            android:name=".activities.SignHomeActivity"
+            android:theme="@style/NoActionBarAppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".activities.DoctorRegistrationActivity"
+            android:label="Details" />
         <activity
             android:name=".activities.SplashScreenActivity"
             android:theme="@style/NoActionBarAppTheme" />

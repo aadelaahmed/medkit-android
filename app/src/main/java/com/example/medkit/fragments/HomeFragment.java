@@ -2,8 +2,6 @@ package com.example.medkit.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,20 +17,21 @@ import com.example.medkit.databinding.FragmentHomeBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.PostAdapter;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -40,27 +39,32 @@ public class HomeFragment extends Fragment {
     private List<PostModel> posts;
     private FragmentHomeBinding binding;
     public Context mContext;
+    public int upVotes;
     CollectionReference rootPost = FirebaseFirestore.getInstance().collection("Posts");
-
+    public int downVotes;
+    PostAdapter postAdapter;
+    ListenerRegistration mListener;
     public HomeFragment(Context mContext) {
         this.mContext = mContext;
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         posts = new ArrayList<>();
-        Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_type_user);
+       /* Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_type_user);
         Bitmap ibitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_communicate);
         posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,true,false));
         posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,false,true));
         posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,true,true));
         posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,false,false));
 
-        PostAdapter postAdapter = new PostAdapter(posts);
+        postAdapter = new PostAdapter(posts,mContext);
+
+        binding.postsList.setAdapter(postAdapter);*/
         binding.postsList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        binding.postsList.setAdapter(postAdapter);
         ArrayAdapter<CharSequence> diseases = ArrayAdapter.createFromResource(
                 getActivity(),
                 R.array.category_spinner,
@@ -94,25 +98,57 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        rootPost.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if (e != null)
-                    return;
+        mListener =
+                rootPost.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            showMessage("something get wrong while fetching real time posts' data");
+                            return;
+                        }
+                        for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()) {
+                            int newIndex = documentChange.getNewIndex();
+                            int oldIndex = documentChange.getOldIndex();
+                            DocumentSnapshot tempDoc = documentChange.getDocument();
+                            PostModel currentPost = tempDoc.toObject(PostModel.class);
+                            switch (documentChange.getType()) {
+                                case ADDED:
+                                    posts.add(0, currentPost);
+                                    break;
+                                case REMOVED:
+                                    posts.remove(oldIndex);
+                                    break;
+                                case MODIFIED:
+                                       /* posts.add(newIndex,currentPost);
+                                        posts.remove(oldIndex);*/
+                                    upVotes = (int) tempDoc.get("upVotes");
+                                    downVotes = (int) tempDoc.get("downVotes");
+                                    posts.get(oldIndex).setUpVotes(upVotes);
+                                    posts.get(oldIndex).setDownVotes(downVotes);
+                                    break;
+                            }
+                        }
 
-                for (QueryDocumentSnapshot resDoc : queryDocumentSnapshots) {
-                    PostModel tempPost = resDoc.toObject(PostModel.class);
+                        PostAdapter newAdapter = new PostAdapter(posts, mContext);
+                        binding.postsList.setAdapter(newAdapter);
+                    }
+                });
+    }
 
-                }
-            }
-        });
+    private void showMessage(String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
     }
 
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        // mListener.remove();
+    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        //binding = null;
     }
 }

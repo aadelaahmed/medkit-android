@@ -30,6 +30,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <View
+            android:id="@+id/view_user"
+            android:layout_width="100dp"
+            android:layout_height="48dp"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/img_user_community"
             android:layout_width="30dp"
@@ -37,13 +46,13 @@
             android:layout_marginTop="2dp"
             android:layout_marginBottom="8dp"
             android:src="@drawable/profile_test"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/view_user"
+            app:layout_constraintEnd_toEndOf="@+id/view_user"
+            app:layout_constraintTop_toTopOf="@+id/view_user"
             app:srcCompat="@drawable/ic_type_user" />
 
         <TextView
-            android:id="@+id/txt_username_community"
+            android:id="@+id/txt_email_community"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -62,8 +71,9 @@
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@id/img_user_community"
             app:layout_constraintEnd_toStartOf="@+id/img_user_community"
-            app:layout_constraintTop_toBottomOf="@+id/txt_username_community"
+            app:layout_constraintTop_toBottomOf="@+id/txt_email_community"
             app:layout_constraintVertical_bias="0.2" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

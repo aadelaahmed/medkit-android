@@ -13,16 +13,11 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignUpBinding;
 import com.example.medkit.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +32,10 @@ import com.google.firebase.storage.StorageReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class SignUpActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
     private ActivitySignUpBinding binding;
@@ -141,9 +140,11 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
 
     private void updateUserProfile() {
         //Uri uri = Uri.parse("android.resource://"+this.getPackageName()+"/drawable/man.jpg");
+        Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.man);
         //Uri uri=Uri.parse("R.drawable.man.jpg");
         UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)
+                .setPhotoUri(uri)
                 .build();
         currentUser.updateProfile(profleUpdate).addOnFailureListener(new OnFailureListener() {
             @Override

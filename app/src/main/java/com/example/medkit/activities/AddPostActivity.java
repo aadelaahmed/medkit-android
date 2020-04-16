@@ -1,11 +1,5 @@
 package com.example.medkit.activities;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,13 +11,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityAddPostBinding;
 import com.example.medkit.model.PostModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
@@ -32,7 +26,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.security.Permission;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class AddPostActivity extends AppCompatActivity {
     public static final int mRequestCode = 40;
@@ -45,6 +43,7 @@ public class AddPostActivity extends AppCompatActivity {
     Uri pickedImageUri = null;
     String imageUrlStr = null;
     String title, description, category;
+    PostModel addedPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,18 +68,22 @@ public class AddPostActivity extends AppCompatActivity {
                 description = binding.edtDescription.getText().toString();
                 category = binding.edtCategory.getText().toString();
                 if (!title.trim().isEmpty() && !description.trim().isEmpty() && !category.trim().isEmpty()) {
-                    if (pickedImageUri != null)
-                        uploadImageIntoStorage();
-                    PostModel postModel = new PostModel(
+                    addedPost = new PostModel(
                             title,
                             description,
-                            "FieldValue.serverTimestamp().toString()",
+                            ServerValue.TIMESTAMP.toString(),
                             imageUrlStr,
-                            "currentUser.getPhotoUrl().toString()",
-                            "currentUser.getUid()",
-                            category
+                            currentUser.getPhotoUrl().toString(),
+                            currentUser.getUid(),
+                            category,
+                            0,
+                            0
                     );
-                    uploadPost(postModel);
+                    if (pickedImageUri != null)
+                        uploadImageIntoStorage();
+                    else
+                        uploadPost(addedPost);
+
                 } else {
                     binding.btnAddPost.setVisibility(View.VISIBLE);
                     binding.progressBar.setVisibility(View.GONE);
@@ -101,7 +104,10 @@ public class AddPostActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Uri uri) {
                         currentUser = mAuth.getCurrentUser();
+                        //currentUser.reload();
                         imageUrlStr = uri.toString();
+                        addedPost.setPostPhoto(imageUrlStr);
+                        uploadPost(addedPost);
                     }
                 })
                         .addOnFailureListener(new OnFailureListener() {
@@ -173,7 +179,8 @@ public class AddPostActivity extends AppCompatActivity {
                             mRequestCode
                     );
                 }
-            }
+            } else
+                openGallery();
         } else
             openGallery();
     }

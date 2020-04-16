@@ -1,15 +1,11 @@
 package com.example.medkit.model;
 
 import android.graphics.Bitmap;
-import android.view.View;
 
 import com.google.firebase.firestore.Exclude;
 
-import androidx.annotation.NonNull;
-
 public class PostModel {
     private String userName;
-
     private String title;
     private String description;
     private String createdTime;
@@ -38,8 +34,35 @@ public class PostModel {
         this.category = category;
     }
 
+    public PostModel(String title, String description, String createdTime, String postPhoto, String userPhoto, String userID, String category, int upVotes, int downVotes) {
+        this.title = title;
+        this.description = description;
+        this.createdTime = createdTime;
+        this.postPhoto = postPhoto;
+        this.userPhoto = userPhoto;
+        this.userID = userID;
+        this.category = category;
+        this.upVotes = upVotes;
+        this.downVotes = downVotes;
+    }
+
     public PostModel() {
 
+    }
+
+    @Override
+    public String toString() {
+        return "PostModel{" +
+                "userName='" + userName + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", createdTime='" + createdTime + '\'' +
+                ", postPhoto='" + postPhoto + '\'' +
+                ", userPhoto='" + userPhoto + '\'' +
+                ", userID='" + userID + '\'' +
+                ", postKey='" + postKey + '\'' +
+                ", category='" + category + '\'' +
+                '}';
     }
 
     public PostModel(String userName,
@@ -157,7 +180,7 @@ public class PostModel {
         this.image = image;
     }
 
-    @Exclude
+
     public int getUpVotes() {
         return upVotes;
     }
@@ -166,7 +189,7 @@ public class PostModel {
         this.upVotes = upVotes;
     }
 
-    @Exclude
+
     public int getDownVotes() {
         return downVotes;
     }
