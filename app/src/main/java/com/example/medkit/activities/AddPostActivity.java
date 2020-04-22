@@ -13,11 +13,11 @@ import android.widget.Toast;
 
 import com.example.medkit.databinding.ActivityAddPostBinding;
 import com.example.medkit.model.PostModel;
+import com.example.medkit.utils.LoadingAlertDialog;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
@@ -25,6 +25,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +47,7 @@ public class AddPostActivity extends AppCompatActivity {
     String imageUrlStr = null;
     String title, description, category;
     PostModel addedPost;
+    LoadingAlertDialog tempDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,19 +63,25 @@ public class AddPostActivity extends AppCompatActivity {
             }
         });
 
+        tempDialog = new LoadingAlertDialog(this);
+
         binding.btnAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                binding.btnAddPost.setVisibility(View.GONE);
-                binding.progressBar.setVisibility(View.VISIBLE);
-                title = binding.edtTitle.getText().toString();
-                description = binding.edtDescription.getText().toString();
-                category = binding.edtCategory.getText().toString();
-                if (!title.trim().isEmpty() && !description.trim().isEmpty() && !category.trim().isEmpty()) {
+               /* binding.btnAddPost.setVisibility(View.GONE);
+                binding.progressBar.setVisibility(View.VISIBLE);*/
+                tempDialog.startAlertDialog();
+                //binding.btnUploadPhoto.setPressed(false);
+                title = binding.edtTitle.getText().toString().trim();
+                description = binding.edtDescription.getText().toString().trim();
+                category = binding.edtCategory.getText().toString().trim();
+                if (!title.isEmpty() && !description.isEmpty() && !category.isEmpty()) {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
+                    String createdTime = simpleDateFormat.format(new Date());
                     addedPost = new PostModel(
                             title,
                             description,
-                            ServerValue.TIMESTAMP.toString(),
+                            createdTime,
                             imageUrlStr,
                             currentUser.getPhotoUrl().toString(),
                             currentUser.getUid(),
@@ -85,8 +95,10 @@ public class AddPostActivity extends AppCompatActivity {
                         uploadPost(addedPost);
 
                 } else {
-                    binding.btnAddPost.setVisibility(View.VISIBLE);
-                    binding.progressBar.setVisibility(View.GONE);
+                   /* binding.btnAddPost.setVisibility(View.VISIBLE);
+                    binding.progressBar.setVisibility(View.GONE);*/
+                    tempDialog.dismissAlertDialog();
+                    binding.btnUploadPhoto.setPressed(true);
                     showMessage("Please enter all fileds");
                 }
 
@@ -113,8 +125,10 @@ public class AddPostActivity extends AppCompatActivity {
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                binding.btnAddPost.setVisibility(View.VISIBLE);
-                                binding.progressBar.setVisibility(View.GONE);
+                                /*binding.btnAddPost.setVisibility(View.VISIBLE);
+                                binding.progressBar.setVisibility(View.GONE);*/
+                                tempDialog.startAlertDialog();
+                                //binding.btnUploadPhoto.setPressed(true);
                                 showMessage(e.getMessage());
                             }
                         });
@@ -139,8 +153,10 @@ public class AddPostActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        binding.btnAddPost.setVisibility(View.VISIBLE);
-                        binding.progressBar.setVisibility(View.GONE);
+                        /*binding.btnAddPost.setVisibility(View.VISIBLE);
+                        binding.progressBar.setVisibility(View.GONE);*/
+                        tempDialog.dismissAlertDialog();
+                        //binding.btnUploadPhoto.setPressed(true);
                         showMessage(e.getMessage());
                     }
                 });

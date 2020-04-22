@@ -15,15 +15,13 @@ import com.example.medkit.R;
 import com.example.medkit.activities.AddPostActivity;
 import com.example.medkit.databinding.FragmentHomeBinding;
 import com.example.medkit.model.PostModel;
+import com.example.medkit.utils.CustomPostAdapter;
 import com.example.medkit.utils.PostAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,21 +30,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class HomeFragment extends Fragment {
+    RecyclerView recyclerPosts;
     private List<PostModel> posts;
     private FragmentHomeBinding binding;
     public Context mContext;
     public int upVotes;
     CollectionReference rootPost = FirebaseFirestore.getInstance().collection("Posts");
     public int downVotes;
+    CustomPostAdapter tempAdapter;
     PostAdapter postAdapter;
     ListenerRegistration mListener;
+
     public HomeFragment(Context mContext) {
         this.mContext = mContext;
     }
+
 
     @Nullable
     @Override
@@ -63,8 +66,9 @@ public class HomeFragment extends Fragment {
 
         postAdapter = new PostAdapter(posts,mContext);
 
-        binding.postsList.setAdapter(postAdapter);*/
+        binding.postsList.setAdapter(postAdapter);
         binding.postsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        binding.postsList.setHasFixedSize(true);*/
         ArrayAdapter<CharSequence> diseases = ArrayAdapter.createFromResource(
                 getActivity(),
                 R.array.category_spinner,
@@ -81,7 +85,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String text = parent.getItemAtPosition(position).toString();
-                Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
                 ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(R.color.colorPrimary));
             }
 
@@ -90,15 +94,39 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        binding.postsList.getItemAnimator().setChangeDuration(0);
-
+        recyclerPosts = view.findViewById(R.id.posts_list);
+        iniRecyclerView();
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //iniRecyclerView();
+    }
+
+    private void iniRecyclerView() {
+        Query query = rootPost.limit(100);
+        FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
+                .setQuery(query, PostModel.class)
+                .build();
+
+        tempAdapter = new CustomPostAdapter(tempOption, mContext);
+        recyclerPosts.setAdapter(tempAdapter);
+        //recyclerPosts.setHasFixedSize(true);
+        recyclerPosts.setLayoutManager(new LinearLayoutManager(mContext));
+        recyclerPosts.getItemAnimator().setChangeDuration(0);
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mListener =
+        //binding.postsList.setAdapter(tempAdapter);
+        //showMessage("start state");
+        //recyclerPosts.setAdapter(tempAdapter);
+        tempAdapter.startListening();
+      /*  mListener =
                 rootPost.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -120,7 +148,7 @@ public class HomeFragment extends Fragment {
                                     break;
                                 case MODIFIED:
                                        /* posts.add(newIndex,currentPost);
-                                        posts.remove(oldIndex);*/
+                                        posts.remove(oldIndex);
                                     upVotes = (int) tempDoc.get("upVotes");
                                     downVotes = (int) tempDoc.get("downVotes");
                                     posts.get(oldIndex).setUpVotes(upVotes);
@@ -132,17 +160,25 @@ public class HomeFragment extends Fragment {
                         PostAdapter newAdapter = new PostAdapter(posts, mContext);
                         binding.postsList.setAdapter(newAdapter);
                     }
-                });
+                });*/
     }
 
     private void showMessage(String message) {
-        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //showMessage("onActivityCreated");
+        //iniRecyclerView();
+    }
 
     @Override
     public void onStop() {
         super.onStop();
+        //showMessage("stop state");
+        tempAdapter.stopListening();
         // mListener.remove();
     }
 
@@ -151,4 +187,7 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         //binding = null;
     }
+
+
 }
+

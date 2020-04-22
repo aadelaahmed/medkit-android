@@ -12,7 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_circle"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.PhotoPostActivity"></activity>
+        <activity android:name=".activities.PostDetail"></activity>
+        <activity android:name=".activities.PhotoPostActivity" />
         <activity
             android:name=".activities.ProfileActivity"
             android:theme="@style/NoActionBarAppTheme" />

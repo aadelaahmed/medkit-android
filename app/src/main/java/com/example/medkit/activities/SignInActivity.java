@@ -10,13 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignInBinding;
-import com.example.medkit.model.User;
+import com.example.medkit.utils.LoadingAlertDialog;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -40,10 +36,13 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class SignInActivity extends AppCompatActivity {
     //TextView textViewLogin, textViewTouch;
@@ -58,8 +57,9 @@ public class SignInActivity extends AppCompatActivity {
     CollectionReference usersCollection;
     SharedPreferences userSharedPref;
     boolean isFirstTime;
+    LoadingAlertDialog tempDialog;
 
-    // ProgressDialog mProgressDialog;
+    ProgressDialog mProgressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +70,7 @@ public class SignInActivity extends AppCompatActivity {
         ActionBar actionBar= getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
-        // mProgressDialog = SignHomeActivity.iniProgressBar(SignInActivity.this);
+        tempDialog = new LoadingAlertDialog(this);
 
         /* textViewTouch = findViewById(R.id.text_view_touch);
         textViewLogin = findViewById(R.id.text_view_login);
@@ -81,7 +81,7 @@ public class SignInActivity extends AppCompatActivity {
         binding.iconGoogleSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //mProgressDialog.show();
+                tempDialog.startAlertDialog();
                 requestClientGoogle();
             }
         });
@@ -91,7 +91,7 @@ public class SignInActivity extends AppCompatActivity {
             public void onClick(View view) {
                 /*binding.progressSignIn.setVisibility(View.VISIBLE);
                 binding.btnLognIn.setVisibility(View.INVISIBLE);*/
-                // mProgressDialog.show();
+                tempDialog.startAlertDialog();
                 String email = binding.etEmailSignIn.getText().toString();
                 String password = binding.etPasswordSignIn.getText().toString();
                 logIn(email, password);
@@ -101,7 +101,7 @@ public class SignInActivity extends AppCompatActivity {
         binding.iconFacebookSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //mProgressDialog.show();
+                tempDialog.startAlertDialog();
                 LoginManager.getInstance().logInWithReadPermissions(SignInActivity.this, Arrays.asList("email", "public_profile", "user_friends"));
                 LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
                     @Override
@@ -111,14 +111,14 @@ public class SignInActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancel() {
-                        //mProgressDialog.dismiss();
+                        tempDialog.dismissAlertDialog();
                         LoginManager.getInstance().logOut();
                         showMessage("login facebook only cancled");
                     }
 
                     @Override
                     public void onError(FacebookException error) {
-                        //mProgressDialog.dismiss();
+                        tempDialog.dismissAlertDialog();
                         showMessage(error.getMessage());
                     }
                 });
@@ -155,7 +155,7 @@ public class SignInActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             // Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            //mProgressDialog.dismiss();
+                            tempDialog.dismissAlertDialog();
                             showMessage(task.getException().getMessage());
                             //updateUI(null);
                         }
@@ -172,7 +172,7 @@ public class SignInActivity extends AppCompatActivity {
             currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    // mProgressDialog.dismiss();
+                    tempDialog.dismissAlertDialog();
                     showMessage("sign up first");
                     startActivity(new Intent(SignInActivity.this, SignHomeActivity.class));
                     finish();
@@ -181,7 +181,7 @@ public class SignInActivity extends AppCompatActivity {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            //mProgressDialog.dismiss();
+                            tempDialog.dismissAlertDialog();
                             showMessage(e.getMessage());
                         }
                     });
@@ -192,7 +192,7 @@ public class SignInActivity extends AppCompatActivity {
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
             Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
-            //mProgressDialog.dismiss();
+            tempDialog.dismissAlertDialog();
             startActivity(intent);
             finish();
         }
@@ -216,23 +216,22 @@ public class SignInActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                    /*     binding.btnLognIn.setVisibility(View.VISIBLE);
                         binding.progressSignIn.setVisibility(View.INVISIBLE);*/
-                        // mProgressDialog.dismiss();
-                        verifyEmailAddress();
+                        tempDialog.dismissAlertDialog();
                     } else {
                         try {
                             throw task.getException();
                         }
                         // if user enters wrong email.
                         catch (FirebaseAuthInvalidUserException invalidEmail) {
-                            //mProgressDialog.dismiss();
+                            tempDialog.dismissAlertDialog();
                             showMessage(invalidEmail.getMessage());
                         }
                         // if user enters wrong password.
                         catch (FirebaseAuthInvalidCredentialsException wrongPassword) {
-                            // mProgressDialog.dismiss();
+                            tempDialog.dismissAlertDialog();
                             showMessage(wrongPassword.getMessage());
                         } catch (Exception e) {
-                            //mProgressDialog.dismiss();
+                            tempDialog.dismissAlertDialog();
                             showMessage(e.getMessage());
                         }
                     }
@@ -247,7 +246,7 @@ public class SignInActivity extends AppCompatActivity {
         } else {
            /* binding.btnLognIn.setVisibility(View.VISIBLE);
             binding.progressSignIn.setVisibility(View.INVISIBLE);*/
-            //mProgressDialog.dismiss();
+            tempDialog.dismissAlertDialog();
             showMessage("please enter your email and password");
             binding.etEmailSignIn.setError("Email iccorrect");
         }
@@ -259,7 +258,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void verifyEmailAddress() {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        // mProgressDialog.dismiss();
+        tempDialog.dismissAlertDialog();
         if (currentUser.isEmailVerified()) {
             showMessage("login successfully");
             updateUI(currentUser);
@@ -321,7 +320,7 @@ public class SignInActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                // mProgressDialog.dismiss();
+                tempDialog.dismissAlertDialog();
                 showMessage("Google sign in failed");
                 Log.w("TAG", "Google sign in failed", e);
                 // ...

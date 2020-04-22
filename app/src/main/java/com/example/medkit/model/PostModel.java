@@ -5,6 +5,16 @@ import android.graphics.Bitmap;
 import com.google.firebase.firestore.Exclude;
 
 public class PostModel {
+
+    public static final String TITLE_KEY = "TITLE_KEY";
+    public static final String DESCRIPTION_KEY = "DESCRIPTION_KEY";
+    public static final String POST_IMAGE_KEY = "POST_IMAGE_KEY";
+    public static final String TIME_KEY = "TIME_KEY";
+    public static final String USER_NAME_KEY = "USER_NAME_KEY";
+    public static final String POST_IMAGE_FLAG = "POST_IMAGE_FLAG";
+    public static final String USER_IMAGE_KEY = "USER_IMAGE_KEY";
+    public static final String POST_KEY = "POST_KEY";
+
     private String userName;
     private String title;
     private String description;

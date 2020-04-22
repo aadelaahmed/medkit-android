@@ -8,14 +8,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.medkit.databinding.ActivityProfileBinding;
 import com.example.medkit.model.PostModel;
-import com.example.medkit.utils.PostAdapter;
+import com.example.medkit.utils.CustomPostAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,12 +23,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +36,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class ProfileActivity extends AppCompatActivity {
     private List<PostModel> posts;
@@ -52,8 +48,9 @@ public class ProfileActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     ListenerRegistration mListener;
-    PostAdapter postAdapter;
-    RecyclerView recyclerPostProfile;
+    //PostAdapter postAdapter;
+    CustomPostAdapter tempAdapter;
+    //RecyclerView recyclerPostProfile;
     Uri pickedImageUri;
     //private List<String> resPostKeys;
     private List<PostModel> lstPostModel;
@@ -77,6 +74,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+
        /* Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_type_user);
         Bitmap ibitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_communicate);
         posts.add(new PostModel("Ahmed Medra", "new Post", "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.", "Diabetes", ppbitmap, ibitmap, 10, 10, 10, true, false));
@@ -86,48 +84,65 @@ public class ProfileActivity extends AppCompatActivity {
         PostAdapter postAdapter = new PostAdapter(posts,this);
 
         binding.profilePostsContainer.setAdapter(postAdapter);*/
-        binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this));
+       /* binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this));
         binding.profilePostsContainer.getItemAnimator().setChangeDuration(0);
         recyclerPostProfile = binding.profilePostsContainer;
         recyclerPostProfile.setHasFixedSize(true);
-        recyclerPostProfile.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerPostProfile.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));*/
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         rootUsers = db.collection("Users");
         rootPosts = db.collection("Posts");
         docUser = rootUsers.document(currentUser.getUid());
         lstPostModel = new ArrayList<>();
-        showMessage("create state");
+        //showMessage("create state");
+        iniRecyclerView();
         Glide.with(this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
         //binding.userProfilePicture.setImageURI(currentUser.getPhotoUrl());
     }
 
-    @Override
+   /* @Override
     protected void onRestart() {
         super.onRestart();
         showMessage("restart state");
-    }
+    }*/
 
-    @Override
+  /*  @Override
     protected void onDestroy() {
         super.onDestroy();
         showMessage("Destroy state");
 
-    }
+    }*/
 
-    @Override
+   /* @Override
     protected void onResume() {
         super.onResume();
         showMessage("resume state");
+
+    }*/
+
+    private void iniRecyclerView() {
+        Query query = rootPosts
+                .whereEqualTo("userID", currentUser.getUid());
+        FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
+                .setQuery(query, PostModel.class)
+                .build();
+
+        tempAdapter = new CustomPostAdapter(tempOption, this);
+        binding.profilePostsContainer.setAdapter(tempAdapter);
+        binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this));
+        binding.profilePostsContainer.getItemAnimator().setChangeDuration(0);
+        binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        showMessage("start state");
+        //showMessage("start state");
+        tempAdapter.startListening();
+        /*currentUser = mAuth.getCurrentUser();
 
-        currentUser = mAuth.getCurrentUser();
         binding.userProfilePicture.setImageURI(currentUser.getPhotoUrl());
         mListener = rootPosts.whereEqualTo("userID", currentUser.getUid())
                 .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
@@ -187,7 +202,8 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        showMessage("stop state");
+        //showMessage("stop state");
+        tempAdapter.stopListening();
         //mListener.remove();
     }
 

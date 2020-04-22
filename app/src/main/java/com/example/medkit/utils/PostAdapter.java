@@ -40,8 +40,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     @NonNull
     @Override
     public PostAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-        View listItem = layoutInflater.inflate(R.layout.post_layout,parent,false);
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        View listItem = layoutInflater.inflate(R.layout.post_layout, parent, false);
         return new ViewHolder(listItem);
     }
 
@@ -50,7 +50,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         post = mPosts.get(position);
         //TextViews code
 
-        TextView userNameTV,titleTV,contentTV,categoryTV, n_comments, commentTV;
+        TextView userNameTV, titleTV, contentTV, categoryTV, n_comments, commentTV;
         userNameTV = holder.userNameTV;
         userNameTV.setText(post.getUserName());
         titleTV = holder.titleTV;
@@ -60,7 +60,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         categoryTV = holder.categoryTV;
         categoryTV.setText(post.getCategory());
         n_comments = holder.n_comments;
-        n_comments.setText(post.getnComments()+" comments");
+        n_comments.setText(post.getnComments() + " comments");
         commentTV = holder.commentTV;
         holder.upVote.setText(post.getUpVotes() + " UP");
         holder.downVote.setText(post.getDownVotes() + " Down");
@@ -71,7 +71,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         commentTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(holder.itemView.getContext(),"clicked",Toast.LENGTH_SHORT).show();
+                Toast.makeText(holder.itemView.getContext(), "clicked", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -170,7 +170,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         });*/
 
 
-
         //ImageViews code
 //        ImageView userProfilePicture, image;
 //        userProfilePicture = holder.userProfilePicture;
@@ -200,7 +199,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             titleTV = itemView.findViewById(R.id.post_title_tv);
             contentTV = itemView.findViewById(R.id.post_content_tv);
             categoryTV = itemView.findViewById(R.id.post_category_tv);
-            userProfilePicture = itemView.findViewById(R.id.post_user_profile_picture);
+            userProfilePicture = itemView.findViewById(R.id.comment_user_photo);
             image = itemView.findViewById(R.id.post_image);
             upVote = itemView.findViewById(R.id.up_vote_btn);
             downVote = itemView.findViewById(R.id.down_vote_btn);

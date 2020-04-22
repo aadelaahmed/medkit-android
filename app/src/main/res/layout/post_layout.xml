@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginLeft="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginRight="8dp"
+    app:cardBackgroundColor="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="4dp"
@@ -11,7 +20,7 @@
     android:paddingBottom="8dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/post_user_profile_picture"
+        android:id="@+id/comment_user_photo"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
@@ -31,9 +40,9 @@
         android:textSize="13sp"
         android:textStyle="bold"
         android:paddingLeft="12dp"
-        app:layout_constraintBottom_toBottomOf="@+id/post_user_profile_picture"
-        app:layout_constraintStart_toEndOf="@+id/post_user_profile_picture"
-        app:layout_constraintTop_toTopOf="@+id/post_user_profile_picture" />
+        app:layout_constraintBottom_toBottomOf="@+id/comment_user_photo"
+        app:layout_constraintStart_toEndOf="@+id/comment_user_photo"
+        app:layout_constraintTop_toTopOf="@+id/comment_user_photo" />
 
     <ImageView
         android:id="@+id/imageView4"
@@ -64,7 +73,7 @@
         app:layout_constraintDimensionRatio="w,36:19"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/post_user_profile_picture"
+        app:layout_constraintTop_toBottomOf="@+id/comment_user_photo"
         app:srcCompat="@drawable/test" />
 
     <TextView
@@ -73,9 +82,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="I need help for my arm"
+        android:maxLines="1"
         android:textColor="@color/textActiveColor"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/post_user_profile_picture"
+        app:layout_constraintStart_toStartOf="@+id/comment_user_photo"
         app:layout_constraintTop_toBottomOf="@+id/post_image" />
 
     <TextView
@@ -85,6 +95,7 @@
         android:layout_marginEnd="8dp"
         android:background="@drawable/blue_round_tv"
         android:paddingStart="12dp"
+        android:maxLines="1"
         android:paddingEnd="12dp"
         android:text="Diabetes"
         android:textColor="@color/white"
@@ -145,7 +156,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:background="@drawable/round_text"
+        android:background="@drawable/edittext_button_style_rounded"
         android:clickable="true"
         android:drawableEnd="@drawable/ic_send"
         android:ems="10"
@@ -155,3 +166,4 @@
         app:layout_constraintTop_toBottomOf="@+id/down_vote_btn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

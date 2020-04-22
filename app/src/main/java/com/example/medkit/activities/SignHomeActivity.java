@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignHomeBinding;
 import com.example.medkit.model.User;
+import com.example.medkit.utils.LoadingAlertDialog;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -31,6 +32,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -52,9 +54,9 @@ public class SignHomeActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection;
-    ProgressDialog mProgressDialog;
+    LoadingAlertDialog tempDialog;
 
-    public static ProgressDialog iniProgressBar(Context context) {
+    public ProgressDialog iniProgressBar(Context context) {
         ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setContentView(R.layout.activity_loading);
         progressDialog.getWindow().setBackgroundDrawableResource(
@@ -72,7 +74,7 @@ public class SignHomeActivity extends AppCompatActivity {
         usersCollection = db.collection("Users");
         firebaseAuth = FirebaseAuth.getInstance();
 
-        mProgressDialog = iniProgressBar(this);
+        tempDialog = new LoadingAlertDialog(this);
         sharedPreferences = getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
         binding.emailSignUpButton.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +88,7 @@ public class SignHomeActivity extends AppCompatActivity {
         binding.facebookSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mProgressDialog.show();
+                tempDialog.startAlertDialog();
                 LoginManager.getInstance().logInWithReadPermissions(SignHomeActivity.this, Arrays.asList("email", "public_profile", "user_friends"));
                 LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
                     @Override
@@ -96,14 +98,14 @@ public class SignHomeActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancel() {
-                        mProgressDialog.dismiss();
+                        tempDialog.dismissAlertDialog();
                         LoginManager.getInstance().logOut();
                         showMessage("login facebook only cancled");
                     }
 
                     @Override
                     public void onError(FacebookException error) {
-                        mProgressDialog.dismiss();
+                        tempDialog.dismissAlertDialog();
                         showMessage(error.getMessage());
                     }
                 });
@@ -115,7 +117,7 @@ public class SignHomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Configure Google Sign In
-                //mProgressDialog.show();
+                tempDialog.startAlertDialog();
                 requestClientGoogle();
                 //startActivity(new Intent(SignHomeActivity.this,UserTypeActivity.class));
             }
@@ -124,7 +126,7 @@ public class SignHomeActivity extends AppCompatActivity {
         binding.signinTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mProgressDialog.show();
+                tempDialog.startAlertDialog();
                 startActivity(new Intent(SignHomeActivity.this,SignInActivity.class));
                 finish();
             }
@@ -133,19 +135,19 @@ public class SignHomeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        mProgressDialog.dismiss();
+        tempDialog.dismissAlertDialog();
         finish();
         overridePendingTransition(0, android.R.anim.fade_out);
         super.onBackPressed();
     }
 
-    @Override
+  /*  @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null)
             startActivity(new Intent(SignHomeActivity.this, CommunityActivity.class));
-    }
+    }*/
 
     public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -177,7 +179,7 @@ public class SignHomeActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                mProgressDialog.dismiss();
+                tempDialog.dismissAlertDialog();
                 showMessage("Google sign in failed");
                 Log.w("TAG", "Google sign in failed", e);
                 // ...
@@ -199,10 +201,16 @@ public class SignHomeActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             currentUser = firebaseAuth.getCurrentUser();
+                            UserProfileChangeRequest tempUpdate =
+                                    new UserProfileChangeRequest.Builder()
+                                            .setDisplayName(acct.getDisplayName())
+                                            .setPhotoUri(acct.getPhotoUrl())
+                                            .build();
+                            currentUser.updateProfile(tempUpdate);
                             editor.putString(User.EMAIL, acct.getId());
                             isFirstTime = task.getResult().getAdditionalUserInfo().isNewUser();
                             if (!isFirstTime) {
-                                mProgressDialog.dismiss();
+                                tempDialog.dismissAlertDialog();
                                 showMessage("Email already existed");
                                 return;
                             }
@@ -213,7 +221,7 @@ public class SignHomeActivity extends AppCompatActivity {
                             //updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            mProgressDialog.dismiss();
+                            tempDialog.dismissAlertDialog();
                             showMessage("signInWithCredential:failure");
                             Log.w("TAG", "signInWithCredential:failure", task.getException());
                             // Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
@@ -243,7 +251,7 @@ public class SignHomeActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             // Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            mProgressDialog.dismiss();
+                            tempDialog.dismissAlertDialog();
                             showMessage("Email already existed");
                         }
                     }
