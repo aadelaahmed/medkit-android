@@ -1,15 +1,13 @@
 package com.example.medkit.model;
 
-import com.google.firebase.firestore.Exclude;
-
 import java.util.List;
 import java.util.Map;
 
 public class User {
-    /* public final static String USER_ID = "uid";
+     public final static String USER_ID = "uid";
      public final static String FULLNAME = "fullname";
      public final static String IMGURL = "imgUrl";
-     public final static String LOCATION = "LOCATION";
+    /* public final static String LOCATION = "LOCATION";
      public final static String AGE = "AGE";
      public final static String GENDER = "GENDER";*/
     public final static String G_YEAR = "g-year";
@@ -24,19 +22,44 @@ public class User {
     //private Map<String,String> generalInfo;
    /* private int age;
     private String createdTime;
+    */
+    private String uid;
+    private String creationTime;
     private String email;
     private String fullName;
+    private String photoUrl;
+    public String getUid() {
+        return uid;
+    }
+    public void setUid(String uid) { this.uid = uid; }
+    public String getCreationtime() {
+        return creationTime;
+    }
+    public void setCreationtime(String creationTime) {
+        this.creationTime = creationTime;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+    public String getFullname() {
+        return fullName;
+    }
+    public void setFullname(String fullName) {
+        this.fullName = fullName;
+    }
+/*
     private String gender;
-    private String imgUrl;
     private String userId;
     private String lastSignIn;
     private String gradFaculty;
     private String gradYear;
     private String speciality;
     private String userType;*/
-
-    private String userId;
-    private String createdTime;
     /* private String gradFaculty;
      private String gradYear;
      private String speciality;
@@ -58,14 +81,6 @@ public class User {
         this.createdTime = createdTime;
         this.userType = userType;
     }*/
-  @Exclude
-  public String getUserId() {
-      return userId;
-  }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     public Map<String, Object> getUserType() {
         return userType;
@@ -75,9 +90,13 @@ public class User {
         this.userType = userType;
     }
 
-    public User(String createdTime, Map<String, Object> userType) {
-        this.createdTime = createdTime;
+    public User(String creationTime, Map<String, Object> userType,String uid, String email, String fullName, String photoUrl) {
+        this.creationTime = creationTime;
         this.userType = userType;
+        this.uid =uid;
+        this.email = email;
+        this.fullName = fullName;
+        this.photoUrl = photoUrl;
     }
 
     public List<String> getPostKeys() {
@@ -132,21 +151,6 @@ public class User {
     public User() {
     }
 
-    public String getCreatedTime() {
-        return createdTime;
-    }
-
-    public void setCreatedTime(String createdTime) {
-        this.createdTime = createdTime;
-    }
-
- /*   public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }*/
 
    /* public Map<String, String> getGeneralInfo() {
         return generalInfo;

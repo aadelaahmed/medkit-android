@@ -45,10 +45,10 @@ public class ChatCustomAdapter extends RecyclerView.Adapter<ChatCustomAdapter.Vi
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name = itemView.findViewById(R.id.chat_name_tv);
+        TextView name = itemView.findViewById(R.id.user_name);
         TextView time = itemView.findViewById(R.id.time_tv);
         TextView lastMessage = itemView.findViewById(R.id.last_message_tv);
-        CircleImageView chatImage = itemView.findViewById(R.id.chat_image);
+        CircleImageView chatImage = itemView.findViewById(R.id.user_photo);
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

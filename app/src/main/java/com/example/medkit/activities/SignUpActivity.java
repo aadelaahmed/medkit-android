@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignUpBinding;
 import com.example.medkit.model.User;
-import com.example.medkit.utils.LoadingAlertDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -44,7 +43,6 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     SharedPreferences.Editor editor;
     FirebaseAuth firebaseAuth;
     FirebaseUser currentUser;
-    LoadingAlertDialog tempDialog;
     StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("users");
     boolean isDoctor = false;
     private static final Pattern PASSWORD_PATTERN =
@@ -76,7 +74,6 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
-        tempDialog = new LoadingAlertDialog(this);
         sharedPreferences = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
         isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, true);
@@ -89,11 +86,10 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 public void onClick(View v) {
                     binding.continueBtn.setVisibility(View.INVISIBLE);
                     binding.progressSignUp.setVisibility(View.VISIBLE);
-                    tempDialog.startAlertDialog();
-                    name = binding.nameEd.getEditText().getText().toString().trim();
-                    email = binding.emailEd.getEditText().getText().toString().trim();
+                    name = binding.nameEd.getEditText().getText().toString();
+                    email = binding.emailEd.getEditText().getText().toString();
                     password = binding.passwordEd.getEditText().getText().toString();
-                    age = binding.ageEd.getEditText().getText().toString().trim();
+                    age = binding.ageEd.getEditText().getText().toString();
                     RadioButton mRadio = binding.maleRadio;
                     RadioButton fRadio = binding.femaleRadio;
                     signUp(name, email, password, age, mRadio, fRadio);
@@ -109,7 +105,6 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);
-                    tempDialog.dismissAlertDialog();
                     if (task.isSuccessful()) {
                         currentUser = firebaseAuth.getCurrentUser();
                         updateUserProfile();
@@ -133,21 +128,19 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 public void onFailure(@NonNull Exception e) {
                     binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);
-                    tempDialog.dismissAlertDialog();
                     showMessage(e.getMessage());
                 }
             });
         } else {
             binding.progressSignUp.setVisibility(View.INVISIBLE);
             binding.continueBtn.setVisibility(View.VISIBLE);
-            tempDialog.dismissAlertDialog();
             showMessage("please check the required fields");
         }
     }
 
     private void updateUserProfile() {
         //Uri uri = Uri.parse("android.resource://"+this.getPackageName()+"/drawable/man.jpg");
-        Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.userphoto);
+        Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.man);
         //Uri uri=Uri.parse("R.drawable.man.jpg");
         UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)

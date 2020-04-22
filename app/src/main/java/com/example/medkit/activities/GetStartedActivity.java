@@ -6,12 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.medkit.R;
-import com.example.medkit.databinding.ActivityCommunityBinding;
 import com.example.medkit.databinding.ActivityGetStartedBinding;
 import com.example.medkit.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -19,12 +16,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GetStartedActivity extends AppCompatActivity {
@@ -35,6 +29,8 @@ public class GetStartedActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
     FirebaseUser currentUser;
     String emailUser = null;
+    String uid;
+    String fullName;
     FirebaseAuth.AuthStateListener mAuthStateListener;
     private ActivityGetStartedBinding binding;
 
@@ -101,8 +97,8 @@ public class GetStartedActivity extends AppCompatActivity {
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
-
     private void uploadIntoFireStore() {
+        sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
       /*  int age = sharedPreferences.getInt(User.AGE,222);
         String createdTime = sharedPreferences.getString(User.CREATED_TIME,"null");
         String email = sharedPreferences.getString(User.EMAIL,"null");
@@ -117,7 +113,10 @@ public class GetStartedActivity extends AppCompatActivity {
 
         User newUser = new User(age,createdTime,email,fullName,gender,userPhoto,userId,gFaculty,gYear,speciality,userType);*/
         boolean isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
-        String createdTime = sharedPreferences.getString(User.CREATED_TIME, "null");
+        String creationTime = sharedPreferences.getString(User.CREATED_TIME, null);
+        fullName = sharedPreferences.getString(User.FULLNAME, null);
+        uid = sharedPreferences.getString(User.USER_ID, null);
+        emailUser = sharedPreferences.getString(User.EMAIL, null);
         String uType = "";
         User newUser;
         Map<String, Object> userType = new HashMap<>();
@@ -132,11 +131,12 @@ public class GetStartedActivity extends AppCompatActivity {
             userType.put(User.SPECIALITY, speciality);
             userType.put(User.LOCATION, location);
             userType.put(User.USERTYPE, uType);
-            newUser = new User(createdTime, userType);
+            //Photo url =storagerefrence + User ID ,so we pass the the six parameter in constructor as uId
+            newUser = new User(creationTime, userType,uid, emailUser, fullName,uid);
         } else {
             uType = "Patient";
             userType.put(User.USERTYPE, uType);
-            newUser = new User(createdTime, userType);
+            newUser = new User(creationTime, userType,uid,emailUser, fullName, uid);
         }
         //FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         editor.clear();

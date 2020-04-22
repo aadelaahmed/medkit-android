@@ -34,7 +34,7 @@
         app:layout_constraintTop_toTopOf="@+id/already_sign_in" />
 
     <ImageView
-        android:id="@+id/chat_image"
+        android:id="@+id/user_photo"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginTop="48dp"
@@ -56,7 +56,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_image" />
+        app:layout_constraintTop_toBottomOf="@+id/user_photo" />
 
     <Button
         android:id="@+id/google_sign_up_button"

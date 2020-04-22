@@ -51,6 +51,7 @@ public class SignHomeActivity extends AppCompatActivity {
     FirebaseUser currentUser = null;
     CallbackManager mCallbackManager;
     SharedPreferences.Editor editor;
+    String createdTime;
     GoogleSignInClient mGoogleSignInClient;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection;
@@ -264,7 +265,7 @@ public class SignHomeActivity extends AppCompatActivity {
             String userName = currentUser.getDisplayName();
             String userPhoto = currentUser.getPhotoUrl().toString();
             String userEmail = currentUser.getEmail();*/
-            String createdTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
+            createdTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
 
            /* editor.putString(User.USER_ID,userId);
             editor.putString(User.FULLNAME,userName);
