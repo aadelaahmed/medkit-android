@@ -16,11 +16,9 @@ import com.example.medkit.activities.AddPostActivity;
 import com.example.medkit.databinding.FragmentHomeBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.CustomPostAdapter;
-import com.example.medkit.utils.PostAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
@@ -39,18 +37,11 @@ public class HomeFragment extends Fragment {
     private List<PostModel> posts;
     private FragmentHomeBinding binding;
     public Context mContext;
-    public int upVotes;
     CollectionReference rootPost = FirebaseFirestore.getInstance().collection("Posts");
-    public int downVotes;
     CustomPostAdapter tempAdapter;
-    PostAdapter postAdapter;
-    ListenerRegistration mListener;
-
     public HomeFragment(Context mContext) {
         this.mContext = mContext;
     }
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -116,7 +107,6 @@ public class HomeFragment extends Fragment {
         //recyclerPosts.setHasFixedSize(true);
         recyclerPosts.setLayoutManager(new LinearLayoutManager(mContext));
         recyclerPosts.getItemAnimator().setChangeDuration(0);
-
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.example.medkit.model;
 import android.graphics.Bitmap;
 
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FieldValue;
 
 public class PostModel {
 
@@ -18,12 +19,13 @@ public class PostModel {
     private String userName;
     private String title;
     private String description;
-    private String createdTime;
+    //private String createdTime;
     private String postPhoto;
     private String userPhoto;
     private String userID;
     private String postKey;
     private String category;
+    private Object currentDate;
 
     private Bitmap userProfilePicture;
     private Bitmap image;
@@ -34,30 +36,39 @@ public class PostModel {
     private boolean isDownVoted;
 
 
-    public PostModel(String title, String description, String createdTime, String postPhoto, String userPhoto, String userID, String category) {
+    public PostModel(String title, String description, String postPhoto, String userPhoto, String userID, String category) {
         this.title = title;
         this.description = description;
-        this.createdTime = createdTime;
         this.postPhoto = postPhoto;
         this.userPhoto = userPhoto;
         this.userID = userID;
         this.category = category;
     }
 
-    public PostModel(String title, String description, String createdTime, String postPhoto, String userPhoto, String userID, String category, int upVotes, int downVotes) {
+
+    public PostModel() {
+
+    }
+
+    public PostModel( String title, String description, String postPhoto, String userPhoto, String userID, String category, int upVotes, int downVotes) {
         this.title = title;
         this.description = description;
-        this.createdTime = createdTime;
         this.postPhoto = postPhoto;
         this.userPhoto = userPhoto;
         this.userID = userID;
         this.category = category;
         this.upVotes = upVotes;
         this.downVotes = downVotes;
+        this.currentDate = FieldValue.serverTimestamp();
+
     }
 
-    public PostModel() {
+    public Object getCurrentDate() {
+        return currentDate;
+    }
 
+    public void setCurrentDate(Object currentDate) {
+        this.currentDate = currentDate;
     }
 
     @Override
@@ -66,7 +77,6 @@ public class PostModel {
                 "userName='" + userName + '\'' +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", createdTime='" + createdTime + '\'' +
                 ", postPhoto='" + postPhoto + '\'' +
                 ", userPhoto='" + userPhoto + '\'' +
                 ", userID='" + userID + '\'' +
@@ -99,13 +109,6 @@ public class PostModel {
         this.isDownVoted = isDownVoted;
     }
 
-    public String getCreatedTime() {
-        return createdTime;
-    }
-
-    public void setCreatedTime(String createdTime) {
-        this.createdTime = createdTime;
-    }
 
     public String getPostPhoto() {
         return postPhoto;
