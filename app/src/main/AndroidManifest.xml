@@ -17,7 +17,8 @@
         <activity
             android:name=".activities.ProfileActivity"
             android:theme="@style/NoActionBarAppTheme" />
-        <activity android:name=".activities.ChatActivity" />
+        <activity android:name=".activities.ChatActivity"
+            android:theme="@style/NoActionBarAppTheme" />
         <activity android:name=".activities.CommunityActivity" />
         <activity android:name=".activities.DoctorLicenseActivity" />
         <activity

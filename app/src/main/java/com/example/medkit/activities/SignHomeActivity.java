@@ -51,12 +51,11 @@ public class SignHomeActivity extends AppCompatActivity {
     FirebaseUser currentUser = null;
     CallbackManager mCallbackManager;
     SharedPreferences.Editor editor;
-    String createdTime;
+    String creationTime;
     GoogleSignInClient mGoogleSignInClient;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection;
     LoadingAlertDialog tempDialog;
-
     public ProgressDialog iniProgressBar(Context context) {
         ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setContentView(R.layout.activity_loading);
@@ -142,13 +141,17 @@ public class SignHomeActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-  /*  @Override
+    @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if (firebaseUser != null)
-            startActivity(new Intent(SignHomeActivity.this, CommunityActivity.class));
-    }*/
+        if (firebaseUser != null) {
+            {
+                startActivity(new Intent(SignHomeActivity.this, CommunityActivity.class));
+
+            }
+        }
+    }
 
     public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -265,13 +268,13 @@ public class SignHomeActivity extends AppCompatActivity {
             String userName = currentUser.getDisplayName();
             String userPhoto = currentUser.getPhotoUrl().toString();
             String userEmail = currentUser.getEmail();*/
-            createdTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
+            creationTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
 
            /* editor.putString(User.USER_ID,userId);
             editor.putString(User.FULLNAME,userName);
             editor.putString(User.IMGURL,userPhoto);
             editor.putString(User.EMAIL,userEmail); */
-            editor.putString(User.CREATED_TIME, createdTime);
+            editor.putString(User.CREATED_TIME, creationTime);
             editor.commit();
             Intent intent = new Intent(SignHomeActivity.this, UserTypeActivity.class);
             startActivity(intent);

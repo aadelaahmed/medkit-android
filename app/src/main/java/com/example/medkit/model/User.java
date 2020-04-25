@@ -17,6 +17,7 @@ public class User {
     public static final String LOCATION = "location";
     public final static String CREATED_TIME = "CREATED_TIME";
     public static final String IS_DOCTOR = "IS_DOCTOR";
+    public static final String IS_CLICKED = "IS_CLICKED";
     public static final String EMAIL = "EMAIL";
     // private Map<String,String> userType;
     //private Map<String,String> generalInfo;

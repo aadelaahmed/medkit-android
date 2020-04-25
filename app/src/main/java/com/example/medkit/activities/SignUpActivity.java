@@ -43,6 +43,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     SharedPreferences.Editor editor;
     FirebaseAuth firebaseAuth;
     FirebaseUser currentUser;
+    String creationTime;
     StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("users");
     boolean isDoctor = false;
     private static final Pattern PASSWORD_PATTERN =
@@ -55,7 +56,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     String email, name, password, age;
     public static String timestampToString(long time) {
 
-        SimpleDateFormat sfd = new SimpleDateFormat("ddd, dd MMM yyyy HH':'mm':'ss 'GMT'");
+        SimpleDateFormat sfd = new SimpleDateFormat("EEE, dd MMM yyyy HH':'mm':'ss 'GMT'");
         String date = sfd.format(new Date(time));
         /*
         Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
@@ -280,7 +281,13 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     }
 
     private void setSharedData() {
-
+        sharedPreferences = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        creationTime = timestampToString(currentUser.getMetadata().getCreationTimestamp());
+        editor.putString(User.FULLNAME,name);
+        editor.putString(User.EMAIL,email);
+        editor.putString(User.USER_ID,currentUser.getUid());
+        editor.putString(User.CREATED_TIME,creationTime);
         /*String gender = "";
         if (binding.maleRadio.isChecked())
             gender = "Male";

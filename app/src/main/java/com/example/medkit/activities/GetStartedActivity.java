@@ -110,7 +110,6 @@ public class GetStartedActivity extends AppCompatActivity {
         String gYear = sharedPreferences.getString(User.G_YEAR,"null");
         String speciality = sharedPreferences.getString(User.SPECIALITY,"null");
         String userType = sharedPreferences.getString(User.USERTYPE,"null");
-
         User newUser = new User(age,createdTime,email,fullName,gender,userPhoto,userId,gFaculty,gYear,speciality,userType);*/
         boolean isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
         String creationTime = sharedPreferences.getString(User.CREATED_TIME, null);
