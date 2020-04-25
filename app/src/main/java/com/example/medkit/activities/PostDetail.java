@@ -108,7 +108,6 @@ public class PostDetail extends AppCompatActivity {
             postImage = recIntent.getStringExtra(PostModel.POST_IMAGE_KEY);
             Glide.with(this).load(postImage).into(binding.postDetailImg);
         }
-
         String title = recIntent.getStringExtra(PostModel.TITLE_KEY);
         String description = recIntent.getStringExtra(PostModel.DESCRIPTION_KEY);
         String userPhoto = recIntent.getStringExtra(PostModel.USER_IMAGE_KEY);

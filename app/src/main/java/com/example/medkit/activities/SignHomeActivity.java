@@ -1,9 +1,9 @@
 package com.example.medkit.activities;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +17,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -35,6 +37,9 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 
@@ -57,14 +62,14 @@ public class SignHomeActivity extends AppCompatActivity {
     CollectionReference usersCollection;
     LoadingAlertDialog tempDialog;
 
-    public ProgressDialog iniProgressBar(Context context) {
+   /* public ProgressDialog iniProgressBar(Context context) {
         ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setContentView(R.layout.activity_loading);
         progressDialog.getWindow().setBackgroundDrawableResource(
                 android.R.color.transparent
         );
         return progressDialog;
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +86,8 @@ public class SignHomeActivity extends AppCompatActivity {
         binding.emailSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editor.putString(User.NORMAL_REGISTER, "normal register");
+                editor.commit();
                 startActivity(new Intent(SignHomeActivity.this,UserTypeActivity.class));
                 //TODO enable action back click
                 finish();
@@ -95,6 +102,7 @@ public class SignHomeActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
                         handleFacebookAccessToken(loginResult.getAccessToken());
+                        //requestFacebookData(loginResult.getAccessToken());
                     }
 
                     @Override
@@ -133,6 +141,7 @@ public class SignHomeActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     public void onBackPressed() {
@@ -178,6 +187,7 @@ public class SignHomeActivity extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
+
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 tempDialog.dismissAlertDialog();
@@ -208,7 +218,11 @@ public class SignHomeActivity extends AppCompatActivity {
                                             .setPhotoUri(acct.getPhotoUrl())
                                             .build();
                             currentUser.updateProfile(tempUpdate);
-                            editor.putString(User.EMAIL, acct.getId());
+                            editor.putString(User.USER_ID, acct.getId());
+                            editor.putString(User.EMAIL, acct.getEmail());
+                            editor.putString(User.FULLNAME, acct.getDisplayName());
+                            editor.putString(User.USER_PHOTO, String.valueOf(acct.getPhotoUrl()));
+                            editor.commit();
                             isFirstTime = task.getResult().getAdditionalUserInfo().isNewUser();
                             if (!isFirstTime) {
                                 tempDialog.dismissAlertDialog();
@@ -244,8 +258,9 @@ public class SignHomeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            currentUser = firebaseAuth.getCurrentUser();
-                            editor.putString(User.EMAIL, token.getUserId());
+                            requestFacebookData(token);
+                            /*currentUser = firebaseAuth.getCurrentUser();
+                            editor.putString(User.USER_ID, token.getUserId());*/
                             updateUI(currentUser);
                             // Sign in success, update UI with the signed-in user's information
                             // Log.d(TAG, "signInWithCredential:success");
@@ -265,14 +280,25 @@ public class SignHomeActivity extends AppCompatActivity {
             String userName = currentUser.getDisplayName();
             String userPhoto = currentUser.getPhotoUrl().toString();
             String userEmail = currentUser.getEmail();*/
-            createdTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
-
+            // createdTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
+          /*  for(UserInfo profile : currentUser.getProviderData()) {
+                // check if the provider id matches "facebook.com"
+                if(FacebookAuthProvider.PROVIDER_ID.equals(profile.getProviderId())) {
+                    facebookUserId = profile.getUid();
+                    // facebookUserPhoto = profile.getPhotoUrl().toString();
+                    facebookUserName = profile.getDisplayName();
+                }
+            }
+            String photoUrl = "https://graph.facebook.com/" + facebookUserId + "/picture?height=500";
            /* editor.putString(User.USER_ID,userId);
             editor.putString(User.FULLNAME,userName);
             editor.putString(User.IMGURL,userPhoto);
             editor.putString(User.EMAIL,userEmail); */
+            /*editor.putString(User.FULLNAME,facebookUserName);
+            editor.putString(User.USER_PHOTO,photoUrl);
+            editor.putString(User.USER_ID,facebookUserId);
             editor.putString(User.CREATED_TIME, createdTime);
-            editor.commit();
+            editor.commit();*/
             Intent intent = new Intent(SignHomeActivity.this, UserTypeActivity.class);
             startActivity(intent);
             finish();
@@ -282,6 +308,50 @@ public class SignHomeActivity extends AppCompatActivity {
 
     private void showMessage(String message) {
         Toast.makeText(SignHomeActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void requestFacebookData(final AccessToken tempAccessToken) {
+
+        GraphRequest request = GraphRequest.newMeRequest(tempAccessToken, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+
+                JSONObject json = response.getJSONObject();
+                try {
+                    if (json != null) {
+                        String fbUserName = null, fbUserPhoto = null, fbUserId = null, fbUserEmail = null;
+                        fbUserEmail = json.getString("email");
+                        fbUserName = json.getString("name");
+                        //fbUserId = tempAccessToken.getUserId();
+                        fbUserPhoto = json.getString("picture");
+                        //fbUserPhoto = "https://graph.facebook.com/"+fbUserId+"/picture?height=500";
+
+                        currentUser = firebaseAuth.getCurrentUser();
+                        UserProfileChangeRequest tempUpdate =
+                                new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(fbUserName)
+                                        .setPhotoUri(Uri.parse(fbUserPhoto))
+                                        .build();
+                        currentUser.updateProfile(tempUpdate);
+                        //editor.putString(User.USER_ID, fbUserId);
+                        editor.putString(User.EMAIL, fbUserEmail);
+                        editor.putString(User.FULLNAME, fbUserName);
+                        editor.putString(User.USER_PHOTO, fbUserPhoto);
+                        editor.commit();
+                        //String text = "<b>Name :</b> "+json.getString("name")+"<br><br><b>Email :</b> "+json.getString("email")+"<br><br><b>Profile link :</b> "+json.getString("link");
+                        /*details_txt.setText(Html.fromHtml(text));
+                        profile.setProfileId(json.getString("id"));*/
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,link,email,picture");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
 }

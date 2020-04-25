@@ -45,8 +45,9 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     FirebaseAuth firebaseAuth;
     FirebaseUser currentUser;
     LoadingAlertDialog tempDialog;
-    StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("users");
+    StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("userPhoto");
     boolean isDoctor = false;
+    String tempImgLink = null;
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^" +
                     "(?=.*[0-9])" +         //at least 1 digit
@@ -110,7 +111,6 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     /*binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);*/
-                    tempDialog.dismissAlertDialog();
                     if (task.isSuccessful()) {
                         currentUser = firebaseAuth.getCurrentUser();
                         updateUserProfile();
@@ -132,15 +132,15 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    binding.progressSignUp.setVisibility(View.INVISIBLE);
-                    binding.continueBtn.setVisibility(View.VISIBLE);
+                    /*binding.progressSignUp.setVisibility(View.INVISIBLE);
+                    binding.continueBtn.setVisibility(View.VISIBLE);*/
                     tempDialog.dismissAlertDialog();
                     showMessage(e.getMessage());
                 }
             });
         } else {
-            binding.progressSignUp.setVisibility(View.INVISIBLE);
-            binding.continueBtn.setVisibility(View.VISIBLE);
+            /*binding.progressSignUp.setVisibility(View.INVISIBLE);
+            binding.continueBtn.setVisibility(View.VISIBLE);*/
             tempDialog.dismissAlertDialog();
             showMessage("please check the required fields");
         }
@@ -148,8 +148,12 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
 
     private void updateUserProfile() {
         //Uri uri = Uri.parse("android.resource://"+this.getPackageName()+"/drawable/man.jpg");
-        Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.userphoto);
+        //Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.userphoto);
         //Uri uri=Uri.parse("R.drawable.man.jpg");
+
+        //get template image from firebase storage as shown in the following lines:-
+        tempImgLink = "https://firebasestorage.googleapis.com/v0/b/medkitc.appspot.com/o/userPhoto%2Fuserphoto.png?alt=media&token=8970b0fb-9231-4dc1-bb6a-745d7e212a79";
+        Uri uri = Uri.parse(tempImgLink);
         UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)
                 .setPhotoUri(uri)
@@ -233,10 +237,17 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 if (task.isSuccessful()) {
                     setSharedData();
                     showMessage("Verification email sent to: " + currentUser.getEmail());
-                    if (isDoctor)
+                    tempDialog.dismissAlertDialog();
+                    if (isDoctor) {
+                        tempDialog.dismissAlertDialog();
                         startActivity(new Intent(SignUpActivity.this, DoctorRegistrationActivity.class));
-                    else
+
+                    }
+                    else {
+                        tempDialog.dismissAlertDialog();
                         startActivity(new Intent(SignUpActivity.this, GetStartedActivity.class));
+                    }
+
                    /* if(!isDoctor)
                         startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                     else
@@ -299,6 +310,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         generalInfo.put(User.GENDER,gender);*/
         //editor.putString(User.AGE, binding.ageEd.getEditText().getText().toString());
         //editor.putString(User.GENDER, gender);
+        editor.putString(User.USER_PHOTO, tempImgLink);
         if (!isDoctor) {
             /*Map<String, String> userType = new HashMap<>();
             userType.put(User.G_FACULTY, "empty");
