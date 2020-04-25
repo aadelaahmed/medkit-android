@@ -3,6 +3,7 @@ package com.example.medkit.utils;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +18,13 @@ import com.example.medkit.activities.PostDetail;
 import com.example.medkit.model.PostModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,6 +71,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             holder.imgPost.setVisibility(View.GONE);
         holder.txtUserName.setText(model.getUserName());
         clickedDocument = getSnapshots().getSnapshot(position).getReference();
+       // getSnapshots().getSnapshot(position).getMetadata().hasPendingWrites();
+
         holder.btnUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,9 +160,13 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                     }
                     String title = clickedPost.getTitle();
                     String description = clickedPost.getDescription();
-                    String createdTime = clickedPost.getCreatedTime();
+                    String createdTime = clickedPost.getCurrentDate().toString();
                     String userName = clickedPost.getUserName();
                     String userPhoto = clickedPost.getUserPhoto();
+                    Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("currentDate");
+                    Date tempDate = temp.toDate();
+                    DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(mContext);
+                    Log.d("TAG", "onClick: "+dateFormat.format(tempDate));
                     //String postKey = getSnapshots().getSnapshot(position).getId();
                     String postKey = clickedPost.getPostKey();
                     //String dateWithName = createdTime + " | by " + userName;

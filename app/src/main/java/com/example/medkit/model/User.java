@@ -19,6 +19,8 @@ public class User {
     public static final String IS_DOCTOR = "IS_DOCTOR";
     public static final String IS_CLICKED = "IS_CLICKED";
     public static final String EMAIL = "EMAIL";
+    public static final String USER_PHOTO = "USER_PHOTO";
+    public static final String NORMAL_REGISTER = "NORMAL_REGISTER";
     // private Map<String,String> userType;
     //private Map<String,String> generalInfo;
    /* private int age;

@@ -1,8 +1,5 @@
 package com.example.medkit.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,10 +13,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class GetStartedActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
@@ -31,6 +33,7 @@ public class GetStartedActivity extends AppCompatActivity {
     String emailUser = null;
     String uid;
     String fullName;
+    String tempNormalReg = null;
     FirebaseAuth.AuthStateListener mAuthStateListener;
     private ActivityGetStartedBinding binding;
 
@@ -69,14 +72,15 @@ public class GetStartedActivity extends AppCompatActivity {
         userCollection = db.collection("Users");
         sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         editor = sharedPreferences.edit();
-        emailUser = sharedPreferences.getString(User.EMAIL, null);
+        tempNormalReg = sharedPreferences.getString(User.NORMAL_REGISTER, null);
+        //emailUser = sharedPreferences.getString(User.EMAIL, null);
         binding.btnGetStarted.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Intent intent = getIntent();
                 //FirebaseUser user =  mAuth.getCurrentUser();
                 //FirebaseUser currentUser = (FirebaseUser) intent.getExtras().get(SignUpActivity.USER_KEY);
-                if (emailUser == null) {
+                if (tempNormalReg != null) {
                     if (currentUser.isEmailVerified())
                         uploadIntoFireStore();
                     else {
@@ -112,10 +116,12 @@ public class GetStartedActivity extends AppCompatActivity {
         String userType = sharedPreferences.getString(User.USERTYPE,"null");
         User newUser = new User(age,createdTime,email,fullName,gender,userPhoto,userId,gFaculty,gYear,speciality,userType);*/
         boolean isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
-        String creationTime = sharedPreferences.getString(User.CREATED_TIME, null);
+        String createdTime = String.valueOf(FieldValue.serverTimestamp());
+        //String createdTime = sharedPreferences.getString(User.CREATED_TIME, null);
         fullName = sharedPreferences.getString(User.FULLNAME, null);
         uid = sharedPreferences.getString(User.USER_ID, null);
         emailUser = sharedPreferences.getString(User.EMAIL, null);
+        String imageUser = sharedPreferences.getString(User.USER_PHOTO, null);
         String uType = "";
         User newUser;
         Map<String, Object> userType = new HashMap<>();
@@ -130,12 +136,12 @@ public class GetStartedActivity extends AppCompatActivity {
             userType.put(User.SPECIALITY, speciality);
             userType.put(User.LOCATION, location);
             userType.put(User.USERTYPE, uType);
-            //Photo url =storagerefrence + User ID ,so we pass the the six parameter in constructor as uId
-            newUser = new User(creationTime, userType,uid, emailUser, fullName,uid);
+            //Photo url =storagerefrence + User ID ,so we pass the the six-th parameter in constructor as uId
+            newUser = new User(createdTime, userType, uid, emailUser, fullName, imageUser);
         } else {
             uType = "Patient";
             userType.put(User.USERTYPE, uType);
-            newUser = new User(creationTime, userType,uid,emailUser, fullName, uid);
+            newUser = new User(createdTime, userType, uid, emailUser, fullName, imageUser);
         }
         //FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         editor.clear();
@@ -146,8 +152,14 @@ public class GetStartedActivity extends AppCompatActivity {
         lstPostKeys.add("post key 2");
         lstPostKeys.add("post key 4");
         newUser.setPostKeys(lstPostKeys);*/
-        String userId = currentUser.getUid();
-        userCollection.document(userId).set(newUser).addOnSuccessListener(new OnSuccessListener<Void>() {
+
+
+        //String userId = currentUser.getUid();
+        DocumentReference tempDoc = userCollection.document();
+        String userKey = tempDoc.getId();
+        newUser.setUid(userKey);
+        userCollection.document(userKey)
+                .set(newUser).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 startActivity(new Intent(GetStartedActivity.this, CommunityActivity.class));

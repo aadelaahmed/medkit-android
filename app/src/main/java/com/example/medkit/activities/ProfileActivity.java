@@ -73,6 +73,8 @@ public class ProfileActivity extends AppCompatActivity {
                 checkAndRequestPermission();
             }
         });
+        currentUser = mAuth.getCurrentUser();
+        binding.userProfileName.setText(currentUser.getDisplayName());
 
 
        /* Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_type_user);
