@@ -1,27 +1,21 @@
 package com.example.medkit.activities;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
-import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityUserTypeBinding;
 import com.example.medkit.model.User;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class UserTypeActivity extends AppCompatActivity {
     private ActivityUserTypeBinding binding;
     SharedPreferences sharedPreferences;
-    String emailUser = null;
-
-    public static final String ISDOCTOR_KEY = "ISDOCTOR";
-    public static final String SHARED_PREFERENCE_NAME = "USER_DATA";
+    String normalReg = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,13 +27,13 @@ public class UserTypeActivity extends AppCompatActivity {
         ActionBar actionBar= getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
-        emailUser = sharedPreferences.getString(User.EMAIL, null);
+        normalReg = sharedPreferences.getString(User.NORMAL_REGISTER, null);
         binding.doctorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.putBoolean(User.IS_DOCTOR, true);
                 editor.commit();
-                if (emailUser != null)
+                if (normalReg == null)
                     startActivity(new Intent(UserTypeActivity.this, DoctorRegistrationActivity.class));
                 else
                     startActivity(new Intent(UserTypeActivity.this, SignUpActivity.class));
@@ -50,7 +44,7 @@ public class UserTypeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 editor.putBoolean(User.IS_DOCTOR, false);
                 editor.commit();
-                if (emailUser != null)
+                if (normalReg == null)
                     startActivity(new Intent(UserTypeActivity.this, GetStartedActivity.class));
                 else
                     startActivity(new Intent(UserTypeActivity.this, SignUpActivity.class));

@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.medkit.databinding.ActivityProfileBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.CustomPostAdapter;
+import com.example.medkit.utils.LoadingAlertDialog;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -54,6 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
     Uri pickedImageUri;
     //private List<String> resPostKeys;
     private List<PostModel> lstPostModel;
+    LoadingAlertDialog tempDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +75,10 @@ public class ProfileActivity extends AppCompatActivity {
                 checkAndRequestPermission();
             }
         });
+        mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         binding.userProfileName.setText(currentUser.getDisplayName());
-
+        tempDialog = new LoadingAlertDialog(this);
 
        /* Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_type_user);
         Bitmap ibitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_communicate);
@@ -100,6 +103,7 @@ public class ProfileActivity extends AppCompatActivity {
         //showMessage("create state");
         iniRecyclerView();
         Glide.with(this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
+        binding.userProfileName.setText(currentUser.getDisplayName());
         //binding.userProfilePicture.setImageURI(currentUser.getPhotoUrl());
     }
 
@@ -256,8 +260,21 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == mRequestCode && resultCode == RESULT_OK && data != null) {
+            tempDialog.startAlertDialog();
             pickedImageUri = data.getData();
-            Glide.with(this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
+            rootUsers.document(currentUser.getUid()).update("photoUrl", String.valueOf(pickedImageUri))
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Glide.with(ProfileActivity.this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            tempDialog.dismissAlertDialog();
+                        }
+                    });
             //update user profile
             UserProfileChangeRequest request =
                     new UserProfileChangeRequest
@@ -268,14 +285,17 @@ public class ProfileActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            tempDialog.dismissAlertDialog();
                             showMessage("successful update profile with new photo");
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
+                    tempDialog.dismissAlertDialog();
                     showMessage(e.toString());
                 }
             });
+
         }
     }
 

@@ -1,9 +1,9 @@
 package com.example.medkit.activities;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +17,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -35,6 +37,9 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 
@@ -56,14 +61,7 @@ public class SignHomeActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection;
     LoadingAlertDialog tempDialog;
-    public ProgressDialog iniProgressBar(Context context) {
-        ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setContentView(R.layout.activity_loading);
-        progressDialog.getWindow().setBackgroundDrawableResource(
-                android.R.color.transparent
-        );
-        return progressDialog;
-    }
+    String userName = null, userImage = null, userEmail = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +78,8 @@ public class SignHomeActivity extends AppCompatActivity {
         binding.emailSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editor.putString(User.NORMAL_REGISTER, "normal register");
+                editor.commit();
                 startActivity(new Intent(SignHomeActivity.this,UserTypeActivity.class));
                 //TODO enable action back click
                 finish();
@@ -141,7 +141,7 @@ public class SignHomeActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    @Override
+   /* @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
@@ -151,7 +151,7 @@ public class SignHomeActivity extends AppCompatActivity {
 
             }
         }
-    }
+    }*/
 
     public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -204,20 +204,19 @@ public class SignHomeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            userName = acct.getDisplayName();
+                            userImage = acct.getPhotoUrl().toString();
+                            userEmail = acct.getEmail();
                             currentUser = firebaseAuth.getCurrentUser();
-                            UserProfileChangeRequest tempUpdate =
-                                    new UserProfileChangeRequest.Builder()
-                                            .setDisplayName(acct.getDisplayName())
-                                            .setPhotoUri(acct.getPhotoUrl())
-                                            .build();
-                            currentUser.updateProfile(tempUpdate);
-                            editor.putString(User.EMAIL, acct.getId());
+                            updateProfileUser(userName, Uri.parse(userImage));
+                            //editor.putString(User.EMAIL, acct.getId());
                             isFirstTime = task.getResult().getAdditionalUserInfo().isNewUser();
                             if (!isFirstTime) {
                                 tempDialog.dismissAlertDialog();
                                 showMessage("Email already existed");
                                 return;
                             }
+                            isFirstTime = false;
                             Log.d("TAG", "signInWithCredential:success");
                             //create method to get user profile information
                             //getUserInfo();
@@ -237,6 +236,15 @@ public class SignHomeActivity extends AppCompatActivity {
                 });
     }
 
+    private void updateProfileUser(String tempName, Uri tempImage) {
+        UserProfileChangeRequest tempUpdate =
+                new UserProfileChangeRequest.Builder()
+                        .setDisplayName(tempName)
+                        .setPhotoUri(tempImage)
+                        .build();
+        currentUser.updateProfile(tempUpdate);
+    }
+
 
     private void handleFacebookAccessToken(final AccessToken token) {
         //Log.d(TAG, "handleFacebookAccessToken:" + token);
@@ -248,18 +256,52 @@ public class SignHomeActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             currentUser = firebaseAuth.getCurrentUser();
-                            editor.putString(User.EMAIL, token.getUserId());
-                            updateUI(currentUser);
+                            //editor.putString(User.EMAIL, token.getUserId());
+                            getFacebookData(token);
                             // Sign in success, update UI with the signed-in user's information
                             // Log.d(TAG, "signInWithCredential:success");
                         } else {
                             // If sign in fails, display a message to the user.
                             // Log.w(TAG, "signInWithCredential:failure", task.getException());
                             tempDialog.dismissAlertDialog();
-                            showMessage("Email already existed");
+                            showMessage(task.getException().toString());
                         }
                     }
                 });
+    }
+
+    private void getFacebookData(final AccessToken token) {
+        GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+
+                JSONObject json = response.getJSONObject();
+                try {
+                    if (json != null) {
+                        userName = json.getString("name");
+                        userEmail = json.getString("email");
+                        //userImage = "https://graph.facebook.com/" + token.getUserId() + "/picture?type=large";
+                        userImage = "https://graph.facebook.com/" + token.getUserId() + "/picture?height=500";
+                        updateProfileUser(userName, Uri.parse(userImage));
+                        //userImage = json.getString("picture");
+                        updateUI(currentUser);
+                        Log.d("TAG", "onCompletedFACEBBOOk: " + userName + userEmail + userImage);
+                        // String text = "<b>Name :</b> "+json.getString("name")+"<br><br><b>Email :</b> "+json.getString("email")+"<br><br><b>Profile link :</b> "+json.getString("link");
+                        // details_txt.setText(Html.fromHtml(text));
+                        //profile.setProfileId(json.getString("id"));
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    showMessage(e.getMessage());
+                }
+            }
+        });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,link,email,picture");
+        request.setParameters(parameters);
+        request.executeAndWait();
+        //request.executeAsync();
     }
 
     private void updateUI(FirebaseUser currentUser) {
@@ -268,13 +310,15 @@ public class SignHomeActivity extends AppCompatActivity {
             String userName = currentUser.getDisplayName();
             String userPhoto = currentUser.getPhotoUrl().toString();
             String userEmail = currentUser.getEmail();*/
-            creationTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
+            //creationTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
 
            /* editor.putString(User.USER_ID,userId);
             editor.putString(User.FULLNAME,userName);
             editor.putString(User.IMGURL,userPhoto);
             editor.putString(User.EMAIL,userEmail); */
-            editor.putString(User.CREATED_TIME, creationTime);
+            editor.putString(User.FULLNAME, userName);
+            editor.putString(User.EMAIL, userEmail);
+            editor.putString(User.USER_PHOTO, userImage);
             editor.commit();
             Intent intent = new Intent(SignHomeActivity.this, UserTypeActivity.class);
             startActivity(intent);

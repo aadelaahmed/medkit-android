@@ -141,8 +141,9 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
 
     private void updateUserProfile() {
         //Uri uri = Uri.parse("android.resource://"+this.getPackageName()+"/drawable/man.jpg");
-        Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.man);
+        //Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.man);
         //Uri uri=Uri.parse("R.drawable.man.jpg");
+        Uri uri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/medkitc.appspot.com/o/userPhoto%2Fuserphoto.png?alt=media&token=c1b02413-c078-4ce7-b324-2dd336188c8b");
         UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)
                 .setPhotoUri(uri)
@@ -283,11 +284,13 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     private void setSharedData() {
         sharedPreferences = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
-        creationTime = timestampToString(currentUser.getMetadata().getCreationTimestamp());
+        //creationTime = timestampToString(currentUser.getMetadata().getCreationTimestamp());
+        String tempImageLink = "https://firebasestorage.googleapis.com/v0/b/medkitc.appspot.com/o/userPhoto%2Fuserphoto.png?alt=media&token=c1b02413-c078-4ce7-b324-2dd336188c8b";
         editor.putString(User.FULLNAME,name);
         editor.putString(User.EMAIL,email);
-        editor.putString(User.USER_ID,currentUser.getUid());
-        editor.putString(User.CREATED_TIME,creationTime);
+        editor.putString(User.USER_PHOTO, tempImageLink);
+        //editor.putString(User.USER_ID,currentUser.getUid());
+        //editor.putString(User.CREATED_TIME,creationTime);
         /*String gender = "";
         if (binding.maleRadio.isChecked())
             gender = "Male";

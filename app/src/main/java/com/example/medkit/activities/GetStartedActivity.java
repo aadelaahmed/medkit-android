@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -116,7 +115,7 @@ public class GetStartedActivity extends AppCompatActivity {
         String userType = sharedPreferences.getString(User.USERTYPE,"null");
         User newUser = new User(age,createdTime,email,fullName,gender,userPhoto,userId,gFaculty,gYear,speciality,userType);*/
         boolean isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
-        String createdTime = String.valueOf(FieldValue.serverTimestamp());
+        // String createdTime = String.valueOf(FieldValue.serverTimestamp());
         //String createdTime = sharedPreferences.getString(User.CREATED_TIME, null);
         fullName = sharedPreferences.getString(User.FULLNAME, null);
         uid = sharedPreferences.getString(User.USER_ID, null);
@@ -137,11 +136,11 @@ public class GetStartedActivity extends AppCompatActivity {
             userType.put(User.LOCATION, location);
             userType.put(User.USERTYPE, uType);
             //Photo url =storagerefrence + User ID ,so we pass the the six-th parameter in constructor as uId
-            newUser = new User(createdTime, userType, uid, emailUser, fullName, imageUser);
+            newUser = new User(userType, emailUser, fullName, imageUser);
         } else {
             uType = "Patient";
             userType.put(User.USERTYPE, uType);
-            newUser = new User(createdTime, userType, uid, emailUser, fullName, imageUser);
+            newUser = new User(userType, emailUser, fullName, imageUser);
         }
         //FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         editor.clear();

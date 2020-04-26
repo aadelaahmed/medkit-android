@@ -1,5 +1,7 @@
 package com.example.medkit.model;
 
+import com.google.firebase.firestore.FieldValue;
+
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +29,7 @@ public class User {
     private String createdTime;
     */
     private String uid;
-    private String creationTime;
+    private Object createdTime;
     private String email;
     private String fullName;
     private String photoUrl;
@@ -35,11 +37,17 @@ public class User {
         return uid;
     }
     public void setUid(String uid) { this.uid = uid; }
-    public String getCreationtime() {
-        return creationTime;
+
+    public User(Map<String, Object> userType, String email, String fullName, String photoUrl) {
+        this.userType = userType;
+        this.email = email;
+        this.fullName = fullName;
+        this.photoUrl = photoUrl;
+        this.createdTime = FieldValue.serverTimestamp();
     }
-    public void setCreationtime(String creationTime) {
-        this.creationTime = creationTime;
+
+    public Object getCreationtime() {
+        return createdTime;
     }
     public String getEmail() {
         return email;
@@ -93,13 +101,8 @@ public class User {
         this.userType = userType;
     }
 
-    public User(String creationTime, Map<String, Object> userType,String uid, String email, String fullName, String photoUrl) {
-        this.creationTime = creationTime;
-        this.userType = userType;
-        this.uid =uid;
-        this.email = email;
-        this.fullName = fullName;
-        this.photoUrl = photoUrl;
+    public void setCreationtime(String creationTime) {
+        this.createdTime = creationTime;
     }
 
     public List<String> getPostKeys() {

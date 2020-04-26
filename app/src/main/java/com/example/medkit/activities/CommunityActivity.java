@@ -3,6 +3,7 @@ package com.example.medkit.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -69,6 +70,7 @@ public class CommunityActivity extends AppCompatActivity {
 
     private void iniActionBar() {
         Uri userPhoto = currentUser.getPhotoUrl();
+        Log.d("TAG", "iniActionBar: " + userPhoto.toString());
         binding.imgUserCommunity.setImageURI(userPhoto);
         String[] tempArr = currentUser.getEmail().split("@");
         String email = tempArr[0];
