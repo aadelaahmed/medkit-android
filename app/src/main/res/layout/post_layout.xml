@@ -39,7 +39,6 @@
         android:textColor="@color/textActiveColor"
         android:textSize="13sp"
         android:textStyle="bold"
-        android:paddingLeft="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/comment_user_photo"
         app:layout_constraintStart_toEndOf="@+id/comment_user_photo"
         app:layout_constraintTop_toTopOf="@+id/comment_user_photo" />

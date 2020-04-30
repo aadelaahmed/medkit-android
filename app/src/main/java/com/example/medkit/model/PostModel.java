@@ -25,7 +25,7 @@ public class PostModel {
     private String userID;
     private String postKey;
     private String category;
-    private Object currentDate;
+    private Object createdTime;
 
     private Bitmap userProfilePicture;
     private Bitmap image;
@@ -59,16 +59,15 @@ public class PostModel {
         this.category = category;
         this.upVotes = upVotes;
         this.downVotes = downVotes;
-        this.currentDate = FieldValue.serverTimestamp();
-
+        this.createdTime = FieldValue.serverTimestamp();
     }
 
-    public Object getCurrentDate() {
-        return currentDate;
+    public Object getCreatedTime() {
+        return createdTime;
     }
 
-    public void setCurrentDate(Object currentDate) {
-        this.currentDate = currentDate;
+    public void setCreatedTime(Object createdTime) {
+        this.createdTime = createdTime;
     }
 
     @Override
@@ -142,7 +141,6 @@ public class PostModel {
         this.postKey = postKey;
     }
 
-    @Exclude
     public String getUserName() {
         return userName;
     }

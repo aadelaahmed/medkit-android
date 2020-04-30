@@ -12,17 +12,21 @@ import com.example.medkit.databinding.FragmentNotificationBinding;
 import com.example.medkit.model.NotificationModel;
 import com.example.medkit.utils.NotificationAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class NotificationFragment extends Fragment {
     private static List<NotificationModel> notifications;
     private static FragmentNotificationBinding binding;
+
+    public NotificationFragment() {
+
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

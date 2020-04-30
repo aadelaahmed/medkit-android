@@ -91,27 +91,28 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
             android:src="@drawable/ic_type_user"
+            app:layout_constraintBottom_toBottomOf="@+id/post_detail_comment"
             app:layout_constraintEnd_toStartOf="@+id/post_detail_comment"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@id/guideline12"
-            app:layout_constraintTop_toBottomOf="@id/post_detail_description" />
+            app:layout_constraintTop_toTopOf="@+id/post_detail_comment" />
 
         <EditText
             android:id="@+id/post_detail_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/edittext_button_style_rounded"
             android:ems="10"
+            android:inputType="text|textMultiLine"
             android:hint="write a comment"
-            android:inputType="textPersonName"
-            app:layout_constraintBottom_toBottomOf="@+id/post_detail_user_img"
+            android:maxLines="10"
             app:layout_constraintEnd_toStartOf="@+id/post_detail_btn_add"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/post_detail_user_img"
-            app:layout_constraintTop_toTopOf="@+id/post_detail_user_img" />
+            app:layout_constraintTop_toBottomOf="@id/post_detail_description" />
 
         <Button
             android:id="@+id/post_detail_btn_add"
@@ -121,11 +122,9 @@
             android:background="@drawable/edittext_button_style_rounded"
             android:text="Add"
             app:layout_constraintBaseline_toBaselineOf="@+id/post_detail_comment"
-            app:layout_constraintBottom_toBottomOf="@id/post_detail_comment"
             app:layout_constraintEnd_toEndOf="@id/guideline13"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/post_detail_comment"
-            app:layout_constraintTop_toTopOf="@id/post_detail_comment" />
+            app:layout_constraintStart_toEndOf="@+id/post_detail_comment" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/post_detail_user_owner_img"
@@ -139,13 +138,17 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/post_detail_recycler_comments"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="#f4f4f4"
-            app:layout_constraintEnd_toStartOf="parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-
-            app:layout_constraintTop_toBottomOf="@id/post_detail_user_img" />
+            app:layout_constraintTop_toBottomOf="@id/post_detail_comment" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

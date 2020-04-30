@@ -1,15 +1,22 @@
 package com.example.medkit.model;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.PropertyName;
+
 public class Comment {
     private String content, userId, userImage, userName;
-    private String createdTime;
+    private Timestamp createdTime;
 
-    public Comment(String content, String userId, String userImage, String userName, String createdTime) {
+    public Comment() {
+
+    }
+
+    public Comment(String content, String userId, String userImage, String userName) {
         this.content = content;
         this.userId = userId;
         this.userImage = userImage;
         this.userName = userName;
-        this.createdTime = createdTime;
+        this.createdTime = Timestamp.now();
     }
 
     public String getContent() {
@@ -44,11 +51,13 @@ public class Comment {
         this.userName = userName;
     }
 
-    public String getCreatedTime() {
+    public Timestamp getCreatedTime() {
         return createdTime;
     }
 
-    public void setCreatedTime(String createdTime) {
+    @PropertyName("createdTime")
+    public void setCreatedTime(Timestamp createdTime) {
         this.createdTime = createdTime;
     }
+
 }

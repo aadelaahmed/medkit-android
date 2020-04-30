@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
 import com.example.medkit.fragments.HomeFragment;
@@ -26,6 +27,7 @@ public class CommunityActivity extends AppCompatActivity {
     private ActivityCommunityBinding binding;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
+    Uri userPhoto;
     private BottomNavigationView.OnNavigationItemSelectedListener listener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -55,6 +57,7 @@ public class CommunityActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+
         iniActionBar();
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);
         binding.viewUser.setOnClickListener(new View.OnClickListener() {
@@ -69,14 +72,20 @@ public class CommunityActivity extends AppCompatActivity {
 
 
     private void iniActionBar() {
-        Uri userPhoto = currentUser.getPhotoUrl();
-        Log.d("TAG", "iniActionBar: " + userPhoto.toString());
-        binding.imgUserCommunity.setImageURI(userPhoto);
-        String[] tempArr = currentUser.getEmail().split("@");
-        String email = tempArr[0];
-        binding.txtEmailCommunity.setText(email);
-        String userName = currentUser.getDisplayName();
-        binding.txtNameCommunity.setText(userName);
+        if (currentUser != null) {
+            userPhoto = currentUser.getPhotoUrl();
+            Log.d("TAG", "iniActionBar: " + userPhoto.toString());
+            // binding.imgUserCommunity.setImageURI(userPhoto);
+            Glide.with(this).load(userPhoto).into(binding.imgUserCommunity);
+            String[] tempArr = currentUser.getEmail().split("@");
+            String email = tempArr[0];
+            binding.txtEmailCommunity.setText(email);
+            String userName = currentUser.getDisplayName();
+            binding.txtNameCommunity.setText(userName);
+        } else {
+            currentUser.reload();
+            iniActionBar();
+        }
     }
 
     private void showMessage(String message) {
@@ -86,9 +95,10 @@ public class CommunityActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (currentUser.getPhotoUrl() != null) {
+       /* if (currentUser.getPhotoUrl() != null) {
             Uri userPhoto = currentUser.getPhotoUrl();
             binding.imgUserCommunity.setImageURI(userPhoto);
-        }
+        }*/
+        Glide.with(this).load(userPhoto).into(binding.imgUserCommunity);
     }
 }

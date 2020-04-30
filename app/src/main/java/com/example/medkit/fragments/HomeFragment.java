@@ -39,6 +39,10 @@ public class HomeFragment extends Fragment {
     public Context mContext;
     CollectionReference rootPost = FirebaseFirestore.getInstance().collection("Posts");
     CustomPostAdapter tempAdapter;
+
+    public HomeFragment() {
+
+    }
     public HomeFragment(Context mContext) {
         this.mContext = mContext;
     }
@@ -95,9 +99,8 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //iniRecyclerView();
     }
-
     private void iniRecyclerView() {
-        Query query = rootPost.limit(100);
+        Query query = rootPost.orderBy("createdTime", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class)
                 .build();

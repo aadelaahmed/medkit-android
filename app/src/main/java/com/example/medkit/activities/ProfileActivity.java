@@ -129,7 +129,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void iniRecyclerView() {
         Query query = rootPosts
-                .whereEqualTo("userID", currentUser.getUid());
+                .whereEqualTo("userID", currentUser.getUid())
+                .orderBy("createdTime", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class)
                 .build();

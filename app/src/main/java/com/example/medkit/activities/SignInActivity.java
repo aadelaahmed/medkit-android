@@ -92,7 +92,7 @@ public class SignInActivity extends AppCompatActivity {
                 /*binding.progressSignIn.setVisibility(View.VISIBLE);
                 binding.btnLognIn.setVisibility(View.INVISIBLE);*/
                 tempDialog.startAlertDialog();
-                String email = binding.etEmailSignIn.getText().toString();
+                String email = binding.etEmailSignIn.getText().toString().trim();
                 String password = binding.etPasswordSignIn.getText().toString();
                 logIn(email, password);
             }
@@ -192,7 +192,7 @@ public class SignInActivity extends AppCompatActivity {
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
             Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
-            tempDialog.dismissAlertDialog();
+            //tempDialog.dismissAlertDialog();
             startActivity(intent);
             finish();
         }
@@ -216,7 +216,8 @@ public class SignInActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                    /*     binding.btnLognIn.setVisibility(View.VISIBLE);
                         binding.progressSignIn.setVisibility(View.INVISIBLE);*/
-                        tempDialog.dismissAlertDialog();
+                        //tempDialog.dismissAlertDialog();
+                        updateUI(firebaseAuth.getCurrentUser());
                     } else {
                         try {
                             throw task.getException();

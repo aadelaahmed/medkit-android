@@ -8,12 +8,12 @@ import android.widget.Toast;
 
 import com.example.medkit.databinding.ActivityGetStartedBinding;
 import com.example.medkit.model.User;
+import com.example.medkit.utils.LoadingAlertDialog;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class GetStartedActivity extends AppCompatActivity {
     String tempNormalReg = null;
     FirebaseAuth.AuthStateListener mAuthStateListener;
     private ActivityGetStartedBinding binding;
-
+    LoadingAlertDialog tempAlertDialog;
     @Override
     protected void onStart() {
         super.onStart();
@@ -72,6 +72,7 @@ public class GetStartedActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         editor = sharedPreferences.edit();
         tempNormalReg = sharedPreferences.getString(User.NORMAL_REGISTER, null);
+        tempAlertDialog = new LoadingAlertDialog(this);
         //emailUser = sharedPreferences.getString(User.EMAIL, null);
         binding.btnGetStarted.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,18 +81,23 @@ public class GetStartedActivity extends AppCompatActivity {
                 //FirebaseUser user =  mAuth.getCurrentUser();
                 //FirebaseUser currentUser = (FirebaseUser) intent.getExtras().get(SignUpActivity.USER_KEY);
                 if (tempNormalReg != null) {
-                    if (currentUser.isEmailVerified())
+                    if (currentUser.isEmailVerified()) {
+                        tempAlertDialog.startAlertDialog();
                         uploadIntoFireStore();
-                    else {
+                    } else {
+                        showMessage("please verify your account");
                         currentUser.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                showMessage("please verify your account");
+
                             }
                         });
                     }
-                } else
+                } else {
+                    tempAlertDialog.startAlertDialog();
                     uploadIntoFireStore();
+
+                }
 
             }
         });
@@ -154,18 +160,20 @@ public class GetStartedActivity extends AppCompatActivity {
 
 
         //String userId = currentUser.getUid();
-        DocumentReference tempDoc = userCollection.document();
-        String userKey = tempDoc.getId();
+        //DocumentReference tempDoc = userCollection.document();
+        String userKey = currentUser.getUid();
         newUser.setUid(userKey);
         userCollection.document(userKey)
                 .set(newUser).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                tempAlertDialog.dismissAlertDialog();
                 startActivity(new Intent(GetStartedActivity.this, CommunityActivity.class));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                tempAlertDialog.dismissAlertDialog();
                 showMessage(e.getMessage());
             }
         });

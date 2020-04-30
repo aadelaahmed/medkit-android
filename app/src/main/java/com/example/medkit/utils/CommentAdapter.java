@@ -2,6 +2,7 @@ package com.example.medkit.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,10 @@ import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.Timestamp;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,7 +42,14 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     @Override
     protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
         String userName = model.getUserName();
-        String createdTime = model.getCreatedTime();
+        /*Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("createdTime");
+        Date tempDate = temp.toDate();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
+        String createdTime = dateFormat.format(tempDate);*/
+        Timestamp tempStamp = model.getCreatedTime();
+        Date tempDate = tempStamp.toDate();
+        String createdTime = new SimpleDateFormat("dd MMMM").format(tempDate);
+        Log.d("TAG", "onBindViewHolder comment: " + createdTime);
         String content = model.getContent();
         String userImage = model.getUserImage();
         holder.txtUserName.setText(userName);
@@ -56,7 +68,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 updateUI();
             }
         });
-
     }
 
     private void updateUI() {

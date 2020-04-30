@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,7 +16,6 @@ import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.LoadingAlertDialog;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -27,10 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -91,10 +85,18 @@ public class AddPostActivity extends AppCompatActivity {
                             0,
                             0
                     );
-                    Timestamp temp = (Timestamp) addedPost.getCurrentDate();
+                    addedPost.setUserName(currentUser.getDisplayName());
+                    //Log.d("TAG", "onClick: "+ currentUser.getDisplayName());
+                    binding.imgPost.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            checkAndRequestPermission();
+                        }
+                    });
+                    /*Timestamp temp = (Timestamp) addedPost.getCreatedTime();
                     Date tempDate = temp.toDate();
                     DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(AddPostActivity.this);
-                    Log.d("TAG", "onClick: "+dateFormat.format(tempDate));
+                    Log.d("TAG", "onClick: "+dateFormat.format(tempDate));*/
                     /*Timestamp temp = (Timestamp) addedPost.getCurrentDate();
                     timeStampIntoDate(temp.toDate());*/
                     if (pickedImageUri != null)
@@ -239,10 +241,10 @@ public class AddPostActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
-    private void timeStampIntoDate(Date tempDate)
+   /* private void timeStampIntoDate(Date tempDate)
     {
         SimpleDateFormat formatter = new SimpleDateFormat("hh:mm a");
         String dateString = formatter.format(tempDate);
         Log.d("TAG", "timeStampIntoDate: "+dateString);
-    }
+    }*/
 }

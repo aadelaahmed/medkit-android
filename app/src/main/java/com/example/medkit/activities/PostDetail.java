@@ -26,9 +26,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -74,16 +71,17 @@ public class PostDetail extends AppCompatActivity {
     private void addComment() {
         String content = binding.postDetailComment.getText().toString().trim();
         if (!content.isEmpty() && currentUser != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
-            String createdTime = simpleDateFormat.format(new Date());
+            /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
+            String createdTime = simpleDateFormat.format(new Date());*/
             String tempUserName = currentUser.getDisplayName();
             String tempUserImage = currentUser.getPhotoUrl().toString();
             String tempUserId = currentUser.getUid();
-            Comment comment = new Comment(content, tempUserId, tempUserImage, tempUserName, createdTime);
-            rootComment.add(comment).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            Comment comment = new Comment(content, tempUserId, tempUserImage, tempUserName);
+            rootComment.document().set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
-                public void onSuccess(DocumentReference documentReference) {
+                public void onSuccess(Void aVoid) {
                     showMessage("success add comment");
+                    binding.postDetailComment.setText("");
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -135,7 +133,7 @@ public class PostDetail extends AppCompatActivity {
     }
 
     private void iniRecyclerComments() {
-        Query query = rootComment.limit(100);
+        Query query = rootComment.orderBy("createdTime", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<Comment> options = new FirestoreRecyclerOptions.Builder<Comment>()
                 .setQuery(query, Comment.class)
                 .build();
@@ -143,7 +141,7 @@ public class PostDetail extends AppCompatActivity {
         RecyclerView recyclerView = binding.postDetailRecyclerComments;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(commentAdapter);
-        recyclerView.getItemAnimator().setChangeDuration(0);
+        //recyclerView.getItemAnimator().setChangeDuration(0);
     }
 
     @Override

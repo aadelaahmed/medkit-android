@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignUpBinding;
 import com.example.medkit.model.User;
+import com.example.medkit.utils.LoadingAlertDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -44,6 +45,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     FirebaseAuth firebaseAuth;
     FirebaseUser currentUser;
     String creationTime;
+    LoadingAlertDialog tempAlertDialog;
     StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("users");
     boolean isDoctor = false;
     private static final Pattern PASSWORD_PATTERN =
@@ -79,14 +81,16 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         editor = sharedPreferences.edit();
         isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, true);
         firebaseAuth = FirebaseAuth.getInstance();
+        tempAlertDialog = new LoadingAlertDialog(this);
         //currentUser = firebaseAuth.getCurrentUser();
         binding.maleRadio.setOnCheckedChangeListener(this);
         binding.femaleRadio.setOnCheckedChangeListener(this);
         binding.continueBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    binding.continueBtn.setVisibility(View.INVISIBLE);
-                    binding.progressSignUp.setVisibility(View.VISIBLE);
+                    /*binding.continueBtn.setVisibility(View.INVISIBLE);
+                    binding.progressSignUp.setVisibility(View.VISIBLE);*/
+                    tempAlertDialog.startAlertDialog();
                     name = binding.nameEd.getEditText().getText().toString();
                     email = binding.emailEd.getEditText().getText().toString();
                     password = binding.passwordEd.getEditText().getText().toString();
@@ -104,13 +108,14 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    binding.progressSignUp.setVisibility(View.INVISIBLE);
-                    binding.continueBtn.setVisibility(View.VISIBLE);
+                   /* binding.progressSignUp.setVisibility(View.INVISIBLE);
+                    binding.continueBtn.setVisibility(View.VISIBLE);*/
                     if (task.isSuccessful()) {
                         currentUser = firebaseAuth.getCurrentUser();
                         updateUserProfile();
                         sendEmailVerification();
                     } else {
+                        tempAlertDialog.dismissAlertDialog();
                         try {
                             throw task.getException();
                         } catch (FirebaseAuthWeakPasswordException weakPassword) {
@@ -127,14 +132,16 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    binding.progressSignUp.setVisibility(View.INVISIBLE);
-                    binding.continueBtn.setVisibility(View.VISIBLE);
+                   /* binding.progressSignUp.setVisibility(View.INVISIBLE);
+                    binding.continueBtn.setVisibility(View.VISIBLE);*/
+                    tempAlertDialog.dismissAlertDialog();
                     showMessage(e.getMessage());
                 }
             });
         } else {
-            binding.progressSignUp.setVisibility(View.INVISIBLE);
-            binding.continueBtn.setVisibility(View.VISIBLE);
+           /* binding.progressSignUp.setVisibility(View.INVISIBLE);
+            binding.continueBtn.setVisibility(View.VISIBLE);*/
+            tempAlertDialog.dismissAlertDialog();
             showMessage("please check the required fields");
         }
     }
@@ -151,6 +158,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         currentUser.updateProfile(profleUpdate).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                tempAlertDialog.dismissAlertDialog();
                 showMessage("Something wrong with update user profile");
             }
         });

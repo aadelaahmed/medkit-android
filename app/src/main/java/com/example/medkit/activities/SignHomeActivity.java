@@ -141,7 +141,7 @@ public class SignHomeActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-   /* @Override
+    @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
@@ -151,7 +151,7 @@ public class SignHomeActivity extends AppCompatActivity {
 
             }
         }
-    }*/
+    }
 
     public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
