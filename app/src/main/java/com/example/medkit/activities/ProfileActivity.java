@@ -267,7 +267,6 @@ public class ProfileActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Glide.with(ProfileActivity.this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -288,6 +287,7 @@ public class ProfileActivity extends AppCompatActivity {
                         public void onSuccess(Void aVoid) {
                             tempDialog.dismissAlertDialog();
                             showMessage("successful update profile with new photo");
+                            Glide.with(ProfileActivity.this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override

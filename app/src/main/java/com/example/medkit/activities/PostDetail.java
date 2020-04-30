@@ -73,6 +73,7 @@ public class PostDetail extends AppCompatActivity {
         if (!content.isEmpty() && currentUser != null) {
             /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
             String createdTime = simpleDateFormat.format(new Date());*/
+            binding.postDetailComment.setText("");
             String tempUserName = currentUser.getDisplayName();
             String tempUserImage = currentUser.getPhotoUrl().toString();
             String tempUserId = currentUser.getUid();
@@ -139,7 +140,10 @@ public class PostDetail extends AppCompatActivity {
                 .build();
         commentAdapter = new CommentAdapter(options, this);
         RecyclerView recyclerView = binding.postDetailRecyclerComments;
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager tempLayoutManager = new LinearLayoutManager(this);
+        tempLayoutManager.setReverseLayout(true);
+        tempLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(tempLayoutManager);
         recyclerView.setAdapter(commentAdapter);
         //recyclerView.getItemAnimator().setChangeDuration(0);
     }

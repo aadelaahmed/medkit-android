@@ -5,20 +5,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.medkit.R;
 import com.example.medkit.activities.PostDetail;
+import com.example.medkit.model.Comment;
 import com.example.medkit.model.PostModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -36,7 +45,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     PostModel clickedPost;
     DocumentReference clickedDocument;
     int cntrUp, cntrDown;
-
+    CollectionReference rootComment;
+    DocumentReference currentDoc;
+    FirebaseAuth mAuth;
+    FirebaseUser currentUser;
 
     public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext) {
         super(options);
@@ -61,6 +73,32 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         holder.btnUp.setText(cntrUp + " UP");
         holder.btnDown.setText(cntrDown + " Down");
         clickedPost = model;
+        currentDoc = getSnapshots().getSnapshot(position).getReference();
+        rootComment = currentDoc.collection("Comments");
+        Log.d("TAG", "size of documents: " + String.valueOf(getSnapshots().size()));
+
+        holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                final int DRAWABLE_LEFT = 0;
+                final int DRAWABLE_TOP = 1;
+                final int DRAWABLE_RIGHT = 2;
+                final int DRAWABLE_BOTTOM = 3;
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (motionEvent.getRawX() >= (holder.edtComment.getRight() - holder.edtComment.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                        // your action here
+                        String content = holder.edtComment.getText().toString().trim();
+                        addComment(position, content);
+                        holder.edtComment.setText("");
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+
+
       /*  Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("currentDate");
         Date tempDate = temp.toDate();
         DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(mContext);
@@ -110,6 +148,36 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         });
     }
 
+    private void addComment(int tempPostition, String content) {
+        if (tempPostition != RecyclerView.NO_POSITION || content != null) {
+            mAuth = FirebaseAuth.getInstance();
+            currentUser = mAuth.getCurrentUser();
+            String userID = currentUser.getUid();
+            String userImage = currentUser.getPhotoUrl().toString();
+            String userName = currentUser.getDisplayName();
+            Comment newComment = new Comment(content, userID, userImage, userName);
+            rootComment.document().set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    showMessage("Comment added successfully");
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    showMessage(e.getMessage());
+                }
+            });
+        } else
+            showMessage("Please enter your comment");
+
+
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+    }
+
     public void deleteItem(int position) {
         getSnapshots().getSnapshot(position).getReference().delete();
     }
@@ -145,10 +213,11 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
 
     public class CustomHolder extends RecyclerView.ViewHolder {
 
-        TextView txtTitle, txtDescription, txtCategory, txtUserName, txtTime;
+        TextView txtTitle, txtDescription, txtCategory, txtUserName, txtTime, txtNumOfComments;
         ImageView imgUser;
         ImageView imgPost;
         Button btnUp, btnDown;
+        EditText edtComment;
 
         public CustomHolder(@NonNull final View itemView) {
             super(itemView);
@@ -161,6 +230,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             btnUp = itemView.findViewById(R.id.up_vote_btn);
             btnDown = itemView.findViewById(R.id.down_vote_btn);
             txtTime = itemView.findViewById(R.id.post_title_tv);
+            edtComment = itemView.findViewById(R.id.edt_comment_post);
+            txtNumOfComments = itemView.findViewById(R.id.n_comments_tv);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

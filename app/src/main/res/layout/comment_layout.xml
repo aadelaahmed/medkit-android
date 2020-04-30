@@ -13,16 +13,16 @@
         android:background="@drawable/bg_row_comment">
 
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/comment_user_photo"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:src="@drawable/userphoto"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_type_user" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/comment_user_photo"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/userphoto"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_type_user" />
 
     <TextView
         android:id="@+id/comment_user_name"
@@ -43,8 +43,9 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
-        android:text="Text Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes Here"
+        android:text=""
         android:textColor="@color/lightGrayText"
+        tools:text="Text Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes HereText Comment Goes Here"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/comment_user_photo"

@@ -9,7 +9,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.medkit.R;
@@ -61,19 +60,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         categoryTV.setText(post.getCategory());
         n_comments = holder.n_comments;
         n_comments.setText(post.getnComments() + " comments");
-        commentTV = holder.commentTV;
         holder.upVote.setText(post.getUpVotes() + " UP");
         holder.downVote.setText(post.getDownVotes() + " Down");
         if (post.getPostPhoto() != null)
             Glide.with(mContext).load(post.getPostPhoto()).into(holder.image);
         else
             holder.image.setVisibility(View.GONE);
-        commentTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(holder.itemView.getContext(), "clicked", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         holder.image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,7 +181,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView userNameTV, titleTV, contentTV, categoryTV, n_comments, commentTV;
+        TextView userNameTV, titleTV, contentTV, categoryTV, n_comments;
         ImageView userProfilePicture, image;
         Button upVote, downVote;
 
@@ -204,7 +196,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             upVote = itemView.findViewById(R.id.up_vote_btn);
             downVote = itemView.findViewById(R.id.down_vote_btn);
             n_comments = itemView.findViewById(R.id.n_comments_tv);
-            commentTV = itemView.findViewById(R.id.comment_tv);
+
         }
 
 

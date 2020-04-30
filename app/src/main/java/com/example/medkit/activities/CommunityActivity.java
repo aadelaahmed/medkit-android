@@ -95,10 +95,10 @@ public class CommunityActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-       /* if (currentUser.getPhotoUrl() != null) {
-            Uri userPhoto = currentUser.getPhotoUrl();
-            binding.imgUserCommunity.setImageURI(userPhoto);
-        }*/
-        Glide.with(this).load(userPhoto).into(binding.imgUserCommunity);
+        if (currentUser.getPhotoUrl() != null) {
+            Uri tempUserPhoto = currentUser.getPhotoUrl();
+            Glide.with(this).load(tempUserPhoto).into(binding.imgUserCommunity);
+        }
+
     }
 }
