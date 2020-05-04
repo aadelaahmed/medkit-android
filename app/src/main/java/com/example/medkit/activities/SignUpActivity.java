@@ -3,7 +3,6 @@ package com.example.medkit.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.Menu;
@@ -26,7 +25,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -81,6 +79,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         editor = sharedPreferences.edit();
         isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, true);
         firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = firebaseAuth.getCurrentUser();
         tempAlertDialog = new LoadingAlertDialog(this);
         //currentUser = firebaseAuth.getCurrentUser();
         binding.maleRadio.setOnCheckedChangeListener(this);
@@ -91,19 +90,18 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                     /*binding.continueBtn.setVisibility(View.INVISIBLE);
                     binding.progressSignUp.setVisibility(View.VISIBLE);*/
                     tempAlertDialog.startAlertDialog();
-                    name = binding.nameEd.getEditText().getText().toString();
-                    email = binding.emailEd.getEditText().getText().toString();
+                    name = binding.nameEd.getEditText().getText().toString().trim();
+                    email = binding.emailEd.getEditText().getText().toString().trim();
                     password = binding.passwordEd.getEditText().getText().toString();
-                    age = binding.ageEd.getEditText().getText().toString();
+                    age = binding.ageEd.getEditText().getText().toString().trim();
                     RadioButton mRadio = binding.maleRadio;
                     RadioButton fRadio = binding.femaleRadio;
-                    signUp(name, email, password, age, mRadio, fRadio);
+                    signUp(mRadio, fRadio);
                 }
         });
     }
 
-    private void signUp(final String name, String email, String password, String age, RadioButton mRadio, RadioButton fRadio) {
-        //firebaseAuth = FirebaseAuth.getInstance();
+    private void signUp(RadioButton mRadio, RadioButton fRadio) {
         if (validatename() && validateEmail() && validatePassword() && validateAge() && (mRadio.isChecked() || fRadio.isChecked())) {
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -111,8 +109,6 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                    /* binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);*/
                     if (task.isSuccessful()) {
-                        currentUser = firebaseAuth.getCurrentUser();
-                        updateUserProfile();
                         sendEmailVerification();
                     } else {
                         tempAlertDialog.dismissAlertDialog();
@@ -146,11 +142,12 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         }
     }
 
-    private void updateUserProfile() {
+   /* private void updateUserProfile() {
         //Uri uri = Uri.parse("android.resource://"+this.getPackageName()+"/drawable/man.jpg");
         //Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.man);
         //Uri uri=Uri.parse("R.drawable.man.jpg");
-        Uri uri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/medkitc.appspot.com/o/userPhoto%2Fuserphoto.png?alt=media&token=c1b02413-c078-4ce7-b324-2dd336188c8b");
+        String tempStoragePhoto = "https://firebasestorage.googleapis.com/v0/b/medkitc.appspot.com/o/userPhoto%2Fuserphoto.png?alt=media&token=c1b02413-c078-4ce7-b324-2dd336188c8b";
+        Uri uri = Uri.parse(tempStoragePhoto);
         UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)
                 .setPhotoUri(uri)
@@ -162,6 +159,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 showMessage("Something wrong with update user profile");
             }
         });
+    }*/
 
        /*rootRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -178,7 +176,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                 showMessage("Something wrong with update user profile");
             }
         });*/
-    }
+
 
     private boolean validatePassword() {
 
@@ -229,6 +227,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         }
     }
     private void sendEmailVerification() {
+        currentUser = firebaseAuth.getCurrentUser();
         currentUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -318,11 +317,10 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
             editor.putString(User.G_FACULTY, "empty");
             editor.putString(User.G_YEAR, "empty");
             editor.putString(User.SPECIALITY, "empty");
-            editor.putString(User.USERTYPE, "Paient");
-        } else
             editor.putString(User.USERTYPE, "Doctor");
+        } else
+            editor.putString(User.USERTYPE, "Patient");
         editor.apply();
-
         /*String userId = currentUser.getUid();
         String lastSignIn = timestampToString(currentUser.getMetadata().getLastSignInTimestamp());
         usersCollection.add(new User(FieldValue.serverTimestamp().toString(),email,generalInfo,lastSignIn,userId,userType));*/

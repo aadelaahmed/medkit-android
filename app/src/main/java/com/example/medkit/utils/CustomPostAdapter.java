@@ -15,9 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.medkit.R;
 import com.example.medkit.activities.PostDetail;
+import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
 import com.example.medkit.model.PostModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -31,6 +31,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,6 +51,9 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     DocumentReference currentDoc;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
+    FirebaseStorage storageRef = FirebaseStorage.getInstance();
+    StorageReference storagePosts;
+    StorageReference storageUsers;
 
     public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext) {
         super(options);
@@ -61,11 +66,14 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     }*/
 
     @Override
-    protected void onBindViewHolder(@NonNull final CustomHolder holder, final int position, @NonNull PostModel model) {
+    protected void onBindViewHolder(@NonNull final CustomHolder holder, final int position, @NonNull final PostModel model) {
         holder.txtTitle.setText(model.getTitle());
         holder.txtDescription.setText(model.getDescription());
         holder.txtCategory.setText(model.getCategory());
-        Glide.with(mContext).load(model.getUserPhoto()).into(holder.imgUser);
+        storagePosts = storageRef.getReference().child("postImages/" + model.getPostKey());
+        storageUsers = storageRef.getReference().child("userPhoto/" + model.getUserID());
+        //Glide.with(mContext).load(model.getUserPhoto()).into(holder.imgUser);
+        GlideApp.with(mContext).load(storageUsers).into(holder.imgUser);
         cntrUp = model.getUpVotes();
         cntrDown = model.getDownVotes();
         //cntrUp = model.getUpVotes();
@@ -76,6 +84,39 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         currentDoc = getSnapshots().getSnapshot(position).getReference();
         rootComment = currentDoc.collection("Comments");
         Log.d("TAG", "size of documents: " + String.valueOf(getSnapshots().size()));
+
+
+        holder.txtUserName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO --> set concurrent user profile
+                getUserProfile();
+            }
+        });
+
+        holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View view, MotionEvent event) {
+                if (view.getId() == R.id.edt_comment_post) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                        case MotionEvent.ACTION_UP:
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
+
+
+        holder.imgUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO --> set concurrent user profile
+                getUserProfile();
+            }
+        });
 
         holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -97,8 +138,6 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             }
         });
 
-
-
       /*  Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("currentDate");
         Date tempDate = temp.toDate();
         DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(mContext);
@@ -110,7 +149,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             }
         });
         if (model.getPostPhoto() != null)
-            Glide.with(mContext).load(model.getPostPhoto()).into(holder.imgPost);
+            GlideApp.with(mContext).load(storagePosts).into(holder.imgPost);
+            //Glide.with(mContext).load(model.getPostPhoto()).into(holder.imgPost);
         else
             holder.imgPost.setVisibility(View.GONE);
         holder.txtUserName.setText(model.getUserName());
@@ -120,9 +160,11 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         holder.btnUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //cntrUp =  model.getUpVotes();
+
                 DocumentReference tempDoc = getSnapshots().getSnapshot(position).getReference();
-                holder.btnUp.setText(cntrUp + " UP");
+                // cntrUp = (int) tempDoc.get().getResult().get("upVotes");
+                cntrUp = model.getUpVotes();
+                //holder.btnUp.setText(cntrUp + " UP");
                 FieldValue incrementUp = FieldValue.increment(1);
                 tempDoc.update("upVotes", incrementUp);
                 holder.btnUp.setText(++cntrUp + " UP");
@@ -140,12 +182,18 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             public void onClick(View view) {
                 //cntrDown = model.getDownVotes();
                 DocumentReference tempDownDoc = getSnapshots().getSnapshot(position).getReference();
-                holder.btnUp.setText(cntrDown + " Down");
+                //holder.btnUp.setText(cntrDown + " Down");
+                //cntrDown = (int) tempDownDoc.get().getResult().get("downVotes");
+                cntrDown = model.getDownVotes();
                 FieldValue incrementDown = FieldValue.increment(1);
                 tempDownDoc.update("downVotes", incrementDown);
                 holder.btnDown.setText(++cntrDown + " Down");
             }
         });
+    }
+
+    private void getUserProfile() {
+        mContext.startActivity(new Intent(mContext, ProfileActivity.class));
     }
 
     private void addComment(int tempPostition, String content) {
@@ -194,7 +242,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         View view = LayoutInflater.from(mContext).inflate(R.layout.activity_photo_post, null);
         ImageView clickedPhoto = view.findViewById(R.id.img_clicked_post);
-        Glide.with(mContext).load(getSnapshots().getSnapshot(position).get("postPhoto")).into(clickedPhoto);
+        GlideApp.with(mContext).load(storagePosts).into(clickedPhoto);
+        //Glide.with(mContext).load(getSnapshots().getSnapshot(position).get("postPhoto")).into(clickedPhoto);
         settingsDialog.setContentView(view);
         settingsDialog.show();
     }
@@ -245,7 +294,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, false);
                         else {
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, true);
-                            intent.putExtra(PostModel.POST_IMAGE_KEY, clickedPost.getPostPhoto());
+                            intent.putExtra(PostModel.USER_ID, clickedPost.getUserID());
+                            //intent.putExtra(PostModel.POST_IMAGE_KEY, clickedPost.getPostPhoto());
                         }
                         String title = clickedPost.getTitle();
                         String description = clickedPost.getDescription();

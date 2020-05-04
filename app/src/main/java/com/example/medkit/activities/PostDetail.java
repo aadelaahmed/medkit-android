@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,6 +17,7 @@ import com.example.medkit.databinding.ActivityPostDetailBinding;
 import com.example.medkit.model.Comment;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.CommentAdapter;
+import com.example.medkit.utils.GlideApp;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,6 +27,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,7 +36,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class PostDetail extends AppCompatActivity {
-    PostModel clickedPost;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     String postImage;
@@ -42,6 +45,10 @@ public class PostDetail extends AppCompatActivity {
     CollectionReference rootComment;
     CommentAdapter commentAdapter;
     private ActivityPostDetailBinding binding;
+    FirebaseStorage storageRef = FirebaseStorage.getInstance();
+    StorageReference storageUsers;
+    StorageReference storagePosts;
+    StorageReference storageCurrentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,20 @@ public class PostDetail extends AppCompatActivity {
         getSupportActionBar().hide();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        binding.postDetailComment.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View view, MotionEvent event) {
+                if (view.getId() == R.id.post_detail_comment) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                        case MotionEvent.ACTION_UP:
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
         iniUI();
         binding.postDetailImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,26 +122,32 @@ public class PostDetail extends AppCompatActivity {
     private void iniUI() {
         Intent recIntent = getIntent();
         boolean imgFlag = recIntent.getBooleanExtra(PostModel.POST_IMAGE_FLAG, false);
+        String postKey = recIntent.getStringExtra(PostModel.POST_KEY);
+        String userID = recIntent.getStringExtra(PostModel.USER_ID);
         if (!imgFlag) {
             binding.postDetailImg.setVisibility(View.GONE);
         } else {
-            postImage = recIntent.getStringExtra(PostModel.POST_IMAGE_KEY);
-            Glide.with(this).load(postImage).into(binding.postDetailImg);
+            //postImage = recIntent.getStringExtra(PostModel.POST_IMAGE_KEY);
+            storagePosts = storageRef.getReference().child("postImages/" + postKey);
+            GlideApp.with(this).load(storagePosts).into(binding.postDetailImg);
         }
         String title = recIntent.getStringExtra(PostModel.TITLE_KEY);
         String description = recIntent.getStringExtra(PostModel.DESCRIPTION_KEY);
-        String userPhoto = recIntent.getStringExtra(PostModel.USER_IMAGE_KEY);
+        //String userPhoto = recIntent.getStringExtra(PostModel.USER_IMAGE_KEY);
         String createdTime = recIntent.getStringExtra(PostModel.TIME_KEY);
         String userName = currentUser.getDisplayName();
         String dateWithName = createdTime + " | by " + userName;
-        String postKey = recIntent.getStringExtra(PostModel.POST_KEY);
+
         currentDoc = rootPost.document(postKey);
         rootComment = currentDoc.collection("Comments");
         binding.postDetailTitle.setText(title);
         binding.postDetailDescription.setText(description);
         binding.postDetailDateName.setText(dateWithName);
-        Glide.with(this).load(userPhoto).into(binding.postDetailUserOwnerImg);
-        Glide.with(this).load(currentUser.getPhotoUrl()).into(binding.postDetailUserImg);
+        storageCurrentUser = storageRef.getReference().child("userPhoto/" + currentUser.getUid());
+        storageUsers = storageRef.getReference().child("userPhoto/" + userID);
+        GlideApp.with(this).load(storageUsers).into(binding.postDetailUserOwnerImg);
+        GlideApp.with(this).load(storageCurrentUser).into(binding.postDetailUserOwnerImg);
+        //Glide.with(this).load(currentUser.getPhotoUrl()).into(binding.postDetailUserImg);
     }
 
     private void clickPhoto() {

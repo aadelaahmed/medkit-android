@@ -94,11 +94,6 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        //iniRecyclerView();
-    }
     private void iniRecyclerView() {
         Query query = rootPost.orderBy("createdTime", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()

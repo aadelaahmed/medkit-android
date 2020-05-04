@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     tools:context=".activities.ProfileActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -92,7 +94,7 @@
             android:id="@+id/viewAnimator"
             android:layout_width="1dp"
             android:layout_height="20dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:background="@color/white"
             app:layout_constraintEnd_toEndOf="@+id/user_profile_name"
             app:layout_constraintStart_toStartOf="@+id/user_profile_name"
@@ -103,7 +105,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
-            android:text="TextView"
+            android:text="21 Applauds"
             android:textColor="@color/white"
             app:layout_constraintBaseline_toBaselineOf="@+id/txt_answers"
             app:layout_constraintEnd_toStartOf="@+id/viewAnimator" />
@@ -123,7 +125,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="TextView"
+            android:text="10 Answers"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="@+id/imageView5"
             app:layout_constraintStart_toEndOf="@+id/imageView5"

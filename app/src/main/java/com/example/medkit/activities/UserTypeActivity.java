@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.medkit.databinding.ActivityUserTypeBinding;
@@ -28,12 +29,13 @@ public class UserTypeActivity extends AppCompatActivity {
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
         normalReg = sharedPreferences.getString(User.NORMAL_REGISTER, null);
+        Log.d("TAG", "onCreate: " + normalReg);
         binding.doctorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.putBoolean(User.IS_DOCTOR, true);
                 editor.commit();
-                if (normalReg == null)
+                if (normalReg.equals("custom register"))
                     startActivity(new Intent(UserTypeActivity.this, DoctorRegistrationActivity.class));
                 else
                     startActivity(new Intent(UserTypeActivity.this, SignUpActivity.class));
@@ -44,7 +46,7 @@ public class UserTypeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 editor.putBoolean(User.IS_DOCTOR, false);
                 editor.commit();
-                if (normalReg == null)
+                if (normalReg.equals("custom register"))
                     startActivity(new Intent(UserTypeActivity.this, GetStartedActivity.class));
                 else
                     startActivity(new Intent(UserTypeActivity.this, SignUpActivity.class));

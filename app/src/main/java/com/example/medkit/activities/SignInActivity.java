@@ -36,6 +36,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
@@ -58,7 +59,6 @@ public class SignInActivity extends AppCompatActivity {
     SharedPreferences userSharedPref;
     boolean isFirstTime;
     LoadingAlertDialog tempDialog;
-
     ProgressDialog mProgressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,10 +191,44 @@ public class SignInActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
-            Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
-            //tempDialog.dismissAlertDialog();
-            startActivity(intent);
-            finish();
+            String docID = currentUser.getUid();
+            usersCollection.document(docID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        Intent intent = new Intent(SignInActivity.this, CommunityActivity.class);
+                        //tempDialog.dismissAlertDialog();
+                        startActivity(intent);
+                        finish();
+                    } else if (task.isCanceled())
+                        showMessage("Please check your internet connection");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    showMessage(e.getMessage());
+                    FirebaseUser tempUser = firebaseAuth.getCurrentUser();
+                    tempUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Intent intent = new Intent(SignInActivity.this, SignHomeActivity.class);
+                            //tempDialog.dismissAlertDialog();
+                            showMessage("Please register first");
+                            startActivity(intent);
+                            finish();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            showMessage(e.getMessage());
+                        }
+                    });
+                }
+            });
+        } else {
+            showMessage("Please verify your account");
+            currentUser = firebaseAuth.getCurrentUser();
+            updateUI(currentUser);
         }
     }
 
@@ -257,7 +291,7 @@ public class SignInActivity extends AppCompatActivity {
         Toast.makeText(SignInActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
-    private void verifyEmailAddress() {
+   /* private void verifyEmailAddress() {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         tempDialog.dismissAlertDialog();
         if (currentUser.isEmailVerified()) {
@@ -266,7 +300,7 @@ public class SignInActivity extends AppCompatActivity {
         } else {
             showMessage("please verify your account");
         }
-    }
+    }*/
 
    /* void setFontType() {
         Typeface robotoMediumType = ResourcesCompat.getFont(this, R.font.roboto_medium);

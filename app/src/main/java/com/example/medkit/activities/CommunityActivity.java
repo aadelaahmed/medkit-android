@@ -3,20 +3,21 @@ package com.example.medkit.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
 import com.example.medkit.fragments.HomeFragment;
 import com.example.medkit.fragments.MessageFragment;
 import com.example.medkit.fragments.NotificationFragment;
+import com.example.medkit.utils.GlideApp;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +29,8 @@ public class CommunityActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     Uri userPhoto;
+    FirebaseStorage storageInstance;
+    StorageReference storageRef;
     private BottomNavigationView.OnNavigationItemSelectedListener listener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -57,7 +60,8 @@ public class CommunityActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-
+        storageInstance = FirebaseStorage.getInstance();
+        storageRef = storageInstance.getReference("userPhoto/" + currentUser.getUid());
         iniActionBar();
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);
         binding.viewUser.setOnClickListener(new View.OnClickListener() {
@@ -73,17 +77,18 @@ public class CommunityActivity extends AppCompatActivity {
 
     private void iniActionBar() {
         if (currentUser != null) {
-            userPhoto = currentUser.getPhotoUrl();
-            Log.d("TAG", "iniActionBar: " + userPhoto.toString());
+            //userPhoto = currentUser.getPhotoUrl();
+            //Log.d("TAG", "iniActionBar: " + userPhoto.toString());
             // binding.imgUserCommunity.setImageURI(userPhoto);
-            Glide.with(this).load(userPhoto).into(binding.imgUserCommunity);
+            GlideApp.with(this).load(storageRef).into(binding.imgUserCommunity);
             String[] tempArr = currentUser.getEmail().split("@");
             String email = tempArr[0];
             binding.txtEmailCommunity.setText(email);
             String userName = currentUser.getDisplayName();
             binding.txtNameCommunity.setText(userName);
         } else {
-            currentUser.reload();
+            //currentUser.reload();
+            currentUser = mAuth.getCurrentUser();
             iniActionBar();
         }
     }
@@ -95,10 +100,6 @@ public class CommunityActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (currentUser.getPhotoUrl() != null) {
-            Uri tempUserPhoto = currentUser.getPhotoUrl();
-            Glide.with(this).load(tempUserPhoto).into(binding.imgUserCommunity);
-        }
-
+        GlideApp.with(this).load(storageRef).into(binding.imgUserCommunity);
     }
 }

@@ -15,7 +15,7 @@ public class PostModel {
     public static final String POST_IMAGE_FLAG = "POST_IMAGE_FLAG";
     public static final String USER_IMAGE_KEY = "USER_IMAGE_KEY";
     public static final String POST_KEY = "POST_KEY";
-
+    public static final String USER_ID = "USE_ID";
     private String userName;
     private String title;
     private String description;
@@ -26,7 +26,6 @@ public class PostModel {
     private String postKey;
     private String category;
     private Object createdTime;
-
     private Bitmap userProfilePicture;
     private Bitmap image;
     private int upVotes;

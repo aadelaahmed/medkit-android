@@ -1,154 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginLeft="8dp"
     android:layout_marginTop="8dp"
     android:layout_marginRight="8dp"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     app:cardBackgroundColor="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    android:background="@color/white"
-    android:elevation="0.5dp"
-    android:paddingBottom="8dp">
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/comment_user_photo"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/profile_test"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_type_user" />
-
-    <TextView
-        android:id="@+id/post_user_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="Ahmed Medra"
-        android:textColor="@color/textActiveColor"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/comment_user_photo"
-        app:layout_constraintStart_toEndOf="@+id/comment_user_photo"
-        app:layout_constraintTop_toTopOf="@+id/comment_user_photo" />
-
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        app:layout_constraintBottom_toBottomOf="@+id/post_user_name"
-        app:layout_constraintEnd_toStartOf="@+id/psot_time_tv"
-        app:layout_constraintTop_toTopOf="@+id/post_user_name"
-        app:srcCompat="@drawable/ic_watch" />
-
-    <TextView
-        android:id="@+id/psot_time_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="2 min"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/imageView4" />
-
-    <ImageView
-        android:id="@+id/post_image"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginTop="8dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintDimensionRatio="w,36:19"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comment_user_photo"
-        app:srcCompat="@drawable/test" />
-
-    <TextView
-        android:id="@+id/post_title_tv"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="I need help for my arm"
-        android:maxLines="1"
-        android:textColor="@color/textActiveColor"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/comment_user_photo"
-        app:layout_constraintTop_toBottomOf="@+id/post_image" />
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@color/white"
+        android:elevation="0.5dp"
+        android:paddingBottom="8dp">
 
-    <TextView
-        android:id="@+id/post_category_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/blue_round_tv"
-        android:paddingStart="12dp"
-        android:maxLines="1"
-        android:paddingEnd="12dp"
-        android:text="Diabetes"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/post_title_tv"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/post_title_tv" />
 
-    <TextView
-        android:id="@+id/post_content_tv"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:lineSpacingExtra="6dp"
-        android:padding="8dp"
-        android:text="Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old."
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/post_title_tv"
-        app:layout_constraintTop_toBottomOf="@+id/post_title_tv" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/comment_user_photo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/profile_test"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_type_user" />
 
-    <Button
-        android:id="@+id/up_vote_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/transparent"
-        android:drawableStart="@drawable/ic_arrow_up"
-        android:drawablePadding="0dp"
-        android:text="0 Up"
-        android:textAllCaps="false"
-        app:layout_constraintStart_toStartOf="@+id/post_content_tv"
-        app:layout_constraintTop_toBottomOf="@+id/post_content_tv" />
+        <TextView
+            android:id="@+id/post_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Ahmed Medra"
+            android:textColor="@color/textActiveColor"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/comment_user_photo"
+            app:layout_constraintStart_toEndOf="@+id/comment_user_photo"
+            app:layout_constraintTop_toTopOf="@+id/comment_user_photo" />
 
-    <Button
-        android:id="@+id/down_vote_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:background="@color/transparent"
-        android:drawableStart="@drawable/ic_arrow_down"
-        android:drawablePadding="0dp"
-        android:text="0 Down"
-        android:textAllCaps="false"
-        app:layout_constraintStart_toEndOf="@+id/up_vote_btn"
-        app:layout_constraintTop_toTopOf="@+id/up_vote_btn" />
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintBottom_toBottomOf="@+id/post_user_name"
+            app:layout_constraintEnd_toStartOf="@+id/psot_time_tv"
+            app:layout_constraintTop_toTopOf="@+id/post_user_name"
+            app:srcCompat="@drawable/ic_watch" />
 
-    <TextView
-        android:id="@+id/n_comments_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="28 Comments"
-        app:layout_constraintBottom_toBottomOf="@+id/down_vote_btn"
-        app:layout_constraintEnd_toEndOf="@+id/post_content_tv"
-        app:layout_constraintTop_toTopOf="@+id/down_vote_btn" />
+        <TextView
+            android:id="@+id/psot_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="2 min"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/imageView4" />
+
+        <ImageView
+            android:id="@+id/post_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintDimensionRatio="w,36:19"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/comment_user_photo"
+            app:srcCompat="@drawable/test" />
+
+        <TextView
+            android:id="@+id/post_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:maxLines="1"
+            android:text="I need help for my arm"
+            android:textColor="@color/textActiveColor"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/comment_user_photo"
+            app:layout_constraintTop_toBottomOf="@+id/post_image" />
+
+        <TextView
+            android:id="@+id/post_category_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/blue_round_tv"
+            android:maxLines="1"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="Diabetes"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/post_title_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/post_title_tv" />
+
+        <TextView
+            android:id="@+id/post_content_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:lineSpacingExtra="6dp"
+            android:padding="8dp"
+            android:text="Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old."
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/post_title_tv"
+            app:layout_constraintTop_toBottomOf="@+id/post_title_tv" />
+
+        <Button
+            android:id="@+id/up_vote_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/transparent"
+            android:drawableStart="@drawable/ic_arrow_up"
+            android:drawablePadding="0dp"
+            android:text="0 Up"
+            android:textAllCaps="false"
+            app:layout_constraintStart_toStartOf="@+id/post_content_tv"
+            app:layout_constraintTop_toBottomOf="@+id/post_content_tv" />
+
+        <Button
+            android:id="@+id/down_vote_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/transparent"
+            android:drawableStart="@drawable/ic_arrow_down"
+            android:drawablePadding="0dp"
+            android:text="0 Down"
+            android:textAllCaps="false"
+            app:layout_constraintStart_toEndOf="@+id/up_vote_btn"
+            app:layout_constraintTop_toTopOf="@+id/up_vote_btn" />
+
+        <TextView
+            android:id="@+id/n_comments_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="28 Comments"
+            app:layout_constraintBottom_toBottomOf="@+id/down_vote_btn"
+            app:layout_constraintEnd_toEndOf="@+id/post_content_tv"
+            app:layout_constraintTop_toTopOf="@+id/down_vote_btn" />
 
         <EditText
             android:id="@+id/edt_comment_post"
@@ -156,16 +159,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/edittext_button_style_rounded"
-            android:clickable="true"
             android:drawableEnd="@drawable/ic_send"
             android:ems="10"
             android:hint="Tap here to add comment"
+            android:maxLines="10"
+            android:overScrollMode="always"
+            android:scrollbarStyle="insideInset"
+            android:scrollbars="vertical"
             android:inputType="textMultiLine"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/n_comments_tv"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/up_vote_btn"
-            app:layout_constraintTop_toBottomOf="@+id/down_vote_btn" />
+            app:layout_constraintTop_toBottomOf="@+id/down_vote_btn"
+            app:layout_constraintVertical_bias="0.0" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

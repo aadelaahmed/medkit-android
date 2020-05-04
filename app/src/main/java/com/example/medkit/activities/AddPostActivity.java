@@ -45,6 +45,7 @@ public class AddPostActivity extends AppCompatActivity {
     String title, description, category;
     PostModel addedPost;
     LoadingAlertDialog tempDialog;
+    DocumentReference docRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +60,7 @@ public class AddPostActivity extends AppCompatActivity {
                 checkAndRequestPermission();
             }
         });
-
         tempDialog = new LoadingAlertDialog(this);
-
         binding.btnAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,6 +84,9 @@ public class AddPostActivity extends AppCompatActivity {
                             0,
                             0
                     );
+                    docRef = rootPost.document();
+                    String postKey = docRef.getId();
+                    addedPost.setPostKey(postKey);
                     addedPost.setUserName(currentUser.getDisplayName());
                     //Log.d("TAG", "onClick: "+ currentUser.getDisplayName());
                     binding.imgPost.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +119,9 @@ public class AddPostActivity extends AppCompatActivity {
     }
 
     private void uploadImageIntoStorage() {
-        rootStorage = FirebaseStorage.getInstance().getReference().child("post-images");
+        currentUser = mAuth.getCurrentUser();
+        //docRef = rootPost.document();
+        rootStorage = FirebaseStorage.getInstance().getReference().child("postImages/" + addedPost.getPostKey());
         final StorageReference postImageRef = rootStorage.child(pickedImageUri.getLastPathSegment());
         postImageRef.putFile(pickedImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -131,8 +135,7 @@ public class AddPostActivity extends AppCompatActivity {
                         addedPost.setPostPhoto(imageUrlStr);
                         uploadPost(addedPost);
                     }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
+                }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 /*binding.btnAddPost.setVisibility(View.VISIBLE);
@@ -147,11 +150,7 @@ public class AddPostActivity extends AppCompatActivity {
     }
 
     private void uploadPost(PostModel postModel) {
-        currentUser = mAuth.getCurrentUser();
-        DocumentReference docRef = rootPost.document();
-        String postKey = docRef.getId();
-        postModel.setPostKey(postKey);
-        db.collection("Users").document(currentUser.getUid()).update("postKeys", FieldValue.arrayUnion(postKey));
+        db.collection("Users").document(currentUser.getUid()).update("postKeys", FieldValue.arrayUnion(addedPost.getPostKey()));
         docRef.set(postModel).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

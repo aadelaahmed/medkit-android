@@ -27,6 +27,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ActivityProfileBinding binding;
     public static final int mRequestCode = 50;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseStorage rootRef;
     CollectionReference rootUsers;
     CollectionReference rootPosts;
     DocumentReference docUser;
@@ -138,8 +142,8 @@ public class ProfileActivity extends AppCompatActivity {
         tempAdapter = new CustomPostAdapter(tempOption, this);
         binding.profilePostsContainer.setAdapter(tempAdapter);
         binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this));
-        binding.profilePostsContainer.getItemAnimator().setChangeDuration(0);
-        binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        //binding.profilePostsContainer.getItemAnimator().setChangeDuration(0);
+        //binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
     }
 
@@ -263,40 +267,55 @@ public class ProfileActivity extends AppCompatActivity {
         if (requestCode == mRequestCode && resultCode == RESULT_OK && data != null) {
             tempDialog.startAlertDialog();
             pickedImageUri = data.getData();
-            rootUsers.document(currentUser.getUid()).update("photoUrl", String.valueOf(pickedImageUri))
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
+            rootRef = FirebaseStorage.getInstance();
+            StorageReference childStorageRef = rootRef.getReference("userPhoto/" + currentUser.getUid());
+            //StorageReference temp  = childStorageRef.child(pickedImageUri.getLastPathSegment());
+            childStorageRef.putFile(pickedImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    /*rootUsers.document(currentUser.getUid()).update("photoUrl", String.valueOf(newPhotoUri))
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    tempDialog.dismissAlertDialog();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    tempDialog.dismissAlertDialog();
+                                    showMessage(e.getMessage());
+                                }
+                            });*/
+                    //update user profile
+                    UserProfileChangeRequest request =
+                            new UserProfileChangeRequest
+                                    .Builder()
+                                    .setPhotoUri(pickedImageUri)
+                                    .build();
+                    currentUser.updateProfile(request)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    tempDialog.dismissAlertDialog();
+                                    showMessage("successful update profile with new photo");
+                                    Glide.with(ProfileActivity.this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             tempDialog.dismissAlertDialog();
+                            showMessage(e.toString());
                         }
                     });
-            //update user profile
-            UserProfileChangeRequest request =
-                    new UserProfileChangeRequest
-                            .Builder()
-                            .setPhotoUri(pickedImageUri)
-                            .build();
-            currentUser.updateProfile(request)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            tempDialog.dismissAlertDialog();
-                            showMessage("successful update profile with new photo");
-                            Glide.with(ProfileActivity.this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    tempDialog.dismissAlertDialog();
-                    showMessage(e.toString());
+
                 }
             });
-
         }
     }
 

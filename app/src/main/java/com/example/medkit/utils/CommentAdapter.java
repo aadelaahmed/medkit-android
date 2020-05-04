@@ -8,13 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.medkit.R;
 import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.Timestamp;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,6 +26,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAdapter.CommentViewHolder> {
     Context mContext;
+    FirebaseStorage storageInstance = FirebaseStorage.getInstance();
+    StorageReference storageRef;
 
     public CommentAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context mContext) {
         super(options);
@@ -51,11 +54,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         String createdTime = new SimpleDateFormat("dd MMMM").format(tempDate);
         Log.d("TAG", "onBindViewHolder comment: " + createdTime);
         String content = model.getContent();
-        String userImage = model.getUserImage();
+        //String userImage = model.getUserImage();
+        storageRef = storageInstance.getReference("userPhoto/" + model.getUserId());
         holder.txtUserName.setText(userName);
         holder.txtContent.setText(content);
         holder.txtDate.setText(createdTime);
-        Glide.with(mContext).load(userImage).into(holder.imgUser);
+        GlideApp.with(mContext).load(storageRef).into(holder.imgUser);
         holder.txtUserName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
