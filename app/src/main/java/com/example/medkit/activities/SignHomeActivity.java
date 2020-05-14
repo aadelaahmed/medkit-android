@@ -8,77 +8,58 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignHomeBinding;
 import com.example.medkit.model.User;
+import com.example.medkit.utils.ExternalAuthProvider;
 import com.example.medkit.utils.LoadingAlertDialog;
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Arrays;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SignHomeActivity extends AppCompatActivity {
     public static final String SHARED_PREFERENCE_NAME = "USER_DATA";
     private ActivitySignHomeBinding binding;
-    private static final int RC_SIGN_IN = 200;
-    boolean isFirstTime;
+    public static final int RC_SIGN_IN = 200;
+    //boolean isFirstTime;
     SharedPreferences sharedPreferences;
     FirebaseAuth firebaseAuth = null;
     FirebaseUser currentUser = null;
-    CallbackManager mCallbackManager;
     SharedPreferences.Editor editor;
-    String creationTime;
-    GoogleSignInClient mGoogleSignInClient;
+    /*String creationTime;
+    CallbackManager mCallbackManager;
+    GoogleSignInClient mGoogleSignInClient;*/
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection;
     LoadingAlertDialog tempDialog;
-    String userName = null, userImage = null, userEmail = null;
+    //String userName = null, userImage = null, userEmail = null;
+    private ExternalAuthProvider tempProviders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySignHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        mCallbackManager = CallbackManager.Factory.create();
+        //mCallbackManager = CallbackManager.Factory.create();
         usersCollection = db.collection("Users");
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
         tempDialog = new LoadingAlertDialog(this);
         sharedPreferences = getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
+        tempProviders = new ExternalAuthProvider(this, firebaseAuth, currentUser);
         binding.emailSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.putString(User.NORMAL_REGISTER, "normal register");
                 editor.commit();
-                startActivity(new Intent(SignHomeActivity.this,UserTypeActivity.class));
+                startActivity(new Intent(SignHomeActivity.this, UserTypeActivity.class));
                 //TODO enable action back click
                 finish();
             }
@@ -88,7 +69,9 @@ public class SignHomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 editor.putString(User.NORMAL_REGISTER, "custom register");
                 editor.commit();
-                tempDialog.startAlertDialog();
+                tempProviders.signInWithFaceBook();
+                Log.d("TAG", "onClick:facebook error  : erorororororo");
+                /*tempDialog.startAlertDialog();
                 LoginManager.getInstance().logInWithReadPermissions(SignHomeActivity.this, Arrays.asList("email", "public_profile", "user_friends"));
                 LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
                     @Override
@@ -108,7 +91,7 @@ public class SignHomeActivity extends AppCompatActivity {
                         tempDialog.dismissAlertDialog();
                         showMessage(error.getMessage());
                     }
-                });
+                });*/
 
                 //startActivity(new Intent(SignHomeActivity.this,UserTypeActivity.class));
             }
@@ -119,8 +102,7 @@ public class SignHomeActivity extends AppCompatActivity {
                 // Configure Google Sign In
                 editor.putString(User.NORMAL_REGISTER, "custom register");
                 editor.commit();
-                tempDialog.startAlertDialog();
-                requestClientGoogle();
+                tempProviders.requestClientGoogle();
                 //startActivity(new Intent(SignHomeActivity.this,UserTypeActivity.class));
             }
         });
@@ -128,8 +110,8 @@ public class SignHomeActivity extends AppCompatActivity {
         binding.signinTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tempDialog.startAlertDialog();
-                startActivity(new Intent(SignHomeActivity.this,SignInActivity.class));
+                tempProviders.loadingDialog.startAlertDialog();
+                startActivity(new Intent(SignHomeActivity.this, SignInActivity.class));
                 finish();
             }
         });
@@ -137,13 +119,13 @@ public class SignHomeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        tempDialog.dismissAlertDialog();
+        tempProviders.loadingDialog.dismissAlertDialog();
         finish();
         overridePendingTransition(0, android.R.anim.fade_out);
         super.onBackPressed();
     }
 
-    /*@Override
+ /*   @Override
     protected void onStart() {
         super.onStart();
          currentUser = firebaseAuth.getCurrentUser();
@@ -152,12 +134,11 @@ public class SignHomeActivity extends AppCompatActivity {
         }
     }*/
 
-    public void requestClientGoogle() {
+   /* public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-
         //create googleSignInClient with the previous request(options) gso
         mGoogleSignInClient = GoogleSignIn.getClient(SignHomeActivity.this, gso);
         fireIntentGoogle();
@@ -167,34 +148,33 @@ public class SignHomeActivity extends AppCompatActivity {
     private void fireIntentGoogle() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
+    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account);
+                tempProviders.firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                tempDialog.dismissAlertDialog();
-                showMessage("Google sign in failed");
+                tempProviders.loadingDialog.dismissAlertDialog();
+                showMessage("check your internet connection");
                 Log.w("TAG", "Google sign in failed", e);
                 // ...
             }
         } else {
             // pass login result to login manager
             // here we can manage callbacks from facebook SDK
-            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+            tempProviders.mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-
+/*
     private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
         Log.d("TAG", "firebaseAuthWithGoogle:" + acct.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -209,14 +189,6 @@ public class SignHomeActivity extends AppCompatActivity {
                             if (!isFirstTime) {
                                 tempDialog.dismissAlertDialog();
                                 showMessage("Email already existed");
-                              /*  AuthCredential tempCredential = GoogleAuthProvider.getCredential(acct.getIdToken(),null);
-                                currentUser.reauthenticate(tempCredential).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        currentUser.delete();
-                                    }
-                                });*/
-                                return;
                             }
                             userName = acct.getDisplayName();
                             userImage = acct.getPhotoUrl().toString();
@@ -237,10 +209,9 @@ public class SignHomeActivity extends AppCompatActivity {
                             //updateUI(null);
                         }
 
-                        // ...
                     }
                 });
-    }
+    }*/
 
     /*private void updateProfileUser(String tempName, Uri tempImage) {
         UserProfileChangeRequest tempUpdate =
@@ -252,7 +223,7 @@ public class SignHomeActivity extends AppCompatActivity {
     }*/
 
 
-    private void handleFacebookAccessToken(final AccessToken token) {
+   /* private void handleFacebookAccessToken(final AccessToken token) {
         //Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         final AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
@@ -274,9 +245,9 @@ public class SignHomeActivity extends AppCompatActivity {
                         }
                     }
                 });
-    }
+    }*/
 
-    private void getFacebookData(final AccessToken token) {
+    /*private void getFacebookData(final AccessToken token) {
         GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
@@ -306,32 +277,11 @@ public class SignHomeActivity extends AppCompatActivity {
         request.setParameters(parameters);
         request.executeAndWait();
         //request.executeAsync();
-    }
-
-    private void updateUI() {
-
-           /* String userId = currentUser.getUid();
-            String userName = currentUser.getDisplayName();
-            String userPhoto = currentUser.getPhotoUrl().toString();
-            String userEmail = currentUser.getEmail();*/
-            //creationTime = SignUpActivity.timestampToString(currentUser.getMetadata().getCreationTimestamp());
-
-           /* editor.putString(User.USER_ID,userId);
-            editor.putString(User.FULLNAME,userName);
-            editor.putString(User.IMGURL,userPhoto);
-            editor.putString(User.EMAIL,userEmail); */
-            editor.putString(User.FULLNAME, userName);
-            editor.putString(User.EMAIL, userEmail);
-            editor.putString(User.USER_PHOTO, userImage);
-            editor.commit();
-            Intent intent = new Intent(SignHomeActivity.this, UserTypeActivity.class);
-            startActivity(intent);
-            finish();
-    }
+    }*/
 
 
     private void showMessage(String message) {
-        Toast.makeText(SignHomeActivity.this, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(SignHomeActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
 }

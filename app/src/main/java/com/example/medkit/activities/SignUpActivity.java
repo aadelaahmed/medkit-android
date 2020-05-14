@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignUpBinding;
 import com.example.medkit.model.User;
+import com.example.medkit.utils.ExternalAuthProvider;
 import com.example.medkit.utils.LoadingAlertDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -46,6 +47,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     LoadingAlertDialog tempAlertDialog;
     StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("users");
     boolean isDoctor = false;
+    ExternalAuthProvider tempProviders;
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^" +
                     "(?=.*[0-9])" +         //at least 1 digit
@@ -80,6 +82,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, true);
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
+        tempProviders = new ExternalAuthProvider(this, firebaseAuth, currentUser);
         tempAlertDialog = new LoadingAlertDialog(this);
         //currentUser = firebaseAuth.getCurrentUser();
         binding.maleRadio.setOnCheckedChangeListener(this);
@@ -96,12 +99,12 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                     age = binding.ageEd.getEditText().getText().toString().trim();
                     RadioButton mRadio = binding.maleRadio;
                     RadioButton fRadio = binding.femaleRadio;
-                    signUp(mRadio, fRadio);
+                    signUp(email, mRadio, fRadio);
                 }
         });
     }
 
-    private void signUp(RadioButton mRadio, RadioButton fRadio) {
+    private void signUp(final String email, RadioButton mRadio, RadioButton fRadio) {
         if (validatename() && validateEmail() && validatePassword() && validateAge() && (mRadio.isChecked() || fRadio.isChecked())) {
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -109,6 +112,18 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
                    /* binding.progressSignUp.setVisibility(View.INVISIBLE);
                     binding.continueBtn.setVisibility(View.VISIBLE);*/
                     if (task.isSuccessful()) {
+                        boolean tempFlag = task.getResult().getAdditionalUserInfo().isNewUser();
+                        if (!tempFlag) {
+                            tempProviders.loadingDialog.dismissAlertDialog();
+                            tempProviders.checkUserExisted(email);
+                              /*  AuthCredential tempCredential = GoogleAuthProvider.getCredential(acct.getIdToken(),null);
+                                currentUser.reauthenticate(tempCredential).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        currentUser.delete();
+                                    }
+                                });*/
+                        }
                         sendEmailVerification();
                     } else {
                         tempAlertDialog.dismissAlertDialog();

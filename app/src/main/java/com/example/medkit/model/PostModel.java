@@ -3,7 +3,11 @@ package com.example.medkit.model;
 import android.graphics.Bitmap;
 
 import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.FieldValue;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostModel {
 
@@ -25,7 +29,7 @@ public class PostModel {
     private String userID;
     private String postKey;
     private String category;
-    private Object createdTime;
+    private Long createdTime;
     private Bitmap userProfilePicture;
     private Bitmap image;
     private int upVotes;
@@ -33,15 +37,18 @@ public class PostModel {
     private int nComments;
     private boolean isUpVoted;
     private boolean isDownVoted;
+    private Map<String, Integer> mapUpVotes;
 
-
-    public PostModel(String title, String description, String postPhoto, String userPhoto, String userID, String category) {
+    public PostModel(String title, String description, String postPhoto, String userID, String category) {
         this.title = title;
         this.description = description;
         this.postPhoto = postPhoto;
-        this.userPhoto = userPhoto;
         this.userID = userID;
         this.category = category;
+        // this.createdTime = FieldValue.serverTimestamp();
+        Date temp = Calendar.getInstance().getTime();
+        this.createdTime = temp.getTime();
+        this.mapUpVotes = new HashMap<>();
     }
 
 
@@ -49,7 +56,7 @@ public class PostModel {
 
     }
 
-    public PostModel( String title, String description, String postPhoto, String userPhoto, String userID, String category, int upVotes, int downVotes) {
+   /* public PostModel(String title, String description, String postPhoto, String userPhoto, String userID, String category, int upVotes, int downVotes) {
         this.title = title;
         this.description = description;
         this.postPhoto = postPhoto;
@@ -58,14 +65,24 @@ public class PostModel {
         this.category = category;
         this.upVotes = upVotes;
         this.downVotes = downVotes;
-        this.createdTime = FieldValue.serverTimestamp();
+       // this.createdTime = FieldValue.serverTimestamp();
+        Date temp = Calendar.getInstance().getTime();
+        this.createdTime = temp.getTime();
+    }*/
+
+    public Map<String, Integer> getMapUpVotes() {
+        return mapUpVotes;
     }
 
-    public Object getCreatedTime() {
+    public void setMapUpVotes(Map<String, Integer> mapUpVotes) {
+        this.mapUpVotes = mapUpVotes;
+    }
+
+    public Long getCreatedTime() {
         return createdTime;
     }
 
-    public void setCreatedTime(Object createdTime) {
+    public void setCreatedTime(Long createdTime) {
         this.createdTime = createdTime;
     }
 
@@ -116,6 +133,7 @@ public class PostModel {
         this.postPhoto = postPhoto;
     }
 
+    @Exclude
     public String getUserPhoto() {
         return userPhoto;
     }
@@ -140,6 +158,7 @@ public class PostModel {
         this.postKey = postKey;
     }
 
+    @Exclude
     public String getUserName() {
         return userName;
     }
@@ -147,6 +166,7 @@ public class PostModel {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
 
     public String getTitle() {
         return title;
@@ -190,7 +210,7 @@ public class PostModel {
         this.image = image;
     }
 
-
+    @Exclude
     public int getUpVotes() {
         return upVotes;
     }
@@ -199,7 +219,7 @@ public class PostModel {
         this.upVotes = upVotes;
     }
 
-
+    @Exclude
     public int getDownVotes() {
         return downVotes;
     }

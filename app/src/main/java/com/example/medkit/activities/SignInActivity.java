@@ -1,8 +1,6 @@
 package com.example.medkit.activities;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,62 +8,45 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.medkit.R;
 import com.example.medkit.databinding.ActivitySignInBinding;
+import com.example.medkit.utils.ExternalAuthProvider;
 import com.example.medkit.utils.LoadingAlertDialog;
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.Arrays;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SignInActivity extends AppCompatActivity {
-    //TextView textViewLogin, textViewTouch;
-    //Button buttonLogin;
     FirebaseAuth firebaseAuth = null;
-    //FirebaseUser currentUser ;
+    FirebaseUser currentUser = null;
     public static final int RC_SIGN_IN = 8;
-    CallbackManager mCallbackManager;
-    GoogleSignInClient mGoogleSignInClient;
-    private ActivitySignInBinding binding;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    CollectionReference usersCollection;
-    SharedPreferences userSharedPref;
-    boolean isFirstTime;
+    //FirebaseFirestore db = FirebaseFirestore.getInstance();
+    //CollectionReference usersCollection;
+    //SharedPreferences userSharedPref;
+    //boolean isFirstTime;
     LoadingAlertDialog tempDialog;
-    ProgressDialog mProgressDialog;
+    ExternalAuthProvider providerSignIn;
+    //CallbackManager mCallbackManager;
+    //GoogleSignInClient mGoogleSignInClient;
+    private ActivitySignInBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(0,android.R.anim.fade_out);
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
-        usersCollection = db.collection("Users");
+        //usersCollection = db.collection("Users");
         setContentView(binding.getRoot());
         ActionBar actionBar= getSupportActionBar();
         assert actionBar != null;
@@ -77,12 +58,15 @@ public class SignInActivity extends AppCompatActivity {
         buttonLogin = findViewById(R.id.button_login);
         setFontType(); */
         firebaseAuth = FirebaseAuth.getInstance();
-        userSharedPref = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
+        currentUser = firebaseAuth.getCurrentUser();
+        providerSignIn = new ExternalAuthProvider(this, firebaseAuth, currentUser);
+        //userSharedPref = this.getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         binding.iconGoogleSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tempDialog.startAlertDialog();
-                requestClientGoogle();
+               /* tempDialog.startAlertDialog();
+                requestClientGoogle();*/
+                providerSignIn.requestClientGoogle();
             }
         });
 
@@ -91,18 +75,18 @@ public class SignInActivity extends AppCompatActivity {
             public void onClick(View view) {
                 /*binding.progressSignIn.setVisibility(View.VISIBLE);
                 binding.btnLognIn.setVisibility(View.INVISIBLE);*/
-                tempDialog.startAlertDialog();
+                providerSignIn.loadingDialog.startAlertDialog();
                 String email = binding.etEmailSignIn.getText().toString().trim();
                 String password = binding.etPasswordSignIn.getText().toString();
                 logIn(email, password);
             }
         });
-        mCallbackManager = CallbackManager.Factory.create();
+        //mCallbackManager = CallbackManager.Factory.create();
         binding.iconFacebookSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tempDialog.startAlertDialog();
-                LoginManager.getInstance().logInWithReadPermissions(SignInActivity.this, Arrays.asList("email", "public_profile", "user_friends"));
+                providerSignIn.signInWithFaceBook();
+               /* LoginManager.getInstance().logInWithReadPermissions(SignInActivity.this, Arrays.asList("email", "public_profile"));
                 LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
@@ -122,13 +106,14 @@ public class SignInActivity extends AppCompatActivity {
                         showMessage(error.getMessage());
                     }
                 });
+                */
             }
         });
 
 
     }
 
-    public void requestClientGoogle() {
+   /* public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -137,10 +122,10 @@ public class SignInActivity extends AppCompatActivity {
         //create googleSignInClient with the previous request(options) gso
         mGoogleSignInClient = GoogleSignIn.getClient(SignInActivity.this, gso);
         signInWithGoogle();
-    }
+    }*/
 
 
-    private void handleFacebookAccessToken(AccessToken token) {
+    /*private void handleFacebookAccessToken(AccessToken token) {
         //Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
@@ -163,9 +148,9 @@ public class SignInActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-    }
+    }*/
 
-    private void isEmailAlreadyExisted(FirebaseUser currentUser) {
+    /*private void isEmailAlreadyExisted(FirebaseUser currentUser) {
         if (!isFirstTime)
             updateUI(currentUser);
         else {
@@ -230,18 +215,18 @@ public class SignInActivity extends AppCompatActivity {
             currentUser = firebaseAuth.getCurrentUser();
             updateUI(currentUser);
         }
-    }
+    }*/
 
- /*   @Override
+  /* @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            updateUI(user);
+            startActivity(new Intent(this,CommunityActivity.class));
         }
     }*/
 
-    private void logIn(String email, String password) {
+    private void logIn(final String email, String password) {
         if (!email.isEmpty() && !password.isEmpty()) {
 
             firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -251,22 +236,23 @@ public class SignInActivity extends AppCompatActivity {
                    /*     binding.btnLognIn.setVisibility(View.VISIBLE);
                         binding.progressSignIn.setVisibility(View.INVISIBLE);*/
                         //tempDialog.dismissAlertDialog();
-                        updateUI(firebaseAuth.getCurrentUser());
+                        providerSignIn.checkUserExisted(email);
+                        //updateUI(firebaseAuth.getCurrentUser());
                     } else {
                         try {
                             throw task.getException();
                         }
                         // if user enters wrong email.
                         catch (FirebaseAuthInvalidUserException invalidEmail) {
-                            tempDialog.dismissAlertDialog();
+                            providerSignIn.loadingDialog.dismissAlertDialog();
                             showMessage(invalidEmail.getMessage());
                         }
                         // if user enters wrong password.
                         catch (FirebaseAuthInvalidCredentialsException wrongPassword) {
-                            tempDialog.dismissAlertDialog();
+                            providerSignIn.loadingDialog.dismissAlertDialog();
                             showMessage(wrongPassword.getMessage());
                         } catch (Exception e) {
-                            tempDialog.dismissAlertDialog();
+                            providerSignIn.loadingDialog.dismissAlertDialog();
                             showMessage(e.getMessage());
                         }
                     }
@@ -281,14 +267,14 @@ public class SignInActivity extends AppCompatActivity {
         } else {
            /* binding.btnLognIn.setVisibility(View.VISIBLE);
             binding.progressSignIn.setVisibility(View.INVISIBLE);*/
-            tempDialog.dismissAlertDialog();
+            providerSignIn.loadingDialog.dismissAlertDialog();
             showMessage("please enter your email and password");
-            binding.etEmailSignIn.setError("Email iccorrect");
+            binding.etEmailSignIn.setError("Email incorrect");
         }
     }
 
     private void showMessage(String message) {
-        Toast.makeText(SignInActivity.this, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(SignInActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
    /* private void verifyEmailAddress() {
@@ -311,8 +297,8 @@ public class SignInActivity extends AppCompatActivity {
         textViewLogin.setTypeface(robotoBoldType);
 
 
-        buttonLogin.setTypeface(robotoBoldType); */
-    //}
+        buttonLogin.setTypeface(robotoBoldType);
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -336,11 +322,11 @@ public class SignInActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    //performed when we click on sign in button
+    /*
     private void signInWithGoogle() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
+    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -352,7 +338,7 @@ public class SignInActivity extends AppCompatActivity {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account);
+                providerSignIn.firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 tempDialog.dismissAlertDialog();
@@ -361,11 +347,11 @@ public class SignInActivity extends AppCompatActivity {
                 // ...
             }
         } else {
-            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+            providerSignIn.mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+   /* private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d("TAG", "firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -393,7 +379,7 @@ public class SignInActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-    }
+    }*/
 
 
 }

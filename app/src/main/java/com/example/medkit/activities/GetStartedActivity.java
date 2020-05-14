@@ -1,11 +1,11 @@
 package com.example.medkit.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -28,9 +28,11 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,6 +54,7 @@ public class GetStartedActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthStateListener;
     private ActivityGetStartedBinding binding;
     LoadingAlertDialog tempAlertDialog;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -132,23 +135,8 @@ public class GetStartedActivity extends AppCompatActivity {
 
     private void getSharedData() throws IOException {
         sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
-      /*  int age = sharedPreferences.getInt(User.AGE,222);
-        String createdTime = sharedPreferences.getString(User.CREATED_TIME,"null");
-        String email = sharedPreferences.getString(User.EMAIL,"null");
-        String fullName = sharedPreferences.getString(User.FULLNAME,"null");
-        String gender = sharedPreferences.getString(User.GENDER,"null");
-        String userPhoto = sharedPreferences.getString(User.IMGURL,"null");
-        String userId = sharedPreferences.getString(User.USER_ID,"null");
-        String gFaculty = sharedPreferences.getString(User.G_FACULTY,"null");
-        String gYear = sharedPreferences.getString(User.G_YEAR,"null");
-        String speciality = sharedPreferences.getString(User.SPECIALITY,"null");
-        String userType = sharedPreferences.getString(User.USERTYPE,"null");
-        User newUser = new User(age,createdTime,email,fullName,gender,userPhoto,userId,gFaculty,gYear,speciality,userType);*/
         boolean isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
-        // String createdTime = String.valueOf(FieldValue.serverTimestamp());
-        //String createdTime = sharedPreferences.getString(User.CREATED_TIME, null);
         fullName = sharedPreferences.getString(User.FULLNAME, null);
-        //uid = sharedPreferences.getString(User.USER_ID, null);
         emailUser = sharedPreferences.getString(User.EMAIL, null);
         imageUser = sharedPreferences.getString(User.USER_PHOTO, null);
         Log.d("TAG", "getSharedData: check image user " + imageUser);
@@ -167,28 +155,13 @@ public class GetStartedActivity extends AppCompatActivity {
             userType.put(User.LOCATION, location);
             userType.put(User.USERTYPE, uType);
             //Photo url =storagerefrence + User ID ,so we pass the the six-th parameter in constructor as uId
-            newUser = new User(userType, emailUser, fullName, imageUser);
+            newUser = new User(userType, emailUser, fullName);
         } else {
             uType = "Patient";
             userType.put(User.USERTYPE, uType);
-            newUser = new User(userType, emailUser, fullName, imageUser);
+            newUser = new User(userType, emailUser, fullName);
         }
-        //FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-      /*  List<String> lstPostKeys = new ArrayList<>();
-        lstPostKeys.add("post key 1");
-        lstPostKeys.add("post key 3");
-        lstPostKeys.add("post key 2");
-        lstPostKeys.add("post key 4");
-        newUser.setPostKeys(lstPostKeys);*/
         String tempNormalReg = sharedPreferences.getString(User.NORMAL_REGISTER, null);
-       /* if(tempNormalReg == null)
-            tempImgUri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.drawable.userphoto);
-        else
-            tempImgUri = Uri.parse(imageUser);
-        Log.d("TAG", "getSharedData: google auth  "+tempImgUri.toString() );*/
-        //String userId = currentUser.getUid();
-        //DocumentReference tempDoc = userCollection.document();
-        //create method for uploading user data into firestore and uploading image into firebase storage
         String userKey = currentUser.getUid();
         newUser.setUid(userKey);
         uploadIntoFirebaseStorage(newUser, userKey);
@@ -198,14 +171,26 @@ public class GetStartedActivity extends AppCompatActivity {
         //StorageReference storageRef = rootStorage.getReference();
         StorageReference childStorage = rootStorage.getReference("userPhoto/" + tempUserKey);
         // Uri tempImgUri = Uri.parse(imageUser);
-        saveImageFromURL(imageUser);
-        Log.d("TAG", "uploadIntoFirebaseStorage: " + resImageUri.toString());
+
+        AsyncTask<String, Void, Uri> x = new ImageFirebaseStorage().execute(imageUser);
+        try {
+            resImageUri = x.get();
+        } catch (ExecutionException e) {
+            Log.d("TAG", "uploadIntoFirebaseStorage: " + e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Log.d("TAG", "uploadIntoFirebaseStorage: " + e.getMessage());
+            e.printStackTrace();
+        }
+//        Log.d("TAG", "uploadIntoFirebaseStorage: " + resImageUri.toString());
         childStorage.putFile(resImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                if (fullName != null && resImageUri != null)
+                if (fullName != null && resImageUri != null) {
                     updateProfileUser(fullName, Uri.parse(imageUser));
-                uploadIntoFireStore(tempNewUser, tempUserKey);
+                    uploadIntoFireStore(tempNewUser, tempUserKey);
+                }
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -234,6 +219,7 @@ public class GetStartedActivity extends AppCompatActivity {
                 editor.commit();
                 tempAlertDialog.dismissAlertDialog();
                 startActivity(new Intent(GetStartedActivity.this, CommunityActivity.class));
+                finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -243,29 +229,10 @@ public class GetStartedActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void saveImageFromURL(String tempImageUserURL) throws IOException {
+   /* private void saveImageFromURL(String tempImageUserURL) throws IOException {
         URL imageUrl = new URL(tempImageUserURL);
         Bitmap bitMap = BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());
         resImageUri = getImageUri(this, bitMap);
-       /* URL url = new URL (tempImageUserURL);
-        InputStream input = url.openStream();
-        try {
-            File storagePath = Environment.getExternalStorageDirectory();
-            OutputStream output = new FileOutputStream(storagePath + "/myImage.png");
-            try {
-                byte[] buffer = new byte[200];
-                int bytesRead = 0;
-                while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
-                    output.write(buffer, 0, bytesRead);
-                }
-                //get previous stored image
-            } finally {
-                output.close();
-            }
-        } finally {
-            input.close();
-        }*/
     }
 
     private Uri getImageUri(Context context, Bitmap inImage) {
@@ -273,6 +240,30 @@ public class GetStartedActivity extends AppCompatActivity {
         inImage.compress(Bitmap.CompressFormat.PNG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }*/
+
+    class ImageFirebaseStorage extends AsyncTask<String, Void, Uri> {
+        @Override
+        protected Uri doInBackground(String... strings) {
+            URL imageUrl = null;
+            try {
+                imageUrl = new URL(strings[0]);
+            } catch (MalformedURLException e) {
+                Log.d("TAG", "doInBackground: " + e.getMessage());
+                e.printStackTrace();
+            }
+            Bitmap bitMap = null;
+            try {
+                bitMap = BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());
+            } catch (IOException e) {
+                showMessage(e.getMessage());
+                e.printStackTrace();
+            }
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitMap.compress(Bitmap.CompressFormat.PNG, 100, bytes);
+            String path = MediaStore.Images.Media.insertImage(GetStartedActivity.this.getContentResolver(), bitMap, "Title", null);
+            return Uri.parse(path);
+        }
     }
 
 }

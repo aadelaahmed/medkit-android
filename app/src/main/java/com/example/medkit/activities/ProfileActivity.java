@@ -8,13 +8,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.medkit.databinding.ActivityProfileBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.CustomPostAdapter;
+import com.example.medkit.utils.GlideApp;
 import com.example.medkit.utils.LoadingAlertDialog;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -25,14 +26,10 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,24 +39,22 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class ProfileActivity extends AppCompatActivity {
-    private List<PostModel> posts;
     private ActivityProfileBinding binding;
     public static final int mRequestCode = 50;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    FirebaseStorage rootRef;
+    FirebaseStorage rootRef = FirebaseStorage.getInstance();
     CollectionReference rootUsers;
     CollectionReference rootPosts;
     DocumentReference docUser;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
-    ListenerRegistration mListener;
     //PostAdapter postAdapter;
     CustomPostAdapter tempAdapter;
     //RecyclerView recyclerPostProfile;
     Uri pickedImageUri;
     //private List<String> resPostKeys;
-    private List<PostModel> lstPostModel;
     LoadingAlertDialog tempDialog = null;
+    StorageReference childStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +67,6 @@ public class ProfileActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        posts = new ArrayList<>();
         binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,7 +77,7 @@ public class ProfileActivity extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         binding.userProfileName.setText(currentUser.getDisplayName());
         tempDialog = new LoadingAlertDialog(this);
-
+        childStorageRef = rootRef.getReference("userPhoto/" + currentUser.getUid());
        /* Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_type_user);
         Bitmap ibitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_communicate);
         posts.add(new PostModel("Ahmed Medra", "new Post", "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.", "Diabetes", ppbitmap, ibitmap, 10, 10, 10, true, false));
@@ -98,38 +92,15 @@ public class ProfileActivity extends AppCompatActivity {
         recyclerPostProfile = binding.profilePostsContainer;
         recyclerPostProfile.setHasFixedSize(true);
         recyclerPostProfile.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));*/
-        mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
         rootUsers = db.collection("Users");
         rootPosts = db.collection("Posts");
         docUser = rootUsers.document(currentUser.getUid());
-        lstPostModel = new ArrayList<>();
         //showMessage("create state");
         iniRecyclerView();
-        Glide.with(this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
+        GlideApp.with(this).load(childStorageRef).into(binding.userProfilePicture);
         binding.userProfileName.setText(currentUser.getDisplayName());
         //binding.userProfilePicture.setImageURI(currentUser.getPhotoUrl());
     }
-
-   /* @Override
-    protected void onRestart() {
-        super.onRestart();
-        showMessage("restart state");
-    }*/
-
-  /*  @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        showMessage("Destroy state");
-
-    }*/
-
-   /* @Override
-    protected void onResume() {
-        super.onResume();
-        showMessage("resume state");
-
-    }*/
 
     private void iniRecyclerView() {
         Query query = rootPosts
@@ -225,7 +196,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     new AlertDialog.Builder(this)
                             .setTitle("Permission needed")
-                            .setMessage("This permission is needed because of this and that")
+                            .setMessage("This permission is needed because of updating profile picture...")
                             .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -267,8 +238,6 @@ public class ProfileActivity extends AppCompatActivity {
         if (requestCode == mRequestCode && resultCode == RESULT_OK && data != null) {
             tempDialog.startAlertDialog();
             pickedImageUri = data.getData();
-            rootRef = FirebaseStorage.getInstance();
-            StorageReference childStorageRef = rootRef.getReference("userPhoto/" + currentUser.getUid());
             //StorageReference temp  = childStorageRef.child(pickedImageUri.getLastPathSegment());
             childStorageRef.putFile(pickedImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -299,12 +268,13 @@ public class ProfileActivity extends AppCompatActivity {
                                 public void onSuccess(Void aVoid) {
                                     tempDialog.dismissAlertDialog();
                                     showMessage("successful update profile with new photo");
-                                    Glide.with(ProfileActivity.this).load(currentUser.getPhotoUrl()).into(binding.userProfilePicture);
+                                    GlideApp.with(ProfileActivity.this).load(childStorageRef).into(binding.userProfilePicture);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             tempDialog.dismissAlertDialog();
+                            Log.d("TAG", "onFailure: " + e.toString());
                             showMessage(e.toString());
                         }
                     });

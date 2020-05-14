@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
 import com.example.medkit.fragments.HomeFragment;
-import com.example.medkit.fragments.MessageFragment;
 import com.example.medkit.fragments.NotificationFragment;
 import com.example.medkit.utils.GlideApp;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -42,9 +41,6 @@ public class CommunityActivity extends AppCompatActivity {
                             break;
                         case R.id.notify_item:
                             selectedFreagment = new NotificationFragment();
-                            break;
-                        case R.id.message_item:
-                            selectedFreagment = new MessageFragment();
                             break;
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFreagment).commit();

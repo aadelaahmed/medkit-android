@@ -9,43 +9,44 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.example.medkit.R;
 import com.example.medkit.activities.PostDetail;
 import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
 import com.example.medkit.model.PostModel;
+import com.example.medkit.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.Timestamp;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, CustomPostAdapter.CustomHolder> {
 
-    OnItemClickListener mListener;
     Context mContext;
     PostModel clickedPost;
-    DocumentReference clickedDocument;
     int cntrUp, cntrDown;
     CollectionReference rootComment;
     DocumentReference currentDoc;
@@ -54,58 +55,123 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     FirebaseStorage storageRef = FirebaseStorage.getInstance();
     StorageReference storagePosts;
     StorageReference storageUsers;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    CollectionReference usersCollection = db.collection("Users");
+    int currentUserVote = 0; //vote of current user for each post
+    Map<String, Integer> mapVotes;
+    int resUp = 0, resDown = 0;
+    String currentUserID;
+    String userName;
 
     public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext) {
         super(options);
         this.mContext = mContext;
     }
-  /*public CustomPostAdapter(Context mContext)
-    {
-        super();
-        this.mContext = mContext;
-    }*/
+
+    @Override
+    public int getItemCount() {
+        return super.getItemCount();
+    }
 
     @Override
     protected void onBindViewHolder(@NonNull final CustomHolder holder, final int position, @NonNull final PostModel model) {
+        resUp = resDown = 0;
         holder.txtTitle.setText(model.getTitle());
         holder.txtDescription.setText(model.getDescription());
         holder.txtCategory.setText(model.getCategory());
         storagePosts = storageRef.getReference().child("postImages/" + model.getPostKey());
         storageUsers = storageRef.getReference().child("userPhoto/" + model.getUserID());
-        //Glide.with(mContext).load(model.getUserPhoto()).into(holder.imgUser);
         GlideApp.with(mContext).load(storageUsers).into(holder.imgUser);
-        cntrUp = model.getUpVotes();
-        cntrDown = model.getDownVotes();
-        //cntrUp = model.getUpVotes();
-        //cntrDown = model.getDownVotes();
-        holder.btnUp.setText(cntrUp + " UP");
-        holder.btnDown.setText(cntrDown + " Down");
+        mapVotes = model.getMapUpVotes();
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        currentUserID = currentUser.getUid();
+        //we need to determine state of post accroding to user vote
+        //setButtonStates(holder, currentUserVote);
+        //computeVotes(model, holder);
         clickedPost = model;
-        currentDoc = getSnapshots().getSnapshot(position).getReference();
-        rootComment = currentDoc.collection("Comments");
         Log.d("TAG", "size of documents: " + String.valueOf(getSnapshots().size()));
+       /* holder.btnUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("TAG", "onClick: " + holder.btnUp.isChecked());
+                if (holder.btnUp.isChecked()) {
+                    if (holder.btnDown.isChecked())
+                        holder.btnDown.setChecked(false);
+                    holder.btnUp.setTextOn(++resUp + " Up");
+                    setUpVotesBtn(holder, position, 1);
+                } else {
+                    holder.btnUp.setTextOff(--resUp + " Up");
+                    setUpVotesBtn(holder, position, 0);
+                }
+            }
+        });
 
+        holder.btnDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("TAG", "onClick: " + holder.btnDown.isChecked());
+                if (holder.btnDown.isChecked()) {
+                    if (holder.btnUp.isChecked())
+                        holder.btnUp.setChecked(false);
+                    holder.btnDown.setTextOn(++resDown + " Down");
+                    setDownVotesBtn(holder, position, 1);
+                } else {
+                    holder.btnDown.setTextOff(--resDown + " Down");
+                    setDownVotesBtn(holder, position, 0);
+                }
+            }
+        });
+        holder.btnUp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    holder.btnDown.setChecked(false);
+                    holder.btnUp.setTextOn(++resUp + " Up");
+                    setUpVotesBtn(holder, position, 1);
+                } else {
+                    holder.btnUp.setTextOff(--resUp + " Up");
+                    setUpVotesBtn(holder, position, 0);
+                }
 
+            }
+        });
+
+        holder.btnDown.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    holder.btnUp.setChecked(false);
+                    holder.btnDown.setTextOn(++resDown + " Down");
+                    setDownVotesBtn(holder, position, 1);
+                } else {
+                    holder.btnDown.setTextOff(--resDown + " Down");
+                    setDownVotesBtn(holder, position, 0);
+                }
+            }
+        });*/
+        //getCurrentUserName(userId,holder);
+        //getCommentsCount(model.getPostKey());
+        usersCollection.document(model.getUserID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    userName = task.getResult().getString("fullName");
+                    Log.d("TAG", "onComplete: " + userName);
+                    holder.txtUserName.setText(userName);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage(e.getMessage());
+            }
+        });
         holder.txtUserName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //TODO --> set concurrent user profile
                 getUserProfile();
-            }
-        });
-
-        holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
-
-            public boolean onTouch(View view, MotionEvent event) {
-                if (view.getId() == R.id.edt_comment_post) {
-                    view.getParent().requestDisallowInterceptTouchEvent(true);
-                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                        case MotionEvent.ACTION_UP:
-                            view.getParent().requestDisallowInterceptTouchEvent(false);
-                            break;
-                    }
-                }
-                return false;
             }
         });
 
@@ -119,24 +185,29 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         });
 
         holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                final int DRAWABLE_LEFT = 0;
-                final int DRAWABLE_TOP = 1;
+
+            public boolean onTouch(View view, MotionEvent event) {
                 final int DRAWABLE_RIGHT = 2;
-                final int DRAWABLE_BOTTOM = 3;
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (motionEvent.getRawX() >= (holder.edtComment.getRight() - holder.edtComment.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                        // your action here
-                        String content = holder.edtComment.getText().toString().trim();
-                        addComment(position, content);
-                        holder.edtComment.setText("");
-                        return true;
+                // TODO Auto-generated method stub
+                if (view.getId() == R.id.edt_comment_post) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                        case MotionEvent.ACTION_UP:
+                            view.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                        case MotionEvent.ACTION_DOWN:
+                            if (event.getRawX() >= (holder.edtComment.getRight() - holder.edtComment.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                                String content = holder.edtComment.getText().toString().trim();
+                                addComment(holder.getAdapterPosition(), content);
+                                holder.edtComment.setText("");
+                            }
+                            break;
                     }
                 }
                 return false;
             }
         });
+
 
       /*  Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("currentDate");
         Date tempDate = temp.toDate();
@@ -155,25 +226,20 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             holder.imgPost.setVisibility(View.GONE);
         holder.txtUserName.setText(model.getUserName());
         Log.d("TAG", "onBindViewHolder: " + model.getUserName());
-       // getSnapshots().getSnapshot(position).getMetadata().hasPendingWrites();
+        // getSnapshots().getSnapshot(position).getMetadata().hasPendingWrites();
 
-        holder.btnUp.setOnClickListener(new View.OnClickListener() {
+        /*holder.btnUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 DocumentReference tempDoc = getSnapshots().getSnapshot(position).getReference();
-                // cntrUp = (int) tempDoc.get().getResult().get("upVotes");
-                cntrUp = model.getUpVotes();
-                //holder.btnUp.setText(cntrUp + " UP");
+                PostModel currentPost = getItem(holder.getAdapterPosition());
+                cntrUp = currentPost.getUpVotes();
+                //cntrUp = model.getUpVotes();
                 FieldValue incrementUp = FieldValue.increment(1);
                 tempDoc.update("upVotes", incrementUp);
                 holder.btnUp.setText(++cntrUp + " UP");
-               /* Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("createdTime");
-                Log.d("TAG", "onClick: "+temp.toString());
-                Date tempDate = temp.toDate();
-                Log.d("TAG", "onClick: "+tempDate.toString());
-                DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(mContext);
-                Log.d("TAG", "onClick: "+dateFormat.format(tempDate));*/
+
             }
         });
 
@@ -184,31 +250,113 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                 DocumentReference tempDownDoc = getSnapshots().getSnapshot(position).getReference();
                 //holder.btnUp.setText(cntrDown + " Down");
                 //cntrDown = (int) tempDownDoc.get().getResult().get("downVotes");
-                cntrDown = model.getDownVotes();
+                PostModel currentPost = getItem(holder.getAdapterPosition());
+                cntrDown = currentPost.getDownVotes();
+                //cntrDown = model.getDownVotes();
                 FieldValue incrementDown = FieldValue.increment(1);
                 tempDownDoc.update("downVotes", incrementDown);
                 holder.btnDown.setText(++cntrDown + " Down");
             }
-        });
+        });*/
     }
+
+    private void setButtonStates(CustomHolder holder, int currentUserVote) {
+        switch (currentUserVote) {
+            case 1:
+                holder.btnUp.setChecked(true);
+                break;
+            case -1:
+                holder.btnDown.setChecked(true);
+                break;
+        }
+    }
+
+    private void setUpVotesBtn(CustomHolder holder, int position, int currentVote) {
+        //int currentVote = (currentUserVote == 1) ? 0 : 1;
+        /*if(mapVotes.containsKey(currentUserID))
+            currentUserVote = mapVotes.get(currentUserID);
+        currentVote = (currentUserVote == 1) ? 0 : 1;
+        if(currentVote == 1)
+            holder.btnUp.setText(++resUp + " Up");
+        else
+            holder.btnUp.setText(--resUp + " Up");*/
+        Map<String, Integer> newMapValue = new HashMap<>();
+        newMapValue.put(currentUser.getUid(), currentVote);
+        getSnapshots().getSnapshot(position).getReference().update("mapUpVotes", newMapValue);
+    }
+
+    private void setDownVotesBtn(CustomHolder holder, int position, int currentVote) {
+        //int currentVote = (currentUserVote == -1) ? 0 : -1;
+        /*if(mapVotes.containsKey(currentUserID))
+            currentUserVote = mapVotes.get(currentUserID);
+        currentVote = (currentUserVote == -1) ? 0 : -1;
+        if(currentVote == -1)
+            holder.btnUp.setText(++resDown + " Down");
+        else
+            holder.btnUp.setText(--resDown + " Down");*/
+        Map<String, Integer> newMapValue = new HashMap<>();
+        newMapValue.put(currentUser.getUid(), currentVote);
+        getSnapshots().getSnapshot(position).getReference().update("mapUpVotes", newMapValue);
+    }
+
+    private void computeVotes(PostModel model, CustomHolder holder) {
+        for (String tempStrKey : mapVotes.keySet()) {
+            if (mapVotes.get(tempStrKey) > 0)
+                resUp++;
+            else if (mapVotes.get(tempStrKey) < 0)
+                resDown++;
+        }
+        holder.btnUp.setText(resUp + " UP");
+        holder.btnDown.setText(resDown + " Down");
+    }
+
+   /* private void getCurrentUserName(String userId, final CustomHolder holder) {
+        if (userId != null) {
+            usersCollection.document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                String tempUserName = null;
+
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        tempUserName = documentSnapshot.getString("fullname");
+                        holder.txtUserName.setText(tempUserName);
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    showMessage(e.getMessage());
+                }
+            });
+        } else
+            showMessage("check user id");
+    }*/
+
 
     private void getUserProfile() {
         mContext.startActivity(new Intent(mContext, ProfileActivity.class));
     }
 
+    @Override
+    public void onError(@NonNull FirebaseFirestoreException e) {
+        super.onError(e);
+        showMessage(e.getMessage());
+    }
+
     private void addComment(int tempPostition, String content) {
-        if (tempPostition != RecyclerView.NO_POSITION || content != null) {
+        if (tempPostition != RecyclerView.NO_POSITION && content != null) {
+            currentDoc = getSnapshots().getSnapshot(tempPostition).getReference();
+            rootComment = currentDoc.collection("Comments");
             mAuth = FirebaseAuth.getInstance();
             currentUser = mAuth.getCurrentUser();
             String userID = currentUser.getUid();
-            String userImage = currentUser.getPhotoUrl().toString();
-            String userName = currentUser.getDisplayName();
-            Comment newComment = new Comment(content, userID, userImage, userName);
+           /*String userImage = currentUser.getPhotoUrl().toString();
+            String userName = currentUser.getDisplayName();*/
+            Comment newComment = new Comment(content, userID);
             rootComment.document().set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     showMessage("Comment added successfully");
-
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -218,16 +366,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             });
         } else
             showMessage("Please enter your comment");
-
-
     }
 
     private void showMessage(String message) {
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void deleteItem(int position) {
-        getSnapshots().getSnapshot(position).getReference().delete();
     }
 
     @NonNull
@@ -243,14 +385,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         View view = LayoutInflater.from(mContext).inflate(R.layout.activity_photo_post, null);
         ImageView clickedPhoto = view.findViewById(R.id.img_clicked_post);
         GlideApp.with(mContext).load(storagePosts).into(clickedPhoto);
-        //Glide.with(mContext).load(getSnapshots().getSnapshot(position).get("postPhoto")).into(clickedPhoto);
         settingsDialog.setContentView(view);
         settingsDialog.show();
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(DocumentSnapshot documentSnapshot, Context mContext);
-    }
 
    /* private String timestampToString(long time) {
 
@@ -265,7 +403,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         TextView txtTitle, txtDescription, txtCategory, txtUserName, txtTime, txtNumOfComments;
         ImageView imgUser;
         ImageView imgPost;
-        Button btnUp, btnDown;
+        ToggleButton btnUp, btnDown;
         EditText edtComment;
 
         public CustomHolder(@NonNull final View itemView) {
@@ -289,46 +427,35 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                         Intent intent = new Intent(mContext, PostDetail.class);
                         //mListener = new PostDetail();
                         PostModel clickedPost = getSnapshots().getSnapshot(position).toObject(PostModel.class);
-                        //startActivity(new Intent(mContext,PostDetail.class));
                         if (clickedPost.getPostPhoto() == null)
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, false);
                         else {
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, true);
                             intent.putExtra(PostModel.USER_ID, clickedPost.getUserID());
-                            //intent.putExtra(PostModel.POST_IMAGE_KEY, clickedPost.getPostPhoto());
                         }
                         String title = clickedPost.getTitle();
                         String description = clickedPost.getDescription();
-                        //String createdTime = clickedPost.getCreatedTime().toString();
-                        String userPhoto = clickedPost.getUserPhoto();
-
-                        //To get current time of added post
-                        Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("createdTime");
-                        Date tempDate = temp.toDate();
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
-                        String createdTime = dateFormat.format(tempDate);
-                        //DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(mContext);
-                        Log.d("TAG", "onClick: " + dateFormat.format(tempDate));
-                        //String postKey = getSnapshots().getSnapshot(position).getId();
+                        /*Long temp = clickedPost.getCreatedTime();
+                        Date tempDate = new Date(temp * 1000);
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");*/
+                        String createdTime = "";//dateFormat.format(tempDate);
+                        //Log.d("TAG", "onClick: " + dateFormat.format(tempDate));
                         String postKey = clickedPost.getPostKey();
-                        //String dateWithName = createdTime + " | by " + userName;
                         intent.putExtra(PostModel.POST_KEY, postKey);
                         intent.putExtra(PostModel.TITLE_KEY, title);
                         intent.putExtra(PostModel.DESCRIPTION_KEY, description);
-                        //intent.putExtra(PostModel.USER_NAME_KEY,dateWithName);
-                        intent.putExtra(PostModel.USER_IMAGE_KEY, userPhoto);
+                        intent.putExtra(User.FULLNAME, userName);
                         intent.putExtra(PostModel.TIME_KEY, createdTime);
-                        //mListener.onItemClick(getSnapshots().getSnapshot(position),mContext);
-                        //mContext.startActivity(new Intent(mContext,PostDetail.class));
-                        //mContext.startActivity(new Intent(mContext,PostDetail.class));
                         mContext.startActivity(intent);
                     }
                 }
             });
-            //Toast.makeText(mContext,getSnapshots().size(),Toast.LENGTH_LONG).show();
         }
 
     }
+
+}
+
 
    /* public void setOnItemClickListener(OnItemClickListener mListener)
     {
@@ -336,4 +463,3 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     }*/
 
 
-}
