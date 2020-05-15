@@ -27,8 +27,8 @@ public class User {
    /* private int age;
     private String createdTime;
     */
-    private String uid;
-    private Long createdTime;
+    private String userId;
+    private long createdTime;
     private String email;
     private String fullName;
     private Map<String, Object> userType;
@@ -36,7 +36,11 @@ public class User {
     public User() {
 
     }
-    public void setUid(String uid) { this.uid = uid; }
+
+    //private String photoUrl;
+    public String getUid() {
+        return userId;
+    }
 
     public User(Map<String, Object> userType, String email, String fullName) {
         this.userType = userType;
@@ -46,9 +50,8 @@ public class User {
         this.createdTime = tempDate.getTime();
     }
 
-    //private String photoUrl;
-    public String getUid() {
-        return uid;
+    public void setUid(String userId) {
+        this.userId = userId;
     }
 
     public String getEmail() {
@@ -58,11 +61,11 @@ public class User {
         this.email = email;
     }
 
-    public Long getCreatedTime() {
+    public long getCreatedTime() {
         return createdTime;
     }
 
-    public void setCreatedTime(Long createdTime) {
+    public void setCreatedTime(long createdTime) {
         this.createdTime = createdTime;
     }
 
@@ -81,13 +84,5 @@ public class User {
     public void setUserType(Map<String, Object> userType) {
         this.userType = userType;
     }
-
-    public void setCreationtime(Long creationTime) {
-        this.createdTime = creationTime;
-    }
-
-
-
-
 
 }

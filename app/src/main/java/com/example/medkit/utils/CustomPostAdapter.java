@@ -37,7 +37,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -69,11 +68,6 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     }
 
     @Override
-    public int getItemCount() {
-        return super.getItemCount();
-    }
-
-    @Override
     protected void onBindViewHolder(@NonNull final CustomHolder holder, final int position, @NonNull final PostModel model) {
         resUp = resDown = 0;
         holder.txtTitle.setText(model.getTitle());
@@ -82,13 +76,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         storagePosts = storageRef.getReference().child("postImages/" + model.getPostKey());
         storageUsers = storageRef.getReference().child("userPhoto/" + model.getUserID());
         GlideApp.with(mContext).load(storageUsers).into(holder.imgUser);
-        mapVotes = model.getMapUpVotes();
+        //mapVotes = model.getMapUpVotes();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         currentUserID = currentUser.getUid();
-        //we need to determine state of post accroding to user vote
-        //setButtonStates(holder, currentUserVote);
-        //computeVotes(model, holder);
         clickedPost = model;
         Log.d("TAG", "size of documents: " + String.valueOf(getSnapshots().size()));
        /* holder.btnUp.setOnClickListener(new View.OnClickListener() {
@@ -150,8 +141,6 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                 }
             }
         });*/
-        //getCurrentUserName(userId,holder);
-        //getCommentsCount(model.getPostKey());
         usersCollection.document(model.getUserID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -174,8 +163,6 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                 getUserProfile();
             }
         });
-
-
         holder.imgUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -183,7 +170,6 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                 getUserProfile();
             }
         });
-
         holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View view, MotionEvent event) {
@@ -208,11 +194,6 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             }
         });
 
-
-      /*  Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("currentDate");
-        Date tempDate = temp.toDate();
-        DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(mContext);
-        Log.d("TAG", "onClick: "+dateFormat.format(tempDate));*/
         holder.imgPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -221,13 +202,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         });
         if (model.getPostPhoto() != null)
             GlideApp.with(mContext).load(storagePosts).into(holder.imgPost);
-            //Glide.with(mContext).load(model.getPostPhoto()).into(holder.imgPost);
         else
             holder.imgPost.setVisibility(View.GONE);
         holder.txtUserName.setText(model.getUserName());
         Log.d("TAG", "onBindViewHolder: " + model.getUserName());
-        // getSnapshots().getSnapshot(position).getMetadata().hasPendingWrites();
-
         /*holder.btnUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -280,9 +258,9 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             holder.btnUp.setText(++resUp + " Up");
         else
             holder.btnUp.setText(--resUp + " Up");*/
-        Map<String, Integer> newMapValue = new HashMap<>();
+       /* Map<String, Integer> newMapValue = new HashMap<>();
         newMapValue.put(currentUser.getUid(), currentVote);
-        getSnapshots().getSnapshot(position).getReference().update("mapUpVotes", newMapValue);
+        getSnapshots().getSnapshot(position).getReference().update("mapUpVotes", newMapValue);*/
     }
 
     private void setDownVotesBtn(CustomHolder holder, int position, int currentVote) {
@@ -294,12 +272,12 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             holder.btnUp.setText(++resDown + " Down");
         else
             holder.btnUp.setText(--resDown + " Down");*/
-        Map<String, Integer> newMapValue = new HashMap<>();
+        /*Map<String, Integer> newMapValue = new HashMap<>();
         newMapValue.put(currentUser.getUid(), currentVote);
-        getSnapshots().getSnapshot(position).getReference().update("mapUpVotes", newMapValue);
+        getSnapshots().getSnapshot(position).getReference().update("mapUpVotes", newMapValue);*/
     }
 
-    private void computeVotes(PostModel model, CustomHolder holder) {
+   /* private void computeVotes(PostModel model, CustomHolder holder) {
         for (String tempStrKey : mapVotes.keySet()) {
             if (mapVotes.get(tempStrKey) > 0)
                 resUp++;
@@ -308,7 +286,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         }
         holder.btnUp.setText(resUp + " UP");
         holder.btnDown.setText(resDown + " Down");
-    }
+    }*/
 
    /* private void getCurrentUserName(String userId, final CustomHolder holder) {
         if (userId != null) {
@@ -389,14 +367,6 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         settingsDialog.show();
     }
 
-
-   /* private String timestampToString(long time) {
-
-        Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
-        calendar.setTimeInMillis(time);
-        String date = DateFormat.format("Mon-DD",calendar).toString();
-        return date;
-    }*/
 
     public class CustomHolder extends RecyclerView.ViewHolder {
 

@@ -13,23 +13,19 @@ public class PostModel {
 
     public static final String TITLE_KEY = "TITLE_KEY";
     public static final String DESCRIPTION_KEY = "DESCRIPTION_KEY";
-    public static final String POST_IMAGE_KEY = "POST_IMAGE_KEY";
     public static final String TIME_KEY = "TIME_KEY";
-    public static final String USER_NAME_KEY = "USER_NAME_KEY";
     public static final String POST_IMAGE_FLAG = "POST_IMAGE_FLAG";
-    public static final String USER_IMAGE_KEY = "USER_IMAGE_KEY";
     public static final String POST_KEY = "POST_KEY";
     public static final String USER_ID = "USE_ID";
-    private String userName;
-    private String title;
-    private String description;
-    //private String createdTime;
-    private String postPhoto;
-    private String userPhoto;
-    private String userID;
-    private String postKey;
-    private String category;
-    private Long createdTime;
+    public String userName;
+    public String title;
+    public String description;
+    public String postPhoto;
+    public String userPhoto;
+    public String userID;
+    public String postKey;
+    public String category;
+    public Long tempTime;
     private Bitmap userProfilePicture;
     private Bitmap image;
     private int upVotes;
@@ -37,7 +33,7 @@ public class PostModel {
     private int nComments;
     private boolean isUpVoted;
     private boolean isDownVoted;
-    private Map<String, Integer> mapUpVotes;
+    public Map<String, Integer> mapUpVotes;
 
     public PostModel(String title, String description, String postPhoto, String userID, String category) {
         this.title = title;
@@ -45,9 +41,8 @@ public class PostModel {
         this.postPhoto = postPhoto;
         this.userID = userID;
         this.category = category;
-        // this.createdTime = FieldValue.serverTimestamp();
         Date temp = Calendar.getInstance().getTime();
-        this.createdTime = temp.getTime();
+        this.tempTime = temp.getTime();
         this.mapUpVotes = new HashMap<>();
     }
 
@@ -56,34 +51,20 @@ public class PostModel {
 
     }
 
-   /* public PostModel(String title, String description, String postPhoto, String userPhoto, String userID, String category, int upVotes, int downVotes) {
-        this.title = title;
-        this.description = description;
-        this.postPhoto = postPhoto;
-        this.userPhoto = userPhoto;
-        this.userID = userID;
-        this.category = category;
-        this.upVotes = upVotes;
-        this.downVotes = downVotes;
-       // this.createdTime = FieldValue.serverTimestamp();
-        Date temp = Calendar.getInstance().getTime();
-        this.createdTime = temp.getTime();
-    }*/
-
-    public Map<String, Integer> getMapUpVotes() {
+   /* public Map<String, Integer> getMapUpVotes() {
         return mapUpVotes;
     }
 
     public void setMapUpVotes(Map<String, Integer> mapUpVotes) {
         this.mapUpVotes = mapUpVotes;
-    }
+    }*/
 
     public Long getCreatedTime() {
-        return createdTime;
+        return tempTime;
     }
 
-    public void setCreatedTime(Long createdTime) {
-        this.createdTime = createdTime;
+    public void setCreatedTime(long createdTime) {
+        this.tempTime = createdTime;
     }
 
     @Override
@@ -99,31 +80,6 @@ public class PostModel {
                 ", category='" + category + '\'' +
                 '}';
     }
-
-    public PostModel(String userName,
-                     String title,
-                     String description,
-                     String category,
-                     Bitmap userProfilePicture,
-                     Bitmap image,
-                     int upVotes,
-                     int downVotes,
-                     int nComments,
-                     boolean isUpVoted,
-                     boolean isDownVoted) {
-        this.userName = userName;
-        this.title = title;
-        this.description = description;
-        this.category = category;
-        this.userProfilePicture = userProfilePicture;
-        this.image = image;
-        this.upVotes = upVotes;
-        this.downVotes = downVotes;
-        this.nComments = nComments;
-        this.isUpVoted = isUpVoted;
-        this.isDownVoted = isDownVoted;
-    }
-
 
     public String getPostPhoto() {
         return postPhoto;
@@ -200,6 +156,7 @@ public class PostModel {
     public void setUserProfilePicture(Bitmap userProfilePicture) {
         this.userProfilePicture = userProfilePicture;
     }
+
 
     @Exclude
     public Bitmap getImage() {

@@ -33,6 +33,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,7 +48,6 @@ public class GetStartedActivity extends AppCompatActivity {
     FirebaseUser currentUser;
     String emailUser = null;
     FirebaseStorage rootStorage;
-    // String uid;
     String fullName;
     String imageUser;
     String tempNormalReg = null;
@@ -171,14 +172,16 @@ public class GetStartedActivity extends AppCompatActivity {
         //StorageReference storageRef = rootStorage.getReference();
         StorageReference childStorage = rootStorage.getReference("userPhoto/" + tempUserKey);
         // Uri tempImgUri = Uri.parse(imageUser);
-
         AsyncTask<String, Void, Uri> x = new ImageFirebaseStorage().execute(imageUser);
         try {
-            resImageUri = x.get();
+            resImageUri = x.get(3000, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
             Log.d("TAG", "uploadIntoFirebaseStorage: " + e.getMessage());
             e.printStackTrace();
         } catch (InterruptedException e) {
+            Log.d("TAG", "uploadIntoFirebaseStorage: " + e.getMessage());
+            e.printStackTrace();
+        } catch (TimeoutException e) {
             Log.d("TAG", "uploadIntoFirebaseStorage: " + e.getMessage());
             e.printStackTrace();
         }
@@ -207,6 +210,7 @@ public class GetStartedActivity extends AppCompatActivity {
                         .setDisplayName(tempName)
                         .setPhotoUri(tempImage)
                         .build();
+        Log.d("TAG", "updateProfileUser: " + tempUpdate.toString());
         currentUser.updateProfile(tempUpdate);
     }
 
