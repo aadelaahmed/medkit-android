@@ -19,6 +19,7 @@ import com.example.medkit.model.PostModel;
 import com.example.medkit.model.User;
 import com.example.medkit.utils.CommentAdapter;
 import com.example.medkit.utils.GlideApp;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,11 +27,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class PostDetail extends AppCompatActivity {
     FirebaseAuth mAuth;
@@ -84,7 +89,7 @@ public class PostDetail extends AppCompatActivity {
                 addComment();
             }
         });
-        //iniRecyclerComments();
+        iniRecyclerComments();
     }
 
     private void addComment() {
@@ -129,11 +134,9 @@ public class PostDetail extends AppCompatActivity {
         }
         String title = recIntent.getStringExtra(PostModel.TITLE_KEY);
         String description = recIntent.getStringExtra(PostModel.DESCRIPTION_KEY);
-        //String userPhoto = recIntent.getStringExtra(PostModel.USER_IMAGE_KEY);
         String createdTime = recIntent.getStringExtra(PostModel.TIME_KEY);
         String userName = recIntent.getStringExtra(User.FULLNAME);
         String dateWithName = createdTime + " | by " + userName;
-
         currentDoc = rootPost.document(postKey);
         rootComment = currentDoc.collection("Comments");
         binding.postDetailTitle.setText(title);
@@ -143,8 +146,6 @@ public class PostDetail extends AppCompatActivity {
         storageUsers = storageRef.getReference().child("userPhoto/" + userID);
         GlideApp.with(this).load(storageUsers).into(binding.postDetailUserOwnerImg);
         GlideApp.with(this).load(storageCurrentUser).into(binding.postDetailUserOwnerImg);
-        //Glide.with(this).load(currentUser.getPhotoUrl()).into(binding.postDetailUserImg);
-
     }
 
     private void clickPhoto() {
@@ -157,7 +158,7 @@ public class PostDetail extends AppCompatActivity {
         settingsDialog.show();
     }
 
-   /* private void iniRecyclerComments() {
+    private void iniRecyclerComments() {
         Query query = rootComment.orderBy("createdTime", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<Comment> options = new FirestoreRecyclerOptions.Builder<Comment>()
                 .setQuery(query, Comment.class)
@@ -202,7 +203,7 @@ public class PostDetail extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         commentAdapter.stopListening();
-    }*/
+    }
 
     /* @Override
     public void onItemClick(DocumentSnapshot documentSnapshot, Context mContext) {

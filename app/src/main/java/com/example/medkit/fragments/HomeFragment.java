@@ -95,8 +95,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void iniRecyclerView() {
-        Query query = rootPost.limit(10);
-        //orderBy("createdTime", Query.Direction.DESCENDING);
+        Query query = rootPost.orderBy("createdTime", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class)
                 .build();
