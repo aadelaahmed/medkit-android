@@ -1,8 +1,7 @@
 package com.example.medkit.fragments;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,13 @@ import com.example.medkit.R;
 import com.example.medkit.databinding.FragmentNotificationBinding;
 import com.example.medkit.model.NotificationModel;
 import com.example.medkit.utils.NotificationAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,44 +25,107 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class NotificationFragment extends Fragment {
-    private static List<NotificationModel> notifications;
     private static FragmentNotificationBinding binding;
-
+    private static List<NotificationModel> notificationList;
+    private static String User_id;
+    public boolean unReadNotification = false;
+    private RecyclerView recyclerView;
+    private NotificationAdapter notificationRecyclerViewAdapter;
+    private FirebaseAuth auth;
+    private FirebaseFirestore mfirebase;
     public NotificationFragment() {
 
     }
+
+    public static void updateUnRead() {
+        int nUnRead = 0;
+        for (int i = 0; i < notificationList.size(); i++) {
+            if (!notificationList.get(i).isRead()) {
+//                Log.d("notification", "updateUnRead: "+notificationList.get(i).isRead());
+                nUnRead++;
+            }
+        }
+        binding.notificationCntTv.setText(String.valueOf(nUnRead));
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentNotificationBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        notifications = new ArrayList<>();
-        Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_type_user);
-        notifications.add(new NotificationModel("Ahmed Medra",ppbitmap,"add a new post for diabetes section, tap to respond to him",false));
-        notifications.add(new NotificationModel("Ahmed Medra",ppbitmap,"add a new post for diabetes section, tap to respond to him",false));
-        notifications.add(new NotificationModel("Ahmed Medra",ppbitmap,"add a new post for diabetes section, tap to respond to him",false));
-        notifications.add(new NotificationModel("Ahmed Medra",ppbitmap,"add a new post for diabetes section, tap to respond to him",false));
-        notifications.add(new NotificationModel("Ahmed Medra",ppbitmap,"add a new post for diabetes section, tap to respond to him",false));
-        notifications.add(new NotificationModel("Ahmed Medra",ppbitmap,"add a new post for diabetes section, tap to respond to him",false));
 
-        NotificationAdapter postAdapter = new NotificationAdapter(notifications);
-        binding.notificationList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        binding.notificationList.setAdapter(postAdapter);
+        auth = FirebaseAuth.getInstance();
+        User_id = auth.getCurrentUser().getUid();
+
+
+        recyclerView = view.findViewById(R.id.notification_list);
+        notificationList = new ArrayList<>();
+
+        notificationRecyclerViewAdapter = new NotificationAdapter(notificationList, getContext());
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(container.getContext()));
+        recyclerView.setAdapter(notificationRecyclerViewAdapter);
+        fetchData();
         updateUnRead();
         binding.notificationList.getItemAnimator().setChangeDuration(0);
 
 
         return view;
     }
-    public static void updateUnRead(){
-        int nUnRead = 0;
-        for (int i = 0; i < notifications.size(); i++) {
-            if(!notifications.get(i).isRead()){
-                nUnRead++;
+
+    private void fetchData() {
+        mfirebase = FirebaseFirestore.getInstance();
+        mfirebase.collection("Users/" + User_id + "/Notification").orderBy("createdTime", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        NotificationModel notificationModel = document.toObject(NotificationModel.class);
+                        notificationList.add(notificationModel);
+                        Log.d("notification", "updateUnRead: " + notificationModel.isRead());
+                        notificationRecyclerViewAdapter.notifyDataSetChanged();
+                        updateUnRead();
+                    }
+                }
             }
-        }
-        binding.notificationCntTv.setText(String.valueOf(nUnRead));
+        });
+        //    addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+//                for(DocumentChange doc: queryDocumentSnapshots.getDocumentChanges()) {
+//                    if (doc.getType() == DocumentChange.Type.ADDED) {
+//                        NotificationModel notificationModel = doc.getDocument().toObject(NotificationModel.class);
+//                        notificationList.add(notificationModel);
+////                        Log.d("notification", "updateUnRead: "+notificationModel.isRead());
+//                        notificationRecyclerViewAdapter.notifyDataSetChanged();
+//                        updateUnRead();
+//                    }
+//                }
+//            }
+//        });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        notificationList.clear();
+//        mfirebase.collection("Users/"+User_id+"/Notification").addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+//                for(DocumentChange doc: queryDocumentSnapshots.getDocumentChanges()) {
+//                    if (doc.getType() == DocumentChange.Type.ADDED) {
+//                        NotificationModel notificationModel = doc.getDocument().toObject(NotificationModel.class);
+//                        notificationList.add(notificationModel);
+//                        Log.d("notification", "Read onEvent: "+notificationModel.isRead());
+//                        notificationRecyclerViewAdapter.notifyDataSetChanged();
+//                        updateUnRead();
+//                    }
+//                }
+//            }
+//        });
     }
 }

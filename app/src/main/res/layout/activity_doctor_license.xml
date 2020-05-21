@@ -21,6 +21,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.19" />
 
+    <ImageView
+        android:id="@+id/selected_img"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/upload_license"
+        app:layout_constraintEnd_toEndOf="@+id/upload_license"
+        app:layout_constraintStart_toStartOf="@+id/upload_license"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
     <TextView
         android:id="@+id/textView9"
         android:layout_width="wrap_content"

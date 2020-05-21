@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+    <!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
 
 
 
@@ -18,15 +18,54 @@
         android:roundIcon="@mipmap/ic_launcher_circle"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.PostDetail"></activity>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+        <service
+            android:name=".utils.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher_square" />
+        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
+
+        <activity
+            android:name=".activities.PostDetail"
+            android:theme="@style/NoActionBarAppTheme" />
         <activity android:name=".activities.PhotoPostActivity" />
         <activity
             android:name=".activities.ProfileActivity"
             android:theme="@style/NoActionBarAppTheme" />
         <activity android:name=".activities.ChatActivity"
             android:theme="@style/NoActionBarAppTheme" />
-        <activity android:name=".activities.CommunityActivity" />
-        <activity android:name=".activities.DoctorLicenseActivity" />
+        <activity
+            android:name=".activities.CommunityActivity"
+            android:theme="@style/MainAppTheme">
+            <!--            <intent-filter>-->
+            <!--                <action android:name="android.intent.action.MAIN" />-->
+
+            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+            <!--            </intent-filter>-->
+        </activity>
+        <activity android:name=".activities.DoctorLicenseActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.UserTypeActivity"
             android:label="User Type" />
@@ -42,15 +81,17 @@
         <activity
             android:name=".activities.SignHomeActivity"
             android:theme="@style/NoActionBarAppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            <!--            <intent-filter>-->
+            <!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+            <!--            </intent-filter>-->
         </activity>
         <activity
             android:name=".activities.DoctorRegistrationActivity"
-            android:label="Details" />
+            android:label="Details">
+
+        </activity>
         <activity
             android:name=".activities.SplashScreenActivity"
             android:theme="@style/NoActionBarAppTheme" />

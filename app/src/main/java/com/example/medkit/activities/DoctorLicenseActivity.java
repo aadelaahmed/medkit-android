@@ -1,15 +1,10 @@
 package com.example.medkit.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,26 +13,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.medkit.R;
-import com.example.medkit.databinding.ActivityDoctorLicenseBinding;
-import com.example.medkit.databinding.DoctorDetailsLayoutBinding;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import com.example.medkit.databinding.ActivityDoctorLicenseBinding;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 public class DoctorLicenseActivity extends AppCompatActivity {
-
+    final String TAG = "license";
     private static final int REQUESCODE = 5;
     Bitmap bitmap = null;
     String encodedImage = null;
@@ -70,26 +56,30 @@ public class DoctorLicenseActivity extends AppCompatActivity {
                     showMessage("please enter your license");
                 } else {
                     String tempJson = "{ image : " + encodedImage + "}";
-                    new CallAPI().execute(apiPath, tempJson);
-
+//                    new CallAPI().execute(apiPath, tempJson);
+//                    makePostRequest(encodedImage);
                 }
 
             }
         });
     }
+//
+//    public URL createUrl(String urlString) {
+//        URL url = null;
+//        if (urlString != null) {
+//            try {
+//                url = new URL(urlString);
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return url;
+//    }
 
-    public URL createUrl(String urlString) {
-        URL url = null;
-        if (urlString != null) {
-            try {
-                url = new URL(urlString);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        }
-        return url;
-    }
 
+    //ahmed
+
+    //ahmed
 
    /*public String makeHttpRequest (URL url) {
         String jsonResponse = "";
@@ -187,8 +177,6 @@ public class DoctorLicenseActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-
-
         Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
         startActivityForResult(galleryIntent, REQUESCODE);
@@ -204,12 +192,15 @@ public class DoctorLicenseActivity extends AppCompatActivity {
             // the user has successfully picked an image
             // we need to save its reference to a Uri variable
             imageLicense = data.getData();
+            binding.selectedImg.setImageURI(imageLicense);
+            Log.d(TAG, "onActivityResult: " + imageLicense);
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageLicense);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
                 byte[] b = baos.toByteArray();
                 encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+                Log.d(TAG, "onActivityResult: " + encodedImage);
             } catch (IOException e) {
                 showMessage(e.getMessage());
             }
@@ -220,39 +211,52 @@ public class DoctorLicenseActivity extends AppCompatActivity {
 
     }
 
-    public class CallAPI extends AsyncTask<String, Void, Void> {
+//    public class CallAPI extends AsyncTask<String, Void, Void> {
+//
+//        public CallAPI() {
+//            //set context variables if required
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+//
+//        @Override
+//        protected Void doInBackground(String... params) {
+//            String urlString = params[0]; // URL to call
+//            String data = params[1]; //data to post
+//            OutputStream out = null;
+//            Log.d(TAG, "doInBackground: 1");
 
-        public CallAPI() {
-            //set context variables if required
-        }
+//            try {
+//                URL url = createUrl(urlString);
+//                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//                out = new BufferedOutputStream(urlConnection.getOutputStream());
+//
+//                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, Charset.forName("UTF-8")));
+//                writer.write(data);
+//                writer.flush();
+//                writer.close();
+//                out.close();
+//                Log.d(TAG, "doInBackground: "+urlString+data);
+//                urlConnection.connect();
+//            } catch (Exception e) {
+//                Log.d("TAG", "EROOR WITH URL CONNECTION");
+//            }
+//            Log.d(TAG, "doInBackground: 2");
+//
+//            } catch (ClientProtocolException e) {
+//                // Log exception
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                // Log exception
+//                e.printStackTrace();
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+//    }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            String urlString = params[0]; // URL to call
-            String data = params[1]; //data to post
-            OutputStream out;
-
-            try {
-                URL url = createUrl(urlString);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                out = new BufferedOutputStream(urlConnection.getOutputStream());
-
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, Charset.forName("UTF-8")));
-                writer.write(data);
-                writer.flush();
-                writer.close();
-                out.close();
-
-                urlConnection.connect();
-            } catch (Exception e) {
-                Log.i("TAG", "EROOR WITH URL CONNECTION");
-            }
-            return null;
-        }
-    }
 }

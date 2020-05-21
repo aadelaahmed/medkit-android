@@ -1,4 +1,9 @@
 <resources>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="default_notification_channel_id">MEDKIT_01</string>
+    <!--    <string name="mapbox_access_token">pk.eyJ1IjoiYWhtZWRtZWRyYWgiLCJhIjoiY2thZ3kzb3A1MGI3aTJ6bzU1YTZqbTg3dCJ9.mCCxCNsPFsiIKZykClNv5Q</string>-->
+
     <string name="app_name">Medkit</string>
     <string name="edit_text_name_label">Your name</string>
     <string name="edit_text_email_label">Email address</string>

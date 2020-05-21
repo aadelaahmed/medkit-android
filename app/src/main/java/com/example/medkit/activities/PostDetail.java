@@ -3,6 +3,7 @@ package com.example.medkit.activities;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.example.medkit.model.PostModel;
 import com.example.medkit.model.User;
 import com.example.medkit.utils.CommentAdapter;
 import com.example.medkit.utils.GlideApp;
+import com.example.medkit.utils.NotificationHelper;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,6 +41,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 public class PostDetail extends AppCompatActivity {
+    public static String target_id;
+    public static String post_id;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     String postImage, userId, userName, content;
@@ -59,8 +63,8 @@ public class PostDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityPostDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getSupportActionBar().hide();
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+//        getSupportActionBar().hide();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         binding.postDetailComment.setOnTouchListener(new View.OnTouchListener() {
@@ -101,20 +105,33 @@ public class PostDetail extends AppCompatActivity {
         userName = currentUser.getDisplayName();
         if (!content.isEmpty() && currentUser != null) {
             Comment comment = new Comment(content, userId, userName);
-            rootComment.document().set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    showMessage("success add comment");
-                    binding.postDetailComment.setText("");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    showMessage("Failed add comment");
-                }
-            });
-        } else
-            showMessage("please write your comment");
+            final String content = binding.postDetailComment.getText().toString().trim();
+            if (!content.isEmpty() && currentUser != null) {
+            /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
+            String createdTime = simpleDateFormat.format(new Date());*/
+                binding.postDetailComment.setText("");
+                String tempUserId = currentUser.getUid();
+
+
+                rootComment.document().set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        showMessage("success add comment");
+                        binding.postDetailComment.setText("");
+                        // notification
+                        Log.d("notification", "from post details: " + post_id);
+                        NotificationHelper.SendCommentNotification(content, target_id, post_id);
+                        // end notification
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        showMessage("Failed add comment");
+                    }
+                });
+            } else
+                showMessage("please write your comment");
+        }
     }
 
     private void showMessage(String message) {

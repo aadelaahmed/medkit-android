@@ -1,8 +1,13 @@
 package com.example.medkit.activities;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.media.MediaDrm;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -10,19 +15,43 @@ import android.widget.Toast;
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
 import com.example.medkit.fragments.HomeFragment;
+import com.example.medkit.fragments.MessageFragment;
 import com.example.medkit.fragments.NotificationFragment;
+import com.example.medkit.model.NotificationModel;
 import com.example.medkit.utils.GlideApp;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CommunityActivity extends AppCompatActivity {
+
 
     private ActivityCommunityBinding binding;
     FirebaseAuth mAuth;
@@ -30,6 +59,7 @@ public class CommunityActivity extends AppCompatActivity {
     Uri userPhoto;
     FirebaseStorage storageInstance;
     StorageReference storageRef;
+    DatabaseReference databaseReference;
     private BottomNavigationView.OnNavigationItemSelectedListener listener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -38,15 +68,22 @@ public class CommunityActivity extends AppCompatActivity {
                     switch (item.getItemId()) {
                         case R.id.home_item:
                             selectedFreagment = new HomeFragment(CommunityActivity.this);
+                            binding.txtMedkit.setText("medkit");
                             break;
                         case R.id.notify_item:
                             selectedFreagment = new NotificationFragment();
+                            binding.txtMedkit.setText("notification");
+                            break;
+                        case R.id.message_item:
+                            selectedFreagment = new MessageFragment();
+                            binding.txtMedkit.setText("messaging");
                             break;
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFreagment).commit();
                     return true;
                 }
             };
+    private FirebaseFirestore mfirebase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +103,73 @@ public class CommunityActivity extends AppCompatActivity {
                 startActivity(new Intent(CommunityActivity.this, ProfileActivity.class));
             }
         });
+
+
+        //end bar
+        // testing notification
+        final FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            String channelId = getString(R.string.default_notification_channel_id);
+            String channelName = getString(R.string.default_notification_channel_id);
+            NotificationManager notificationManager =
+                    getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                    channelName, NotificationManager.IMPORTANCE_LOW));
+        }
+        mAuth.getCurrentUser().getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+            @Override
+            public void onSuccess(GetTokenResult getTokenResult) {
+                final String token_id = getTokenResult.getToken();
+                String current_id = mAuth.getCurrentUser().getUid();
+                Map<String, Object> tokenMap = new HashMap<>();
+                tokenMap.put("token_id", token_id);
+                mfirebase.collection("Users").document(current_id).update(tokenMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.w("token", token_id);
+//                        Toast.makeText(CommunityActivity.this,"token" + token_id,Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("token", token_id);
+//                        Toast.makeText(CommunityActivity.this,"FFFFFFFFFFFFFFFF" + token_id,Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        });
+
+        fetchData();
+        // end notification
+
         //TODO --> add badge to notification and backlight on item click
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment(this)).commit();
     }
 
-
+    private void fetchData() {
+        mfirebase = FirebaseFirestore.getInstance();
+        mfirebase.collection("Users/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/Notification").orderBy("createdTime").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                    NotificationModel notificationModel = doc.getDocument().toObject(NotificationModel.class);
+                    Log.d("notification", "updateUnRead: " + notificationModel.isRead());
+                    if (!notificationModel.isRead()) {
+                        binding.bottomNavigationView.getOrCreateBadge(R.id.notify_item).setVisible(true);
+//                        binding.bottomNavigationView.getMenu().findItem(R.id.notify_item).setIcon(R.drawable.new_notification_icon);
+                        break;
+                    } else {
+//                        binding.bottomNavigationView.getMenu().getItem(1).setIcon(R.drawable.ic_alarm);
+                        binding.bottomNavigationView.getOrCreateBadge(R.id.notify_item).setVisible(false);
+                    }
+                }
+            }
+        });
+    }
     private void iniActionBar() {
         if (currentUser != null) {
             //userPhoto = currentUser.getPhotoUrl();
@@ -98,4 +197,5 @@ public class CommunityActivity extends AppCompatActivity {
         super.onStart();
         GlideApp.with(this).load(storageRef).into(binding.imgUserCommunity);
     }
+
 }

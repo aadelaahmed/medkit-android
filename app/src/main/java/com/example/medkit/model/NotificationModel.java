@@ -1,53 +1,87 @@
 package com.example.medkit.model;
 
-import android.graphics.Bitmap;
+import com.example.medkit.utils.NotificationHelper;
+
+import java.util.Calendar;
 
 public class NotificationModel {
-    private String userName;
-    private Bitmap userPhoto;
-    private String notificationContent;
-    private boolean isRead;
+    private String from;
+    private String post_id;
+    private String message;
+    private String time;
+    private boolean read;
+    private String n_id;
+    private long createdTime;
+
+    public NotificationModel(String from, String post_id, String message, boolean read, String time, String n_id) {
+        this.from = from;
+        this.post_id = post_id;
+        this.message = message;
+        this.read = read;
+        this.time = time;
+        this.n_id = n_id;
+        this.createdTime = Calendar.getInstance().getTime().getTime();
+    }
+
+    public String getN_id() {
+        return n_id;
+    }
 
     public NotificationModel() {
 
     }
 
-    public NotificationModel(String userName, Bitmap userPhoto, String notificationContent, boolean isRead) {
-        this.userName = userName;
-        this.userPhoto = userPhoto;
-        this.notificationContent = notificationContent;
-        this.isRead = isRead;
+    public void setN_id(String n_id) {
+        this.n_id = n_id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getTime() {
+        return time;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setTime(String time) {
+        this.time = time;
     }
 
-    public Bitmap getUserPhoto() {
-        return userPhoto;
+    public long getCreatedTime() {
+        return createdTime;
     }
 
-    public void setUserPhoto(Bitmap userPhoto) {
-        this.userPhoto = userPhoto;
+    public void setCreatedTime(long createdTime) {
+        this.createdTime = createdTime;
     }
 
-    public String getNotificationContent() {
-        return notificationContent;
+    public String getFrom() {
+        return from;
     }
 
-    public void setNotificationContent(String notificationContent) {
-        this.notificationContent = notificationContent;
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getPost_id() {
+        return post_id;
+    }
+
+    public void setPost_id(String post_id) {
+        this.post_id = post_id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public boolean isRead() {
-        return isRead;
+        return read;
     }
 
-    public void setRead(boolean read) {
-        isRead = read;
+    //
+    public void setRead(boolean read, String id) {
+        this.read = read;
+        NotificationHelper.update_read(id);
     }
 }

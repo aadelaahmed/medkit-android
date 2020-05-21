@@ -8,7 +8,8 @@ public class User {
      public final static String USER_ID = "uid";
      public final static String FULLNAME = "fullname";
      public final static String IMGURL = "imgUrl";
-    /* public final static String LOCATION = "LOCATION";
+    public final static String BIO = "BIO_KEY";
+    /*
      public final static String AGE = "AGE";
      public final static String GENDER = "GENDER";*/
     public final static String G_YEAR = "g-year";

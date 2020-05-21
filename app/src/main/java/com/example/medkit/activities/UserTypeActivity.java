@@ -25,9 +25,9 @@ public class UserTypeActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
-        ActionBar actionBar= getSupportActionBar();
-        assert actionBar != null;
-        actionBar.setDisplayHomeAsUpEnabled(true);
+//        ActionBar actionBar= getSupportActionBar();
+//        assert actionBar != null;
+//        actionBar.setDisplayHomeAsUpEnabled(true);
         normalReg = sharedPreferences.getString(User.NORMAL_REGISTER, null);
         Log.d("TAG", "onCreate: " + normalReg);
         binding.doctorBtn.setOnClickListener(new View.OnClickListener() {

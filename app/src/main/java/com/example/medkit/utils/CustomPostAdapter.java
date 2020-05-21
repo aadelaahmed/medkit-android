@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.example.medkit.R;
 import com.example.medkit.activities.PostDetail;
@@ -23,12 +24,15 @@ import com.example.medkit.model.PostModel;
 import com.example.medkit.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,6 +50,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
 
     Context mContext;
     PostModel clickedPost;
+    int cntrUp, cntrDown;
     CollectionReference rootComment;
     DocumentReference currentDoc;
     FirebaseAuth mAuth;
@@ -90,6 +95,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         storagePosts = storageRef.getReference().child("postImages/" + tempModel.getPostKey());
         storageUsers = storageRef.getReference().child("userPhoto/" + tempModel.getUserID());
         GlideApp.with(mContext).load(storageUsers).into(holder.imgUser);
+        //mapVotes = model.getMapUpVotes();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         currentUserID = currentUser.getUid();
@@ -282,15 +288,26 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         showMessage(e.getMessage());
     }
 
-    private void addComment(int tempPostition, String content, String userName) {
+    private void addComment(int tempPostition, final String content, String userName) {
         if (tempPostition != RecyclerView.NO_POSITION && !content.equals("")) {
             currentDoc = getSnapshots().getSnapshot(tempPostition).getReference();
             rootComment = currentDoc.collection("Comments");
             Comment newComment = new Comment(content, currentUserID, userName);
+            mAuth = FirebaseAuth.getInstance();
+            currentUser = mAuth.getCurrentUser();
+            String userID = currentUser.getUid();
+
+            final PostModel clickedPost = getSnapshots().getSnapshot(tempPostition).toObject(PostModel.class);
+           /*String userImage = currentUser.getPhotoUrl().toString();
+            String userName = currentUser.getDisplayName();*/
             rootComment.document().set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     showMessage("Comment added successfully");
+                    // notification
+                    Log.d("notification", "from adapter addComment: " + currentDoc.getId());
+                    NotificationHelper.SendCommentNotification(content, clickedPost.getUserID(), currentDoc.getId());
+                    // end notification
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -354,16 +371,24 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         Intent intent = new Intent(mContext, PostDetail.class);
+                        //mListener = new PostDetail();
                         PostModel clickedPost = getSnapshots().getSnapshot(position).toObject(PostModel.class);
                         if (clickedPost.getPostPhoto() == null)
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, false);
                         else {
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, true);
                             intent.putExtra(PostModel.USER_ID, clickedPost.getUserID());
+
                         }
                         String title = txtTitle.getText().toString();
                         String description = txtDescription.getText().toString();
                         Long temp = clickedPost.getCreatedTime();
+
+                        // notification
+                        PostDetail.target_id = clickedPost.getUserID();
+                        PostDetail.post_id = getSnapshots().getSnapshot(position).getId();
+                        Log.d("notification", "from adapter onclick " + clickedPost.getUserID());
+                        // end notification
                         Date tempDate = new Date(temp * 1000);
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
                         String createdTime = dateFormat.format(tempDate);
