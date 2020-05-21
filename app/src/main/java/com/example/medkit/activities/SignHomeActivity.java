@@ -125,14 +125,14 @@ public class SignHomeActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
- /*   @Override
+    @Override
     protected void onStart() {
         super.onStart();
          currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
                 startActivity(new Intent(SignHomeActivity.this, CommunityActivity.class));
         }
-    }*/
+    }
 
    /* public void requestClientGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

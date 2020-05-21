@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -308,6 +309,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
         editor = sharedPreferences.edit();
         //creationTime = timestampToString(currentUser.getMetadata().getCreationTimestamp());
         String tempImageLink = "https://firebasestorage.googleapis.com/v0/b/medkitc.appspot.com/o/userPhoto%2Fuserphoto.png?alt=media&token=c1b02413-c078-4ce7-b324-2dd336188c8b";
+        Log.d("TAG", "setSharedData: " + name);
         editor.putString(User.FULLNAME,name);
         editor.putString(User.EMAIL,email);
         editor.putString(User.USER_PHOTO, tempImageLink);

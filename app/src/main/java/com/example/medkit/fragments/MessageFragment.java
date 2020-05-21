@@ -8,12 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -28,6 +22,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MessageFragment extends Fragment {
     private FirestoreAdapter firestoreAdapter;
@@ -89,7 +89,6 @@ public class MessageFragment extends Fragment {
                 Glide.with(getActivity())
  //                       .load(storageReference.child("userPhoto/"+user.getPhotoUrl()+".jpg"))
                         .load(storageReference.child("users/man"+".jpg"))
-
                         .apply(requestOptions)
                         .into(viewHolder.user_photo);
             }
@@ -105,6 +104,7 @@ public class MessageFragment extends Fragment {
             });
 
         }
+
     }
     private class CustomViewHolder extends RecyclerView.ViewHolder {
         public ImageView user_photo;

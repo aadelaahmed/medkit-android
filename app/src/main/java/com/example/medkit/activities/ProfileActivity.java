@@ -37,6 +37,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 public class ProfileActivity extends AppCompatActivity {
     private ActivityProfileBinding binding;
@@ -55,7 +57,9 @@ public class ProfileActivity extends AppCompatActivity {
     //private List<String> resPostKeys;
     LoadingAlertDialog tempDialog = null;
     StorageReference childStorageRef;
-
+    //NewPostAdapter newPostAdapter;
+    RecyclerView recyclerPosts;
+    CustomPostAdapter customPostAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,9 +114,12 @@ public class ProfileActivity extends AppCompatActivity {
                 .setQuery(query, PostModel.class)
                 .build();
 
-        tempAdapter = new CustomPostAdapter(tempOption, this);
-        binding.profilePostsContainer.setAdapter(tempAdapter);
-        binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this));
+        customPostAdapter = new CustomPostAdapter(tempOption, this);
+        recyclerPosts = binding.profilePostsContainer;
+        recyclerPosts.setAdapter(tempAdapter);
+        recyclerPosts.setLayoutManager(new LinearLayoutManager(this));
+        recyclerPosts.setAdapter(customPostAdapter);
+        ((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
         //binding.profilePostsContainer.getItemAnimator().setChangeDuration(0);
         //binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
@@ -121,10 +128,9 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        customPostAdapter.startListening();
         //showMessage("start state");
-        tempAdapter.startListening();
         /*currentUser = mAuth.getCurrentUser();
-
         binding.userProfilePicture.setImageURI(currentUser.getPhotoUrl());
         mListener = rootPosts.whereEqualTo("userID", currentUser.getUid())
                 .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
@@ -184,8 +190,9 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        customPostAdapter.stopListening();
         //showMessage("stop state");
-        tempAdapter.stopListening();
+        //tempAdapter.stopListening();
         //mListener.remove();
     }
 

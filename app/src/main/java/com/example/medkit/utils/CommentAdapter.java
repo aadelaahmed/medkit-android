@@ -13,12 +13,9 @@ import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
@@ -38,6 +35,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     FirebaseUser currentUser;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection = db.collection("Users");
+    String content, userName, userID;
 
     public CommentAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context mContext) {
         super(options);
@@ -58,7 +56,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
+    protected void onBindViewHolder(@NonNull final CommentViewHolder holder, int position, @NonNull Comment model) {
         /*Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("createdTime");
         Date tempDate = temp.toDate();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
@@ -67,13 +65,28 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         /*Date tempDate =new Date(model.getCreatedTime() * 1000);
         String createdTime = new SimpleDateFormat("dd MMMM").format(tempDate);
         Log.d("TAG", "onBindViewHolder comment: " + createdTime);*/
-        String content = model.getContent();
-        //String userImage = model.getUserImage();
-        String userID = model.getUserId();
+        content = model.getContent();
+        userName = model.getUserName();
+        userID = model.getUserId();
         storageRef = storageInstance.getReference("userPhoto/" + userID);
         holder.txtContent.setText(content);
-        getCurrentUserName(userID, holder);
-        //holder.txtDate.setText(createdTime);
+        holder.txtUserName.setText(userName);
+       /* usersCollection.document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    String userName = documentSnapshot.getString("fullName");
+                    holder.txtUserName.setText(userName);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage(e.getMessage());
+                Log.d("TAG", "onFailure: "+e.getMessage());
+            }
+        });*/
+
         GlideApp.with(mContext).load(storageRef).into(holder.imgUser);
         holder.txtUserName.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,27 +102,7 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         });
     }
 
-    private void getCurrentUserName(String userId, final CommentViewHolder holder) {
-        if (userId != null) {
-            usersCollection.document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                String tempUserName = null;
 
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot.exists()) {
-                        tempUserName = documentSnapshot.getString("fullName");
-                        holder.txtUserName.setText(tempUserName);
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    showMessage(e.getMessage());
-                }
-            });
-        } else
-            showMessage("check user id");
-    }
 
 
     private void updateUI() {

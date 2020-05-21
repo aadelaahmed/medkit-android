@@ -21,7 +21,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -29,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -38,8 +38,8 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     public Context mContext;
     CollectionReference rootPost = FirebaseFirestore.getInstance().collection("Posts");
-    CustomPostAdapter tempAdapter;
-
+    //NewPostAdapter newAdapter;
+    CustomPostAdapter customPostAdapter;
     public HomeFragment() {
 
     }
@@ -51,19 +51,13 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        posts = new ArrayList<>();
-       /* Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_type_user);
-        Bitmap ibitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_communicate);
-        posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,true,false));
-        posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,false,true));
-        posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,true,true));
-        posts.add(new PostModel("Ahemd Medra","new Post","Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.","Diabetes",ppbitmap,ibitmap,10,10,10,false,false));
-
-        postAdapter = new PostAdapter(posts,mContext);
-
-        binding.postsList.setAdapter(postAdapter);
-        binding.postsList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        binding.postsList.setHasFixedSize(true);*/
+        //Query query = rootPost.orderBy("createdTime", Query.Direction.DESCENDING);
+        //newAdapter = new NewPostAdapter(mContext,query);
+        //recyclerPosts = view.findViewById(R.id.posts_list);
+        //recyclerPosts.setLayoutManager(new LinearLayoutManager(mContext));
+        //recyclerPosts.getItemAnimator().setChangeDuration(0);
+        //recyclerPosts.setAdapter(newAdapter);
+        //((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
         ArrayAdapter<CharSequence> diseases = ArrayAdapter.createFromResource(
                 getActivity(),
                 R.array.category_spinner,
@@ -89,7 +83,7 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        recyclerPosts = view.findViewById(R.id.posts_list);
+
         iniRecyclerView();
         return view;
     }
@@ -99,23 +93,28 @@ public class HomeFragment extends Fragment {
         FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class)
                 .build();
-
-        tempAdapter = new CustomPostAdapter(tempOption, mContext);
-        recyclerPosts.setAdapter(tempAdapter);
+        recyclerPosts = binding.postsList;
+        customPostAdapter = new CustomPostAdapter(tempOption, mContext);
+        recyclerPosts.setAdapter(customPostAdapter);
         //recyclerPosts.setHasFixedSize(true);
         recyclerPosts.setLayoutManager(new LinearLayoutManager(mContext));
         recyclerPosts.getItemAnimator().setChangeDuration(0);
+        ((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
+        //tempAdapter.startListening();
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        customPostAdapter.startListening();
+       /* if (newAdapter != null)
+            newAdapter.startListener();*/
         //binding.postsList.setAdapter(tempAdapter);
         //showMessage("start state");
         //recyclerPosts.setAdapter(tempAdapter);
-        tempAdapter.startListening();
-      /*  mListener =
-                rootPost.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        //tempAdapter.startListening();
+       /* rootPost.orderBy("createdTime", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if (e != null) {
@@ -135,20 +134,47 @@ public class HomeFragment extends Fragment {
                                     posts.remove(oldIndex);
                                     break;
                                 case MODIFIED:
-                                       /* posts.add(newIndex,currentPost);
-                                        posts.remove(oldIndex);
-                                    upVotes = (int) tempDoc.get("upVotes");
-                                    downVotes = (int) tempDoc.get("downVotes");
-                                    posts.get(oldIndex).setUpVotes(upVotes);
-                                    posts.get(oldIndex).setDownVotes(downVotes);
+                                    Long cntrVotes = tempDoc.getLong("votes");
                                     break;
                             }
                         }
-
-                        PostAdapter newAdapter = new PostAdapter(posts, mContext);
-                        binding.postsList.setAdapter(newAdapter);
+                        recyclerPosts.setAdapter(newAdapter);
                     }
                 });*/
+       /* rootPost.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    showMessage("something get wrong while fetching real time posts' data");
+                    return;
+                }
+                for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()) {
+                    int newIndex = documentChange.getNewIndex();
+                    int oldIndex = documentChange.getOldIndex();
+                    DocumentSnapshot tempDoc = documentChange.getDocument();
+                    PostModel currentPost = tempDoc.toObject(PostModel.class);
+                    switch (documentChange.getType()) {
+                        case ADDED:
+                            posts.add(0, currentPost);
+                            break;
+                        case REMOVED:
+                            posts.remove(oldIndex);
+                            break;
+                        case MODIFIED:
+                            posts.add(newIndex, currentPost);
+                            posts.remove(oldIndex);
+                            upVotes = (int) tempDoc.get("upVotes");
+                            downVotes = (int) tempDoc.get("downVotes");
+                            posts.get(oldIndex).setUpVotes(upVotes);
+                            posts.get(oldIndex).setDownVotes(downVotes);
+                            break;
+                    }
+                }
+
+                PostAdapter newAdapter = new PostAdapter(posts, mContext);
+                binding.postsList.setAdapter(newAdapter);
+            }
+        });*/
     }
 
     private void showMessage(String message) {
@@ -165,8 +191,11 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        customPostAdapter.stopListening();
+       /* if (newAdapter != null)
+            newAdapter.stopListener();*/
         //showMessage("stop state");
-        tempAdapter.stopListening();
+        //tempAdapter.stopListening();
         // mListener.remove();
     }
 

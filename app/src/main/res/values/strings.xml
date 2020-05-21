@@ -36,6 +36,7 @@
     <string name="fb_login_protocol_scheme">fb202265224401850</string>
     <string-array name="category_spinner">
         <item>All Diseases</item>
+        <item>Corona</item>
         <item>Diabetes</item>
         <item>Heart</item>
         <item>Bones</item>

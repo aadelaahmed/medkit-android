@@ -32,7 +32,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class AddPostActivity extends AppCompatActivity {
-    public static final int mRequestCode = 40;
+    public static final int mRequestCode = 14;
     ActivityAddPostBinding binding;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference rootPost = db.collection("Posts");
@@ -65,19 +65,16 @@ public class AddPostActivity extends AppCompatActivity {
         binding.btnAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               /* binding.btnAddPost.setVisibility(View.GONE);
-                binding.progressBar.setVisibility(View.VISIBLE);*/
                 tempDialog.startAlertDialog();
-                //binding.btnUploadPhoto.setPressed(false);
                 title = binding.edtTitle.getText().toString().trim();
                 description = binding.edtDescription.getText().toString().trim();
                 category = binding.edtCategory.getText().toString().trim();
-                if (!title.isEmpty() && !description.isEmpty() && !category.isEmpty()) {
-                    /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
-                    String createdTime = simpleDateFormat.format(new Date());*/
+
+                if (!title.isEmpty() && !category.isEmpty()) {
                     addedPost = new PostModel(
                             title,
                             description,
+                            currentUser.getDisplayName(),
                             imageUrlStr,
                             currentUser.getUid(),
                             category
@@ -85,26 +82,17 @@ public class AddPostActivity extends AppCompatActivity {
                     docRef = rootPost.document();
                     String postKey = docRef.getId();
                     addedPost.setPostKey(postKey);
-                    //Log.d("TAG", "onClick: "+ currentUser.getDisplayName());
                     binding.imgPost.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             checkAndRequestPermission();
                         }
                     });
-                    /*Timestamp temp = (Timestamp) addedPost.getCreatedTime();
-                    Date tempDate = temp.toDate();
-                    DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(AddPostActivity.this);
-                    Log.d("TAG", "onClick: "+dateFormat.format(tempDate));*/
-                    /*Timestamp temp = (Timestamp) addedPost.getCurrentDate();
-                    timeStampIntoDate(temp.toDate());*/
                     if (pickedImageUri != null)
                         uploadImageIntoStorage();
                     else
                         uploadPost(addedPost);
                 } else {
-                   /* binding.btnAddPost.setVisibility(View.VISIBLE);
-                    binding.progressBar.setVisibility(View.GONE);*/
                     tempDialog.dismissAlertDialog();
                     binding.btnUploadPhoto.setPressed(true);
                     showMessage("Please enter all fileds");

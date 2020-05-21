@@ -4,15 +4,16 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Comment {
-    private String content, userId;
+    private String content, userId, userName;
     private Long createdTime;
 
     public Comment() {
 
     }
 
-    public Comment(String content, String userId) {
+    public Comment(String content, String userId, String userName) {
         this.content = content;
+        this.userName = userName;
         this.userId = userId;
         Date tempDate = Calendar.getInstance().getTime();
         this.createdTime = tempDate.getTime();
@@ -32,6 +33,14 @@ public class Comment {
         return content;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public void setContent(String content) {
         this.content = content;
     }
@@ -47,6 +56,7 @@ public class Comment {
     public Long getCreatedTime() {
         return createdTime;
     }
+
 
     //@PropertyName("createdTime")
     public void setCreatedTime(Long createdTime) {

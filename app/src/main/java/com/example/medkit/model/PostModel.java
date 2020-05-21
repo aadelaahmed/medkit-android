@@ -17,15 +17,15 @@ public class PostModel {
     public static final String POST_IMAGE_FLAG = "POST_IMAGE_FLAG";
     public static final String POST_KEY = "POST_KEY";
     public static final String USER_ID = "USE_ID";
-    public String userName;
-    public String title;
-    public String description;
-    public String postPhoto;
-    public String userPhoto;
-    public String userID;
-    public String postKey;
-    public String category;
-    public Long tempTime;
+    public Map<String, Integer> mapVotes;
+    private String userName;
+    private String title;
+    private String description;
+    private String postPhoto;
+    private String userPhoto;
+    private String userID;
+    private String postKey;
+    private String category;
     private Bitmap userProfilePicture;
     private Bitmap image;
     private int upVotes;
@@ -33,17 +33,29 @@ public class PostModel {
     private int nComments;
     private boolean isUpVoted;
     private boolean isDownVoted;
-    public Map<String, Integer> mapUpVotes;
+    private Long createdTime;
 
-    public PostModel(String title, String description, String postPhoto, String userID, String category) {
+    public PostModel(String title, String description, String userName, String postPhoto, String userID, String category) {
         this.title = title;
         this.description = description;
+        this.userName = userName;
         this.postPhoto = postPhoto;
         this.userID = userID;
         this.category = category;
         Date temp = Calendar.getInstance().getTime();
-        this.tempTime = temp.getTime();
-        this.mapUpVotes = new HashMap<>();
+        this.createdTime = temp.getTime();
+        this.mapVotes = new HashMap<>();
+    }
+
+    public PostModel(String title, String userName, String postPhoto, String userID, String category) {
+        this.title = title;
+        this.userName = userName;
+        this.postPhoto = postPhoto;
+        this.userID = userID;
+        this.category = category;
+        Date temp = Calendar.getInstance().getTime();
+        this.createdTime = temp.getTime();
+        this.mapVotes = new HashMap<>();
     }
 
 
@@ -51,20 +63,20 @@ public class PostModel {
 
     }
 
-   /* public Map<String, Integer> getMapUpVotes() {
-        return mapUpVotes;
+    public Map<String, Integer> getMapVotes() {
+        return mapVotes;
     }
 
-    public void setMapUpVotes(Map<String, Integer> mapUpVotes) {
-        this.mapUpVotes = mapUpVotes;
-    }*/
+    public void setMapVotes(Map<String, Integer> mapVotes) {
+        this.mapVotes = mapVotes;
+    }
 
     public Long getCreatedTime() {
-        return tempTime;
+        return createdTime;
     }
 
     public void setCreatedTime(long createdTime) {
-        this.tempTime = createdTime;
+        this.createdTime = createdTime;
     }
 
     @Override
@@ -114,7 +126,6 @@ public class PostModel {
         this.postKey = postKey;
     }
 
-    @Exclude
     public String getUserName() {
         return userName;
     }

@@ -36,11 +36,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 public class PostDetail extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
-    String postImage;
+    String postImage, userId, userName, content;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference rootPost = db.collection("Posts");
     DocumentReference currentDoc;
@@ -51,6 +52,7 @@ public class PostDetail extends AppCompatActivity {
     StorageReference storageUsers;
     StorageReference storagePosts;
     StorageReference storageCurrentUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,13 +95,12 @@ public class PostDetail extends AppCompatActivity {
     }
 
     private void addComment() {
-        String content = binding.postDetailComment.getText().toString().trim();
+        content = binding.postDetailComment.getText().toString().trim();
+        binding.postDetailComment.setText("");
+        userId = currentUser.getUid();
+        userName = currentUser.getDisplayName();
         if (!content.isEmpty() && currentUser != null) {
-            /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
-            String createdTime = simpleDateFormat.format(new Date());*/
-            binding.postDetailComment.setText("");
-            String tempUserId = currentUser.getUid();
-            Comment comment = new Comment(content, tempUserId);
+            Comment comment = new Comment(content, userId, userName);
             rootComment.document().set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
@@ -170,6 +171,7 @@ public class PostDetail extends AppCompatActivity {
         tempLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(tempLayoutManager);
         recyclerView.setAdapter(commentAdapter);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         //recyclerView.getItemAnimator().setChangeDuration(0);
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
@@ -204,6 +206,7 @@ public class PostDetail extends AppCompatActivity {
         super.onStop();
         commentAdapter.stopListening();
     }
+
 
     /* @Override
     public void onItemClick(DocumentSnapshot documentSnapshot, Context mContext) {

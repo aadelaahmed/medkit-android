@@ -2,8 +2,6 @@ package com.example.medkit.utils;
 
 import android.util.Log;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -14,21 +12,20 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+import androidx.recyclerview.widget.RecyclerView;
+
+
 public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH>
         implements EventListener<QuerySnapshot> {
 
     private static final String TAG = "FirestoreAdapter";
-
     private Query mQuery;
     private ListenerRegistration mRegistration;
-
     private ArrayList<DocumentSnapshot> mSnapshots = new ArrayList<>();
-
     public FirestoreAdapter(Query query) {
         mQuery = query;
     }
-
     @Override
     public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
         if (e != null) {
@@ -67,7 +64,6 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
             mRegistration.remove();
             mRegistration = null;
         }
-
         mSnapshots.clear();
         notifyDataSetChanged();
     }
