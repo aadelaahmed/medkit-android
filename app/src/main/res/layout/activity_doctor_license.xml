@@ -19,17 +19,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.19" />
+        app:layout_constraintVertical_bias="0.23000002" />
 
-    <ImageView
-        android:id="@+id/selected_img"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:src="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="@+id/upload_license"
-        app:layout_constraintEnd_toEndOf="@+id/upload_license"
-        app:layout_constraintStart_toStartOf="@+id/upload_license"
-        app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <TextView
         android:id="@+id/textView9"
@@ -47,6 +38,7 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Tap Here"
         android:textColor="#56565A"
         android:textSize="24sp"
@@ -55,14 +47,38 @@
         app:layout_constraintEnd_toEndOf="@+id/upload_license"
         app:layout_constraintStart_toStartOf="@+id/upload_license"
         app:layout_constraintTop_toTopOf="@+id/upload_license"
-        app:layout_constraintVertical_bias="0.3" />
+        app:layout_constraintVertical_bias="0.0" />
 
+    <ImageView
+        android:id="@+id/selected_img"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:src="@drawable/ic_camera"
+        app:layout_constraintBottom_toBottomOf="@+id/upload_license"
+        app:layout_constraintEnd_toEndOf="@+id/upload_license"
+        app:layout_constraintStart_toStartOf="@+id/upload_license"
+        app:layout_constraintTop_toBottomOf="@+id/textView9"
+        app:layout_constraintVertical_bias="0.110000014" />
+
+    <TextView
+        android:id="@+id/test_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/btn_continue_license"
+        app:layout_constraintEnd_toEndOf="@+id/selected_img"
+        app:layout_constraintStart_toStartOf="@+id/selected_img"
+        app:layout_constraintTop_toBottomOf="@+id/selected_img"
+        app:layout_constraintVertical_bias="0.41000003" />
     <Button
+        android:text="Send"
         android:id="@+id/btn_continue_license"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/blue_rounded_button"
-        android:text="Continue"
+        android:textSize="18sp"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textStyle="bold"
@@ -70,4 +86,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/upload_license" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

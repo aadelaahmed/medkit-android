@@ -50,4 +50,6 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.reginald:editspinner:1.1.0'
     implementation 'com.firebaseui:firebase-ui-firestore:6.2.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.6.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 }

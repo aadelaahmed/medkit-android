@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,17 +18,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityDoctorLicenseBinding;
+import com.example.medkit.model.Prediction;
+import com.example.medkit.utils.APIInterface;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DoctorLicenseActivity extends AppCompatActivity {
     final String TAG = "license";
     private static final int REQUESCODE = 5;
     Bitmap bitmap = null;
     String encodedImage = null;
-    String apiPath = "https://id-detect2.herokuapp.com/predict/";
+    String apiPath = "https://id-detect2.herokuapp.com/";
     private ActivityDoctorLicenseBinding binding;
     private Uri imageLicense = null;
     private int PReqCode = 5;
@@ -38,6 +49,7 @@ public class DoctorLicenseActivity extends AppCompatActivity {
         binding = ActivityDoctorLicenseBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
         binding.activityClickLicese.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -45,7 +57,10 @@ public class DoctorLicenseActivity extends AppCompatActivity {
                     checkAndRequestForPermission();
                 else
                     openGallery();
-
+                binding.btnContinueLicense.setText("Send");
+                binding.testTv.setVisibility(View.GONE);
+                binding.testTv.setText("Please wait...");
+                binding.testTv.setTextColor(Color.parseColor("#595754"));
             }
         });
 
@@ -55,98 +70,38 @@ public class DoctorLicenseActivity extends AppCompatActivity {
                 if (encodedImage == null) {
                     showMessage("please enter your license");
                 } else {
-                    String tempJson = "{ image : " + encodedImage + "}";
-//                    new CallAPI().execute(apiPath, tempJson);
-//                    makePostRequest(encodedImage);
+                    binding.testTv.setVisibility(View.VISIBLE);
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("image", encodedImage);
+                    Retrofit retrofit = new Retrofit.Builder().baseUrl(apiPath).addConverterFactory(GsonConverterFactory.create()).build();
+                    APIInterface apiInterface = retrofit.create(APIInterface.class);
+                    Call<Prediction> call = apiInterface.getPrediction(map);
+                    call.enqueue(new Callback<Prediction>() {
+                        @Override
+                        public void onResponse(Call<Prediction> call, Response<Prediction> response) {
+                            Log.d(TAG, "onResponse: " + response.body().getPrediction()[0]);
+                            if (response.body().getPrediction()[0] == 1) {
+                                binding.testTv.setText("License Detected");
+                                binding.testTv.setTextColor(Color.parseColor("#00B900"));
+                                binding.btnContinueLicense.setText("Contiue");
+                                //TODO proceed to next step
+                            } else {
+                                binding.testTv.setText("No License Detected");
+                                binding.testTv.setTextColor(Color.parseColor("#CC0000"));
+                                binding.btnContinueLicense.setText("Send");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Prediction> call, Throwable t) {
+
+                        }
+                    });
                 }
 
             }
         });
     }
-//
-//    public URL createUrl(String urlString) {
-//        URL url = null;
-//        if (urlString != null) {
-//            try {
-//                url = new URL(urlString);
-//            } catch (MalformedURLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return url;
-//    }
-
-
-    //ahmed
-
-    //ahmed
-
-   /*public String makeHttpRequest (URL url) {
-        String jsonResponse = "";
-        HttpURLConnection httpURLConnection = null;
-        InputStream in = null;
-        try {
-            httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.setRequestMethod("GET");
-            httpURLConnection.setConnectTimeout(15000);
-            httpURLConnection.setReadTimeout(10000);
-
-            httpURLConnection.connect();
-
-            if (httpURLConnection.getResponseCode() == 200) {
-                in = httpURLConnection.getInputStream();
-                jsonResponse = postLicense(in);
-            } else {
-                Log.e("MainActivity", "Error response code: " + httpURLConnection.getResponseCode());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (httpURLConnection != null)
-                httpURLConnection.disconnect();
-
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return jsonResponse;
-    } */
-
-/*
-    public String postLicense (InputStream in) {
-
-
-
-        BufferedReader bufferedReader;
-        String data;
-        StringBuffer buffer = new StringBuffer();
-        if (in != null) {
-            bufferedReader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
-            try {
-                while ((data = bufferedReader.readLine()) != null) {
-                    buffer.append(data);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        return buffer.toString();
-    }*/
-
   /*  private void updateUI() {
         //go to next activity
     }*/
@@ -210,53 +165,5 @@ public class DoctorLicenseActivity extends AppCompatActivity {
 
 
     }
-
-//    public class CallAPI extends AsyncTask<String, Void, Void> {
-//
-//        public CallAPI() {
-//            //set context variables if required
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//        }
-//
-//        @Override
-//        protected Void doInBackground(String... params) {
-//            String urlString = params[0]; // URL to call
-//            String data = params[1]; //data to post
-//            OutputStream out = null;
-//            Log.d(TAG, "doInBackground: 1");
-
-//            try {
-//                URL url = createUrl(urlString);
-//                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//                out = new BufferedOutputStream(urlConnection.getOutputStream());
-//
-//                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, Charset.forName("UTF-8")));
-//                writer.write(data);
-//                writer.flush();
-//                writer.close();
-//                out.close();
-//                Log.d(TAG, "doInBackground: "+urlString+data);
-//                urlConnection.connect();
-//            } catch (Exception e) {
-//                Log.d("TAG", "EROOR WITH URL CONNECTION");
-//            }
-//            Log.d(TAG, "doInBackground: 2");
-//
-//            } catch (ClientProtocolException e) {
-//                // Log exception
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                // Log exception
-//                e.printStackTrace();
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-//    }
 
 }
