@@ -5,40 +5,32 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.example.medkit.R;
-import com.example.medkit.activities.PostDetail;
 import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,26 +41,30 @@ import androidx.recyclerview.widget.RecyclerView;
 public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, CustomPostAdapter.CustomHolder> {
 
     Context mContext;
-    PostModel clickedPost;
-    int cntrUp, cntrDown;
     CollectionReference rootComment;
     DocumentReference currentDoc;
-    FirebaseAuth mAuth;
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
     FirebaseStorage storageRef = FirebaseStorage.getInstance();
     StorageReference storagePosts;
     StorageReference storageUsers;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    CollectionReference usersCollection = db.collection("Users");
+    //CollectionReference usersCollection = db.collection("Users");
     int currentUserVote = 0; //vote of current user for each post
     Map<String, Integer> mapVotes;
-    String currentUserID, description, content, userName;
+    String currentUserID, description, content, userName, title, clickDesc, createdTime, clickUserName, clickPostKey, clickUserID;
     int tempPosition;
     PostModel tempModel;
+    Long clickCreatedTime;
+    Date clickDate;
+    OnPostLitener tempPostListener;
+    Intent intent;
 
-    public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext) {
+    public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext, OnPostLitener tempPostListener) {
         super(options);
         this.mContext = mContext;
+        setHasStableIds(true);
+        this.tempPostListener = tempPostListener;
     }
 
     @Override
@@ -83,33 +79,32 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
 
     @Override
     protected void onBindViewHolder(@NonNull final CustomHolder holder, int position, @NonNull PostModel model) {
+        currentUserVote = 0;
         tempPosition = holder.getAdapterPosition();
         tempModel = getSnapshots().getSnapshot(tempPosition).toObject(PostModel.class);
         description = tempModel.getDescription();
-        if (description == "")
+        if (description.equals(""))
             holder.txtDescription.setVisibility(View.GONE);
         holder.txtTitle.setText(tempModel.getTitle());
         holder.txtDescription.setText(tempModel.getDescription());
         holder.txtCategory.setText(tempModel.getCategory());
         holder.txtUserName.setText(tempModel.getUserName());
-        storagePosts = storageRef.getReference().child("postImages/" + tempModel.getPostKey());
-        storageUsers = storageRef.getReference().child("userPhoto/" + tempModel.getUserID());
+        storagePosts = storageRef.getReference().child(PostModel.POST_IMAGES_STORAGE + "/" + tempModel.getPostKey());
+        storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + tempModel.getUserID());
         GlideApp.with(mContext).load(storageUsers).into(holder.imgUser);
-        //mapVotes = model.getMapUpVotes();
-        mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         currentUserID = currentUser.getUid();
-        clickedPost = model;
         mapVotes = tempModel.getMapVotes();
         if (mapVotes.containsKey(currentUserID))
             currentUserVote = mapVotes.get(currentUserID);
+        Log.d("TAG", "currentUserVote: " + currentUserVote);
         //getUserName(holder);
         computeVotes(holder);
         if (currentUserVote == 1)
             holder.btnUp.setSelected(true);
         else if (currentUserVote == -1)
             holder.btnDown.setSelected(true);
-        currentDoc = getSnapshots().getSnapshot(position).getReference();
+        //currentDoc = getSnapshots().getSnapshot(position).getReference();
         holder.btnUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -134,27 +129,21 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             }
         });
 
-        Log.d("TAG", "size of documents: " + String.valueOf(getSnapshots().size()));
-
-        holder.txtUserName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO --> set concurrent user profile
-                getUserProfile();
-            }
-        });
         holder.imgUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO --> set concurrent user profile
-                getUserProfile();
+                intent = new Intent(mContext, ProfileActivity.class);
+                intent.putExtra(User.USER_ID, tempModel.getUserID());
+                mContext.startActivity(intent);
             }
         });
-        holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
+
+
+        /*holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View view, MotionEvent event) {
                 final int DRAWABLE_RIGHT = 2;
-                // TODO Auto-generated method stub
+
                 if (view.getId() == R.id.edt_comment_post) {
                     view.getParent().requestDisallowInterceptTouchEvent(true);
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -166,21 +155,21 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                                 content = holder.edtComment.getText().toString().trim();
                                 userName = holder.txtUserName.getText().toString();
                                 holder.edtComment.setText("");
-                                addComment(holder.getAdapterPosition(), content, userName);
+                                addComment(holder.getAdapterPosition(), content, userName,tempModel.getUserID(),tempModel.getPostKey());
                             }
                             break;
                     }
                 }
                 return false;
             }
-        });
+        });*/
 
         holder.imgPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String tempPostId = getItem(holder.getAdapterPosition()).getPostKey();
-                storagePosts = storageRef.getReference().child("postImages/" + tempPostId);
-                clickPhoto(holder.getAdapterPosition());
+                /*String tempPostId = getItem(holder.getAdapterPosition()).getPostKey();
+                storagePosts = storageRef.getReference().child("postImages/" + tempPostId);*/
+                clickPhoto();
             }
         });
         if (tempModel.getPostPhoto() != null)
@@ -277,36 +266,27 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             showMessage("check user id");
     }*/
 
-
-    private void getUserProfile() {
-        mContext.startActivity(new Intent(mContext, ProfileActivity.class));
-    }
-
     @Override
     public void onError(@NonNull FirebaseFirestoreException e) {
         super.onError(e);
         showMessage(e.getMessage());
     }
 
-    private void addComment(int tempPostition, final String content, String userName) {
+    private void addComment(int tempPostition, final String content, String userName, final String userId, final String postId) {
         if (tempPostition != RecyclerView.NO_POSITION && !content.equals("")) {
             currentDoc = getSnapshots().getSnapshot(tempPostition).getReference();
             rootComment = currentDoc.collection("Comments");
             Comment newComment = new Comment(content, currentUserID, userName);
             mAuth = FirebaseAuth.getInstance();
             currentUser = mAuth.getCurrentUser();
-            String userID = currentUser.getUid();
-
-            final PostModel clickedPost = getSnapshots().getSnapshot(tempPostition).toObject(PostModel.class);
-           /*String userImage = currentUser.getPhotoUrl().toString();
-            String userName = currentUser.getDisplayName();*/
+            //final PostModel clickedPost = getSnapshots().getSnapshot(tempPostition).toObject(PostModel.class);
             rootComment.document().set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     showMessage("Comment added successfully");
                     // notification
                     Log.d("notification", "from adapter addComment: " + currentDoc.getId());
-                    NotificationHelper.SendCommentNotification(content, clickedPost.getUserID(), currentDoc.getId());
+                    NotificationHelper.SendCommentNotification(content, userId, postId);
                     // end notification
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -327,10 +307,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     @Override
     public CustomHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_layout, parent, false);
-        return new CustomHolder(view);
+        return new CustomHolder(view, tempPostListener);
     }
 
-    private void clickPhoto(int position) {
+    private void clickPhoto() {
         Dialog settingsDialog = new Dialog(mContext);
         settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         View view = LayoutInflater.from(mContext).inflate(R.layout.activity_photo_post, null);
@@ -341,16 +321,20 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     }
 
 
+    public interface OnPostLitener {
+        void onPostClick(PostModel clickedPost);
+    }
 
-    public class CustomHolder extends RecyclerView.ViewHolder {
+    public class CustomHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView txtTitle, txtDescription, txtCategory, txtUserName, txtTime, txtNumOfComments, countVotes;
+        TextView txtTitle, txtDescription, txtCategory, txtUserName, txtTime, txtNumOfComments, countVotes, edtComment;
         ImageView imgUser;
         ImageView imgPost;
         ImageButton btnUp, btnDown;
-        EditText edtComment;
+        //PostModel clickedPost;
+        OnPostLitener onPostLitener;
 
-        public CustomHolder(@NonNull final View itemView) {
+        public CustomHolder(@NonNull final View itemView, OnPostLitener postLitener) {
             super(itemView);
             txtTitle = itemView.findViewById(R.id.post_title_tv);
             txtDescription = itemView.findViewById(R.id.post_content_tv);
@@ -364,49 +348,55 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             edtComment = itemView.findViewById(R.id.edt_comment_post);
             txtNumOfComments = itemView.findViewById(R.id.n_comments_tv);
             countVotes = itemView.findViewById(R.id.txt_counter);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
+            this.onPostLitener = postLitener;
+            itemView.setOnClickListener(this);
+            /*itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         Intent intent = new Intent(mContext, PostDetail.class);
                         //mListener = new PostDetail();
-                        PostModel clickedPost = getSnapshots().getSnapshot(position).toObject(PostModel.class);
+                        clickedPost = getSnapshots().getSnapshot(position).toObject(PostModel.class);
                         if (clickedPost.getPostPhoto() == null)
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, false);
                         else {
                             intent.putExtra(PostModel.POST_IMAGE_FLAG, true);
-                            intent.putExtra(PostModel.USER_ID, clickedPost.getUserID());
-
                         }
-                        String title = txtTitle.getText().toString();
-                        String description = txtDescription.getText().toString();
-                        Long temp = clickedPost.getCreatedTime();
-
+                         title = txtTitle.getText().toString();
+                         description = txtDescription.getText().toString();
+                         clickCreatedTime = clickedPost.getCreatedTime();
+                         clickUserID = clickedPost.getUserID();
                         // notification
                         PostDetail.target_id = clickedPost.getUserID();
                         PostDetail.post_id = getSnapshots().getSnapshot(position).getId();
                         Log.d("notification", "from adapter onclick " + clickedPost.getUserID());
                         // end notification
-                        Date tempDate = new Date(temp * 1000);
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
-                        String createdTime = dateFormat.format(tempDate);
-                        String clickUserName = txtUserName.getText().toString();
-                        String postKey = clickedPost.getPostKey();
-                        intent.putExtra(PostModel.POST_KEY, postKey);
+                         clickDate = new Date(clickCreatedTime * 1000);
+                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
+                         createdTime = dateFormat.format(clickDate);
+                         clickUserName = txtUserName.getText().toString();
+                         clickPostKey = clickedPost.getPostKey();
+                         intent.putExtra(User.USER_ID,clickUserID);
+                        intent.putExtra(User.USER_ID, clickedPost.getUserID());
+                        intent.putExtra(PostModel.POST_KEY, clickPostKey);
                         intent.putExtra(PostModel.TITLE_KEY, title);
                         intent.putExtra(PostModel.DESCRIPTION_KEY, description);
                         intent.putExtra(User.FULLNAME, clickUserName);
                         intent.putExtra(PostModel.TIME_KEY, createdTime);
+                        currentUserVote = 0;
                         mContext.startActivity(intent);
                     }
                 }
-            });
+            });*/
         }
 
+        @Override
+        public void onClick(View view) {
+            PostModel tempPost = getSnapshots().getSnapshot(getAdapterPosition()).toObject(PostModel.class);
+            onPostLitener.onPostClick(tempPost);
+        }
     }
-
 }
 
 

@@ -6,7 +6,7 @@ import java.util.Date;
 public class Comment {
     private String content, userId, userName;
     private Long createdTime;
-
+    public static final String COMMENT_COLLECTION = "COMMENT_COLLECTION";
     public Comment() {
 
     }

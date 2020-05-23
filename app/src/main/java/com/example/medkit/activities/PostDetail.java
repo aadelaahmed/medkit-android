@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -33,6 +32,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -45,9 +47,8 @@ public class PostDetail extends AppCompatActivity {
     public static String post_id;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
-    String postImage, userId, userName, content;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    CollectionReference rootPost = db.collection("Posts");
+    CollectionReference rootPost = db.collection(PostModel.POST_COLLECTION);
     DocumentReference currentDoc;
     CollectionReference rootComment;
     CommentAdapter commentAdapter;
@@ -56,8 +57,11 @@ public class PostDetail extends AppCompatActivity {
     StorageReference storageUsers;
     StorageReference storagePosts;
     StorageReference storageCurrentUser;
-
-
+    String userId, currentUserId, postKey, postImage, userName, content, currentUserName, title, description, dateWithName, createdTime;
+    Intent intent, recIntent;
+    Comment newComment;
+    PostModel clickPost;
+    boolean imgFlag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +71,16 @@ public class PostDetail extends AppCompatActivity {
 //        getSupportActionBar().hide();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        iniUI();
+        binding.postDetailUserOwnerImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                intent = new Intent(PostDetail.this, ProfileActivity.class);
+                intent.putExtra(User.USER_ID, userId);
+                startActivity(intent);
+            }
+        });
+
         binding.postDetailComment.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View view, MotionEvent event) {
@@ -81,7 +95,6 @@ public class PostDetail extends AppCompatActivity {
                 return false;
             }
         });
-        iniUI();
 
         binding.postDetailImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,19 +114,11 @@ public class PostDetail extends AppCompatActivity {
     private void addComment() {
         content = binding.postDetailComment.getText().toString().trim();
         binding.postDetailComment.setText("");
-        userId = currentUser.getUid();
-        userName = currentUser.getDisplayName();
+        currentUserId = currentUser.getUid();
+        currentUserName = currentUser.getDisplayName();
         if (!content.isEmpty() && currentUser != null) {
-            Comment comment = new Comment(content, userId, userName);
-            final String content = binding.postDetailComment.getText().toString().trim();
-            if (!content.isEmpty() && currentUser != null) {
-            /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM");
-            String createdTime = simpleDateFormat.format(new Date());*/
-                binding.postDetailComment.setText("");
-                String tempUserId = currentUser.getUid();
-
-
-                rootComment.document().set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
+            newComment = new Comment(content, currentUserId, userName);
+            rootComment.document().set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         showMessage("success add comment");
@@ -132,36 +137,38 @@ public class PostDetail extends AppCompatActivity {
             } else
                 showMessage("please write your comment");
         }
-    }
 
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void iniUI() {
-        Intent recIntent = getIntent();
-        boolean imgFlag = recIntent.getBooleanExtra(PostModel.POST_IMAGE_FLAG, false);
-        String postKey = recIntent.getStringExtra(PostModel.POST_KEY);
-        String userID = recIntent.getStringExtra(PostModel.USER_ID);
+        recIntent = getIntent();
+        clickPost = recIntent.getParcelableExtra(PostModel.OBJECT_KEY);
+        imgFlag = recIntent.getBooleanExtra(PostModel.POST_IMAGE_FLAG, false);
+        postKey = clickPost.getPostKey();
+        userId = clickPost.getUserID();
         if (!imgFlag) {
             binding.postDetailImg.setVisibility(View.GONE);
         } else {
             //postImage = recIntent.getStringExtra(PostModel.POST_IMAGE_KEY);
-            storagePosts = storageRef.getReference().child("postImages/" + postKey);
+            storagePosts = storageRef.getReference().child(PostModel.POST_IMAGES_STORAGE + postKey);
             GlideApp.with(this).load(storagePosts).into(binding.postDetailImg);
         }
-        String title = recIntent.getStringExtra(PostModel.TITLE_KEY);
-        String description = recIntent.getStringExtra(PostModel.DESCRIPTION_KEY);
-        String createdTime = recIntent.getStringExtra(PostModel.TIME_KEY);
-        String userName = recIntent.getStringExtra(User.FULLNAME);
-        String dateWithName = createdTime + " | by " + userName;
+        title = clickPost.getTitle();
+        description = clickPost.getDescription();
+        Date clickDate = new Date(clickPost.getCreatedTime() * 1000);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
+        createdTime = dateFormat.format(clickDate);
+        userName = clickPost.getUserName();
+        dateWithName = createdTime + " | by " + userName;
         currentDoc = rootPost.document(postKey);
-        rootComment = currentDoc.collection("Comments");
+        rootComment = currentDoc.collection(Comment.COMMENT_COLLECTION);
         binding.postDetailTitle.setText(title);
         binding.postDetailDescription.setText(description);
         binding.postDetailDateName.setText(dateWithName);
-        storageCurrentUser = storageRef.getReference().child("userPhoto/" + currentUser.getUid());
-        storageUsers = storageRef.getReference().child("userPhoto/" + userID);
+        storageCurrentUser = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
+        storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + userId);
         GlideApp.with(this).load(storageUsers).into(binding.postDetailUserOwnerImg);
         GlideApp.with(this).load(storageCurrentUser).into(binding.postDetailUserOwnerImg);
     }
@@ -224,29 +231,4 @@ public class PostDetail extends AppCompatActivity {
         commentAdapter.stopListening();
     }
 
-
-    /* @Override
-    public void onItemClick(DocumentSnapshot documentSnapshot, Context mContext) {
-        //initialize UI of activity
-       /* clickedPost = documentSnapshot.toObject(PostModel.class);
-        //startActivity(new Intent(mContext,PostDetail.class));
-        String postImage;
-        if(clickedPost.getPostPhoto() == null)
-            binding.postDetailImg.setVisibility(View.GONE);
-        else
-        {
-            postImage = clickedPost.getPostPhoto();
-            Glide.with(this).load(postImage).into(binding.postDetailImg);
-        }
-        String title = clickedPost.getTitle();
-        String description = clickedPost.getDescription();
-        String createdTime = clickedPost.getCreatedTime();
-        String userName = clickedPost.getUserName();
-        String userPhoto = clickedPost.getUserPhoto();
-        String dateWithName = createdTime + " | by "+ userName;
-        binding.postDetailTitle.setText(title);
-        binding.postDetailDescription.setText(description);
-        binding.postDetailDateName.setText(dateWithName);
-        Glide.with(this).load(userPhoto).into(binding.postDetailUserOwnerImg);
-    }*/
 }

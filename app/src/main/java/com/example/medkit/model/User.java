@@ -9,6 +9,8 @@ public class User {
      public final static String FULLNAME = "fullname";
      public final static String IMGURL = "imgUrl";
     public final static String BIO = "BIO_KEY";
+    public static final String USER_COLLECTION = "USER_COLLECTION";
+    public static final String USER_IMAGES_STORAGE = "userPhoto";
     /*
      public final static String AGE = "AGE";
      public final static String GENDER = "GENDER";*/

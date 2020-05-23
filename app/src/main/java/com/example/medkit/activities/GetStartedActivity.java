@@ -88,7 +88,7 @@ public class GetStartedActivity extends AppCompatActivity {
         };
         //while(!currentUser.isEmailVerified()){ showMessage("please verify your account");mAuth.getCurrentUser().reload(); }
         db = FirebaseFirestore.getInstance();
-        userCollection = db.collection("Users");
+        userCollection = db.collection(User.USER_COLLECTION);
         sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         editor = sharedPreferences.edit();
         rootStorage = FirebaseStorage.getInstance();
@@ -170,7 +170,7 @@ public class GetStartedActivity extends AppCompatActivity {
 
     private void uploadIntoFirebaseStorage(final User tempNewUser, final String tempUserKey) throws IOException {
         //StorageReference storageRef = rootStorage.getReference();
-        StorageReference childStorage = rootStorage.getReference("userPhoto/" + tempUserKey);
+        StorageReference childStorage = rootStorage.getReference(User.USER_IMAGES_STORAGE + "/" + tempUserKey);
         // Uri tempImgUri = Uri.parse(imageUser);
         AsyncTask<String, Void, Uri> x = new ImageFirebaseStorage().execute(imageUser);
         try {

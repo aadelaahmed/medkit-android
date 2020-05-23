@@ -2,6 +2,7 @@ package com.example.medkit.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,11 +10,16 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityProfileBinding;
 import com.example.medkit.model.PostModel;
+import com.example.medkit.model.User;
 import com.example.medkit.utils.CustomPostAdapter;
 import com.example.medkit.utils.GlideApp;
 import com.example.medkit.utils.LoadingAlertDialog;
@@ -24,9 +30,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -40,26 +50,25 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements CustomPostAdapter.OnPostLitener {
     private ActivityProfileBinding binding;
     public static final int mRequestCode = 50;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseStorage rootRef = FirebaseStorage.getInstance();
     CollectionReference rootUsers;
     CollectionReference rootPosts;
-    DocumentReference docUser;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
-    //PostAdapter postAdapter;
     CustomPostAdapter tempAdapter;
-    //RecyclerView recyclerPostProfile;
     Uri pickedImageUri;
-    //private List<String> resPostKeys;
     LoadingAlertDialog tempDialog = null;
     StorageReference childStorageRef;
-    //NewPostAdapter newPostAdapter;
     RecyclerView recyclerPosts;
     CustomPostAdapter customPostAdapter;
+    String currentUserId, userId, userName;
+    Intent intent;
+    ListenerRegistration tempListener;
+    Intent postDetailIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,56 +80,89 @@ public class ProfileActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkAndRequestPermission();
-            }
-        });
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        binding.userProfileName.setText(currentUser.getDisplayName());
-        tempDialog = new LoadingAlertDialog(this);
-        childStorageRef = rootRef.getReference("userPhoto/" + currentUser.getUid());
-       /* Bitmap ppbitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_type_user);
-        Bitmap ibitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_communicate);
-        posts.add(new PostModel("Ahmed Medra", "new Post", "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.", "Diabetes", ppbitmap, ibitmap, 10, 10, 10, true, false));
-        posts.add(new PostModel("Ahmed Medra", "new Post", "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.", "Diabetes", ppbitmap, ibitmap, 10, 10, 10, false, true));
-        posts.add(new PostModel("Ahmed Medra", "new Post", "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.", "Diabetes", ppbitmap, ibitmap, 10, 10, 10, true, true));
-        posts.add(new PostModel("Ahmed Medra", "new Post", "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.", "Diabetes", ppbitmap, ibitmap, 10, 10, 10, false, false));
-        PostAdapter postAdapter = new PostAdapter(posts,this);
-
-        binding.profilePostsContainer.setAdapter(postAdapter);*/
-       /* binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this));
-        binding.profilePostsContainer.getItemAnimator().setChangeDuration(0);
-        recyclerPostProfile = binding.profilePostsContainer;
-        recyclerPostProfile.setHasFixedSize(true);
-        recyclerPostProfile.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));*/
         rootUsers = db.collection("Users");
         rootPosts = db.collection("Posts");
-        docUser = rootUsers.document(currentUser.getUid());
-        //showMessage("create state");
-        iniRecyclerView();
+        currentUserId = currentUser.getUid();
+        intent = getIntent();
+        userId = intent.getStringExtra(User.USER_ID);
+        Log.d("TAG", "onCreate: " + userId);
+        childStorageRef = rootRef.getReference("userPhoto/" + userId);
         GlideApp.with(this).load(childStorageRef).into(binding.userProfilePicture);
-        binding.userProfileName.setText(currentUser.getDisplayName());
-        //binding.userProfilePicture.setImageURI(currentUser.getPhotoUrl());
+        if (currentUserId.equals(userId)) {
+            getCurrentUserData();
+            binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    checkAndRequestPermission();
+                }
+            });
+        } else {
+            getUserData(userId);
+            binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    clickPhoto();
+                }
+            });
+
+        }
+        tempDialog = new LoadingAlertDialog(this);
+        iniRecyclerView();
+
+    }
+
+
+    private void clickPhoto() {
+        Dialog settingsDialog = new Dialog(this);
+        settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        View view = LayoutInflater.from(this).inflate(R.layout.activity_photo_post, null);
+        ImageView clickedPhoto = view.findViewById(R.id.img_clicked_post);
+        GlideApp.with(this).load(childStorageRef).into(clickedPhoto);
+        settingsDialog.setContentView(view);
+        settingsDialog.show();
+    }
+
+
+    private void getCurrentUserData() {
+        userName = currentUser.getDisplayName();
+        binding.userProfileName.setText(userName);
+    }
+
+    private void getUserData(String tempUserId) {
+        tempListener =
+                rootUsers.whereEqualTo("userId", tempUserId).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            showMessage(e.getMessage());
+                            Log.d("TAG", "onEvent: " + e.getMessage());
+                            return;
+                        }
+                        for (DocumentSnapshot tempDoc : queryDocumentSnapshots) {
+                            userName = tempDoc.getString("fullName");
+                            binding.userProfileName.setText(userName);
+                        }
+
+                    }
+                });
     }
 
     private void iniRecyclerView() {
         Query query = rootPosts
-                .whereEqualTo("userID", currentUser.getUid())
+                .whereEqualTo("userID", userId)
                 .orderBy("createdTime", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class)
                 .build();
 
-        customPostAdapter = new CustomPostAdapter(tempOption, this);
+        customPostAdapter = new CustomPostAdapter(tempOption, this, this);
         recyclerPosts = binding.profilePostsContainer;
-        recyclerPosts.setAdapter(tempAdapter);
         recyclerPosts.setLayoutManager(new LinearLayoutManager(this));
         recyclerPosts.setAdapter(customPostAdapter);
         ((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
-        //binding.profilePostsContainer.getItemAnimator().setChangeDuration(0);
+        recyclerPosts.getItemAnimator().setChangeDuration(0);
         //binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
     }
@@ -191,9 +233,8 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         customPostAdapter.stopListening();
-        //showMessage("stop state");
-        //tempAdapter.stopListening();
-        //mListener.remove();
+        if (tempListener != null)
+            tempListener.remove();
     }
 
     private void checkAndRequestPermission() {
@@ -249,20 +290,6 @@ public class ProfileActivity extends AppCompatActivity {
             childStorageRef.putFile(pickedImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    /*rootUsers.document(currentUser.getUid()).update("photoUrl", String.valueOf(newPhotoUri))
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    tempDialog.dismissAlertDialog();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    tempDialog.dismissAlertDialog();
-                                    showMessage(e.getMessage());
-                                }
-                            });*/
                     //update user profile
                     UserProfileChangeRequest request =
                             new UserProfileChangeRequest
@@ -273,9 +300,9 @@ public class ProfileActivity extends AppCompatActivity {
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    tempDialog.dismissAlertDialog();
                                     showMessage("successful update profile with new photo");
                                     GlideApp.with(ProfileActivity.this).load(childStorageRef).into(binding.userProfilePicture);
+                                    tempDialog.dismissAlertDialog();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -290,7 +317,8 @@ public class ProfileActivity extends AppCompatActivity {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-
+                    showMessage(e.getMessage());
+                    Log.d("TAG", "onFailure: " + e.getMessage());
                 }
             });
         }
@@ -298,5 +326,12 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPostClick(PostModel clickedPost) {
+        postDetailIntent = new Intent(this, PostDetail.class);
+        postDetailIntent.putExtra(PostModel.OBJECT_KEY, clickedPost);
+        startActivity(postDetailIntent);
     }
 }

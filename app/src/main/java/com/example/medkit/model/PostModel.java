@@ -1,6 +1,8 @@
 package com.example.medkit.model;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.firebase.firestore.Exclude;
 
@@ -9,7 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PostModel {
+public class PostModel implements Parcelable {
 
     public static final String TITLE_KEY = "TITLE_KEY";
     public static final String DESCRIPTION_KEY = "DESCRIPTION_KEY";
@@ -17,6 +19,9 @@ public class PostModel {
     public static final String POST_IMAGE_FLAG = "POST_IMAGE_FLAG";
     public static final String POST_KEY = "POST_KEY";
     public static final String USER_ID = "USE_ID";
+    public static final String OBJECT_KEY = "OBJECT_KEY";
+    public static final String POST_COLLECTION = "POST_COLLECTION";
+    public static final String POST_IMAGES_STORAGE = "postImages";
     public Map<String, Integer> mapVotes;
     private String userName;
     private String title;
@@ -47,20 +52,45 @@ public class PostModel {
         this.mapVotes = new HashMap<>();
     }
 
-    public PostModel(String title, String userName, String postPhoto, String userID, String category) {
-        this.title = title;
-        this.userName = userName;
-        this.postPhoto = postPhoto;
-        this.userID = userID;
-        this.category = category;
-        Date temp = Calendar.getInstance().getTime();
-        this.createdTime = temp.getTime();
-        this.mapVotes = new HashMap<>();
-    }
 
 
     public PostModel() {
 
+    }
+
+    public static final Creator<PostModel> CREATOR = new Creator<PostModel>() {
+        @Override
+        public PostModel createFromParcel(Parcel in) {
+            return new PostModel(in);
+        }
+
+        @Override
+        public PostModel[] newArray(int size) {
+            return new PostModel[size];
+        }
+    };
+
+    protected PostModel(Parcel in) {
+        userName = in.readString();
+        title = in.readString();
+        description = in.readString();
+        postPhoto = in.readString();
+        userPhoto = in.readString();
+        userID = in.readString();
+        postKey = in.readString();
+        category = in.readString();
+        userProfilePicture = in.readParcelable(Bitmap.class.getClassLoader());
+        image = in.readParcelable(Bitmap.class.getClassLoader());
+        upVotes = in.readInt();
+        downVotes = in.readInt();
+        nComments = in.readInt();
+        isUpVoted = in.readByte() != 0;
+        isDownVoted = in.readByte() != 0;
+        if (in.readByte() == 0) {
+            createdTime = null;
+        } else {
+            createdTime = in.readLong();
+        }
     }
 
     public Map<String, Integer> getMapVotes() {
@@ -221,5 +251,35 @@ public class PostModel {
 
     public void setDownVoted(boolean downVoted) {
         isDownVoted = downVoted;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(userName);
+        parcel.writeString(title);
+        parcel.writeString(description);
+        parcel.writeString(postPhoto);
+        parcel.writeString(userPhoto);
+        parcel.writeString(userID);
+        parcel.writeString(postKey);
+        parcel.writeString(category);
+        parcel.writeParcelable(userProfilePicture, i);
+        parcel.writeParcelable(image, i);
+        parcel.writeInt(upVotes);
+        parcel.writeInt(downVotes);
+        parcel.writeInt(nComments);
+        parcel.writeByte((byte) (isUpVoted ? 1 : 0));
+        parcel.writeByte((byte) (isDownVoted ? 1 : 0));
+        if (createdTime == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeLong(createdTime);
+        }
     }
 }

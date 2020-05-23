@@ -31,14 +31,8 @@ public class SignInActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth = null;
     FirebaseUser currentUser = null;
     public static final int RC_SIGN_IN = 8;
-    //FirebaseFirestore db = FirebaseFirestore.getInstance();
-    //CollectionReference usersCollection;
-    //SharedPreferences userSharedPref;
-    //boolean isFirstTime;
     LoadingAlertDialog tempDialog;
     ExternalAuthProvider providerSignIn;
-    //CallbackManager mCallbackManager;
-    //GoogleSignInClient mGoogleSignInClient;
     private ActivitySignInBinding binding;
 
     @Override
@@ -46,7 +40,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         overridePendingTransition(0,android.R.anim.fade_out);
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
-        //usersCollection = db.collection("Users");
+
         setContentView(binding.getRoot());
         ActionBar actionBar= getSupportActionBar();
         assert actionBar != null;

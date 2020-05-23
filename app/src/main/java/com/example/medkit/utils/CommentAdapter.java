@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.example.medkit.R;
 import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
+import com.example.medkit.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,7 +37,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersCollection = db.collection("Users");
     String content, userName, userID;
-
+    Intent intent;
+    Comment tempModel;
     public CommentAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context mContext) {
         super(options);
         this.mContext = mContext;
@@ -65,10 +67,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         /*Date tempDate =new Date(model.getCreatedTime() * 1000);
         String createdTime = new SimpleDateFormat("dd MMMM").format(tempDate);
         Log.d("TAG", "onBindViewHolder comment: " + createdTime);*/
-        content = model.getContent();
-        userName = model.getUserName();
-        userID = model.getUserId();
+        tempModel = getSnapshots().getSnapshot(holder.getAdapterPosition()).toObject(Comment.class);
+        content = tempModel.getContent();
+        userName = tempModel.getUserName();
+        userID = tempModel.getUserId();
         storageRef = storageInstance.getReference("userPhoto/" + userID);
+        GlideApp.with(mContext).load(storageRef).into(holder.imgUser);
         holder.txtContent.setText(content);
         holder.txtUserName.setText(userName);
        /* usersCollection.document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -86,20 +90,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                 Log.d("TAG", "onFailure: "+e.getMessage());
             }
         });*/
-
-        GlideApp.with(mContext).load(storageRef).into(holder.imgUser);
-        holder.txtUserName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateUI();
-            }
-        });
-        holder.imgUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateUI();
-            }
-        });
     }
 
 
@@ -107,7 +97,9 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
     private void updateUI() {
         //TODO profile of concurrent user
-        mContext.startActivity(new Intent(mContext, ProfileActivity.class));
+        intent = new Intent(mContext, ProfileActivity.class);
+        intent.putExtra(User.USER_ID, userID);
+        mContext.startActivity(intent);
     }
 
     public void deleteComment(int adapterPosition) {
@@ -151,6 +143,20 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             txtContent = itemView.findViewById(R.id.comment_content);
             txtDate = itemView.findViewById(R.id.comment_date);
             imgUser = itemView.findViewById(R.id.comment_user_photo);
+
+            imgUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateUI();
+                }
+            });
+
+            txtUserName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateUI();
+                }
+            });
         }
     }
 }

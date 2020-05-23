@@ -46,7 +46,7 @@ public class SignUpActivity extends AppCompatActivity implements CompoundButton.
     FirebaseUser currentUser;
     String creationTime;
     LoadingAlertDialog tempAlertDialog;
-    StorageReference rootRef = FirebaseStorage.getInstance().getReference().child("users");
+    StorageReference rootRef = FirebaseStorage.getInstance().getReference().child(User.USER_IMAGES_STORAGE);
     boolean isDoctor = false;
     ExternalAuthProvider tempProviders;
     private static final Pattern PASSWORD_PATTERN =

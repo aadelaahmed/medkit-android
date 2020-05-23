@@ -7,16 +7,13 @@
     app:layout_scrollFlags="scroll|enterAlways"
     tools:context=".fragments.HomeFragment"
     android:orientation="vertical"
-    android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true"
     android:background="#f4f4f4">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:paddingBottom="16dp"
-        >
+        android:paddingBottom="16dp">
         <TextView
             android:id="@+id/textView8"
             android:layout_width="wrap_content"

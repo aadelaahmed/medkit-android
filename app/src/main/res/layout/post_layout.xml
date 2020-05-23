@@ -137,21 +137,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/down_vote_btn" />
 
-        <EditText
+        <TextView
             android:id="@+id/edt_comment_post"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@drawable/edittext_button_style_rounded"
             android:drawableEnd="@drawable/ic_send"
-            android:ems="10"
             android:hint="Tap here to add comment"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:maxLines="5"
-            android:overScrollMode="always"
-            android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical"
+            android:clickable="false"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/n_comments_tv"

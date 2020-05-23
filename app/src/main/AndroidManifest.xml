@@ -40,7 +40,6 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-
         <activity
             android:name=".activities.PostDetail"
             android:theme="@style/NoActionBarAppTheme" />
@@ -60,11 +59,7 @@
             <!--            </intent-filter>-->
         </activity>
         <activity android:name=".activities.DoctorLicenseActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".activities.UserTypeActivity"
@@ -81,11 +76,10 @@
         <activity
             android:name=".activities.SignHomeActivity"
             android:theme="@style/NoActionBarAppTheme">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
-
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".activities.DoctorRegistrationActivity"
@@ -113,10 +107,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>

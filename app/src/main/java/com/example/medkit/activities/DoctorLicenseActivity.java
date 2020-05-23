@@ -14,11 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityDoctorLicenseBinding;
 import com.example.medkit.model.Prediction;
 import com.example.medkit.utils.APIInterface;
@@ -27,6 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -91,7 +89,6 @@ public class DoctorLicenseActivity extends AppCompatActivity {
                                 binding.btnContinueLicense.setText("Send");
                             }
                         }
-
                         @Override
                         public void onFailure(Call<Prediction> call, Throwable t) {
 

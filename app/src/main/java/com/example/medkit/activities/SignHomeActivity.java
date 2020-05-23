@@ -47,7 +47,7 @@ public class SignHomeActivity extends AppCompatActivity {
         binding = ActivitySignHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         //mCallbackManager = CallbackManager.Factory.create();
-        usersCollection = db.collection("Users");
+        usersCollection = db.collection(User.USER_COLLECTION);
         firebaseAuth = FirebaseAuth.getInstance();
         currentUser = firebaseAuth.getCurrentUser();
         tempDialog = new LoadingAlertDialog(this);
@@ -124,7 +124,6 @@ public class SignHomeActivity extends AppCompatActivity {
         overridePendingTransition(0, android.R.anim.fade_out);
         super.onBackPressed();
     }
-
     @Override
     protected void onStart() {
         super.onStart();

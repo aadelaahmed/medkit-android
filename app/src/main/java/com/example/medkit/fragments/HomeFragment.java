@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.example.medkit.R;
 import com.example.medkit.activities.AddPostActivity;
+import com.example.medkit.activities.PostDetail;
 import com.example.medkit.databinding.FragmentHomeBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.CustomPostAdapter;
@@ -32,14 +33,14 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLitener {
     RecyclerView recyclerPosts;
     private List<PostModel> posts;
     private FragmentHomeBinding binding;
     public Context mContext;
-    CollectionReference rootPost = FirebaseFirestore.getInstance().collection("Posts");
-    //NewPostAdapter newAdapter;
+    CollectionReference rootPost = FirebaseFirestore.getInstance().collection(PostModel.POST_COLLECTION);
     CustomPostAdapter customPostAdapter;
+    Intent intent;
     public HomeFragment() {
 
     }
@@ -51,13 +52,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        //Query query = rootPost.orderBy("createdTime", Query.Direction.DESCENDING);
-        //newAdapter = new NewPostAdapter(mContext,query);
-        //recyclerPosts = view.findViewById(R.id.posts_list);
-        //recyclerPosts.setLayoutManager(new LinearLayoutManager(mContext));
-        //recyclerPosts.getItemAnimator().setChangeDuration(0);
-        //recyclerPosts.setAdapter(newAdapter);
-        //((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
+
         ArrayAdapter<CharSequence> diseases = ArrayAdapter.createFromResource(
                 getActivity(),
                 R.array.category_spinner,
@@ -94,13 +89,10 @@ public class HomeFragment extends Fragment {
                 .setQuery(query, PostModel.class)
                 .build();
         recyclerPosts = binding.postsList;
-        customPostAdapter = new CustomPostAdapter(tempOption, mContext);
+        customPostAdapter = new CustomPostAdapter(tempOption, mContext, this);
         recyclerPosts.setAdapter(customPostAdapter);
-        //recyclerPosts.setHasFixedSize(true);
         recyclerPosts.setLayoutManager(new LinearLayoutManager(mContext));
-        recyclerPosts.getItemAnimator().setChangeDuration(0);
         ((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
-        //tempAdapter.startListening();
     }
 
     @Override
@@ -206,5 +198,11 @@ public class HomeFragment extends Fragment {
     }
 
 
+    @Override
+    public void onPostClick(PostModel clickedPost) {
+        intent = new Intent(getActivity(), PostDetail.class);
+        intent.putExtra(PostModel.OBJECT_KEY, clickedPost);
+        startActivity(intent);
+    }
 }
 

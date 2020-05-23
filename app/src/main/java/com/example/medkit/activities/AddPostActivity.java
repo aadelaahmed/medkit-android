@@ -35,7 +35,7 @@ public class AddPostActivity extends AppCompatActivity {
     public static final int mRequestCode = 14;
     ActivityAddPostBinding binding;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    CollectionReference rootPost = db.collection("Posts");
+    CollectionReference rootPost = db.collection(PostModel.POST_COLLECTION);
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     FirebaseStorage rootRef;
