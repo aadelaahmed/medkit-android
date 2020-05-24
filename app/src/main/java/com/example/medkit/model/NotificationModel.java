@@ -6,6 +6,25 @@ import java.util.Calendar;
 
 public class NotificationModel {
     private String from;
+
+    public static String NOTIFICATION_COLLECTION = "Notification";
+    private String from_full_name;
+
+    public NotificationModel(String from, String post_id, String message, boolean read, String time, String n_id, String from_full_name) {
+        this.from = from;
+        this.from_full_name = from_full_name;
+        this.post_id = post_id;
+        this.message = message;
+        this.read = read;
+        this.time = time;
+        this.n_id = n_id;
+        this.createdTime = Calendar.getInstance().getTime().getTime();
+    }
+
+    public String getFrom_full_name() {
+        return from_full_name;
+    }
+
     private String post_id;
     private String message;
     private String time;
@@ -13,14 +32,8 @@ public class NotificationModel {
     private String n_id;
     private long createdTime;
 
-    public NotificationModel(String from, String post_id, String message, boolean read, String time, String n_id) {
-        this.from = from;
-        this.post_id = post_id;
-        this.message = message;
-        this.read = read;
-        this.time = time;
-        this.n_id = n_id;
-        this.createdTime = Calendar.getInstance().getTime().getTime();
+    public void setFrom_full_name(String from_full_name) {
+        this.from_full_name = from_full_name;
     }
 
     public String getN_id() {

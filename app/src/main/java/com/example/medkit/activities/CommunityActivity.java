@@ -10,6 +10,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
 import com.example.medkit.fragments.HomeFragment;
@@ -23,7 +28,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
@@ -31,19 +35,15 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 public class CommunityActivity extends AppCompatActivity {
-
 
     private ActivityCommunityBinding binding;
     FirebaseAuth mAuth;
@@ -90,6 +90,7 @@ public class CommunityActivity extends AppCompatActivity {
         storageInstance = FirebaseStorage.getInstance();
         storageRef = storageInstance.getReference(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
         iniActionBar();
+
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);
         binding.viewUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,29 +113,28 @@ public class CommunityActivity extends AppCompatActivity {
             NotificationManager notificationManager =
                     getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(new NotificationChannel(channelId,
-                    channelName, NotificationManager.IMPORTANCE_LOW));
+                    channelName, NotificationManager.IMPORTANCE_HIGH));
         }
-        mAuth.getCurrentUser().getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
             @Override
-            public void onSuccess(GetTokenResult getTokenResult) {
-                final String token_id = getTokenResult.getToken();
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                final String token = instanceIdResult.getToken();
                 String current_id = mAuth.getCurrentUser().getUid();
                 Map<String, Object> tokenMap = new HashMap<>();
-                tokenMap.put("token_id", token_id);
+                tokenMap.put("notification_token_id", token);
                 mfirebase.collection(User.USER_COLLECTION).document(current_id).update(tokenMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.w("token", token_id);
+                        Log.w("token", token);
 //                        Toast.makeText(CommunityActivity.this,"token" + token_id,Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("token", token_id);
+                        Log.w("token", token);
 //                        Toast.makeText(CommunityActivity.this,"FFFFFFFFFFFFFFFF" + token_id,Toast.LENGTH_SHORT).show();
                     }
                 });
-
             }
         });
 
@@ -148,7 +148,7 @@ public class CommunityActivity extends AppCompatActivity {
 
     private void fetchData() {
         mfirebase = FirebaseFirestore.getInstance();
-        mfirebase.collection(User.USER_IMAGES_STORAGE + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/Notification").orderBy("createdTime").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mfirebase.collection(User.USER_COLLECTION + "/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + NotificationModel.NOTIFICATION_COLLECTION).orderBy("createdTime").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                 for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
@@ -156,10 +156,8 @@ public class CommunityActivity extends AppCompatActivity {
                     Log.d("notification", "updateUnRead: " + notificationModel.isRead());
                     if (!notificationModel.isRead()) {
                         binding.bottomNavigationView.getOrCreateBadge(R.id.notify_item).setVisible(true);
-//                        binding.bottomNavigationView.getMenu().findItem(R.id.notify_item).setIcon(R.drawable.new_notification_icon);
                         break;
                     } else {
-//                        binding.bottomNavigationView.getMenu().getItem(1).setIcon(R.drawable.ic_alarm);
                         binding.bottomNavigationView.getOrCreateBadge(R.id.notify_item).setVisible(false);
                     }
                 }
@@ -195,4 +193,15 @@ public class CommunityActivity extends AppCompatActivity {
         GlideApp.with(this).load(storageRef).into(binding.imgUserCommunity);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (binding.bottomNavigationView.getSelectedItemId() == R.id.home_item) {
+            finish();
+        } else {
+            binding.bottomNavigationView.setSelectedItemId(R.id.home_item);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment());
+        }
+
+    }
 }
