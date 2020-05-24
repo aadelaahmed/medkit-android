@@ -26,13 +26,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -52,14 +51,14 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     //CollectionReference usersCollection = db.collection("Users");
     int currentUserVote = 0; //vote of current user for each post
     Map<String, Integer> mapVotes;
-    String currentUserID, description, content, userName, title, clickDesc, createdTime, clickUserName, clickPostKey, clickUserID;
+    private static final String TAG = "CustomPostAdapter";
     int tempPosition;
     PostModel tempModel;
-    Long clickCreatedTime;
-    Date clickDate;
-    OnPostLitener tempPostListener;
+    String currentUserID, description; //, content, userName, title, clickDesc, createdTime, clickUserName, clickPostKey, clickUserID;
     Intent intent;
-
+    /* Long clickCreatedTime;
+     Date clickDate;*/
+    OnPostLitener tempPostListener;
     public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext, OnPostLitener tempPostListener) {
         super(options);
         this.mContext = mContext;
@@ -97,15 +96,22 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         mapVotes = tempModel.getMapVotes();
         if (mapVotes.containsKey(currentUserID))
             currentUserVote = mapVotes.get(currentUserID);
-        Log.d("TAG", "currentUserVote: " + currentUserVote);
+        Log.d("TAG", "onClick user vote: " + currentUserVote);
         //getUserName(holder);
         computeVotes(holder);
-        if (currentUserVote == 1)
+        //Log.d("TAG", "onClick: bind up: "+holder.btnUp);
+        if (currentUserVote == 1) {
             holder.btnUp.setSelected(true);
-        else if (currentUserVote == -1)
+            if (holder.btnDown.isSelected())
+                holder.btnDown.setSelected(false);
+        }
+        else if (currentUserVote == -1) {
             holder.btnDown.setSelected(true);
+            if (holder.btnUp.isSelected())
+                holder.btnUp.setSelected(false);
+        }
         //currentDoc = getSnapshots().getSnapshot(position).getReference();
-        holder.btnUp.setOnClickListener(new View.OnClickListener() {
+       /* holder.btnUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (holder.btnDown.isSelected())
@@ -127,7 +133,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                 Log.d("TAG", "onClick: down " + holder.btnUp.isSelected());
                 addDownVote(holder);
             }
-        });
+        });*/
 
         holder.imgUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,7 +211,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             showMessage("check user id");
     }*/
 
-    private void addUpVote(CustomHolder tempHolder) {
+   /* private void addUpVote(CustomHolder tempHolder) {
         int tempPosition = tempHolder.getAdapterPosition();
         PostModel tempPost = getSnapshots().getSnapshot(tempPosition).toObject(PostModel.class);
         Map<String, Integer> tempMap = tempPost.getMapVotes();
@@ -235,7 +241,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         Map<String, Integer> newMapValue = new HashMap<>();
         newMapValue.put(currentUserID, newVote);
         getSnapshots().getSnapshot(tempPosition).getReference().update("mapVotes", newMapValue);
-    }
+    }*/
 
     private void computeVotes(CustomHolder holder) {
         int cntrVotes = 0;
@@ -323,6 +329,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
 
     public interface OnPostLitener {
         void onPostClick(PostModel clickedPost);
+
+        void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomHolder tempHolder);
+
+        void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomHolder tempHolder);
     }
 
     public class CustomHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -333,7 +343,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         ImageButton btnUp, btnDown;
         //PostModel clickedPost;
         OnPostLitener onPostLitener;
-
+        DocumentSnapshot documentSnapshot;
+        PostModel tempPost;
         public CustomHolder(@NonNull final View itemView, OnPostLitener postLitener) {
             super(itemView);
             txtTitle = itemView.findViewById(R.id.post_title_tv);
@@ -350,6 +361,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             countVotes = itemView.findViewById(R.id.txt_counter);
             this.onPostLitener = postLitener;
             itemView.setOnClickListener(this);
+            btnUp.setOnClickListener(this);
+            btnDown.setOnClickListener(this);
             /*itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -393,16 +406,32 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
 
         @Override
         public void onClick(View view) {
-            PostModel tempPost = getSnapshots().getSnapshot(getAdapterPosition()).toObject(PostModel.class);
-            onPostLitener.onPostClick(tempPost);
+            documentSnapshot = getSnapshots().getSnapshot(getAdapterPosition());
+            tempPost = getSnapshots().getSnapshot(getAdapterPosition()).toObject(PostModel.class);
+            currentUserID = currentUser.getUid();
+            switch (view.getId()) {
+                case R.id.up_vote_btn:
+                    if (this.btnDown.isSelected())
+                        this.btnDown.setSelected(false);
+                    view.setSelected(!view.isSelected());
+                    Log.d("TAG", "onClick: prev down " + this.btnDown.isSelected());
+                    Log.d("TAG", "onClick: up " + view.isSelected());
+                    onPostLitener.onUpVoteClick(documentSnapshot, currentUserID, this);
+                    break;
+                case R.id.down_vote_btn:
+                    if (this.btnUp.isSelected())
+                        this.btnUp.setSelected(false);
+                    view.setSelected(!view.isSelected());
+                    Log.d("TAG", "onClick: prev up " + this.btnUp.isSelected());
+                    Log.d("TAG", "onClick: up " + view.isSelected());
+                    onPostLitener.onDownVoteClick(documentSnapshot, currentUserID, this);
+                    break;
+                default:
+                    onPostLitener.onPostClick(tempPost);
+            }
         }
     }
 }
 
-
-   /* public void setOnItemClickListener(OnItemClickListener mListener)
-    {
-        this.mListener = mListener;
-    }*/
 
 

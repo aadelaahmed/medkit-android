@@ -3,6 +3,7 @@ package com.example.medkit.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +19,16 @@ import com.example.medkit.databinding.FragmentHomeBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.CustomPostAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +47,9 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     CollectionReference rootPost = FirebaseFirestore.getInstance().collection(PostModel.POST_COLLECTION);
     CustomPostAdapter customPostAdapter;
     Intent intent;
+    FirebaseAuth mAuth;
+    FirebaseUser currentUser;
+    String currentUserID;
     public HomeFragment() {
 
     }
@@ -204,5 +213,40 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         intent.putExtra(PostModel.OBJECT_KEY, clickedPost);
         startActivity(intent);
     }
+
+    @Override
+    public void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomPostAdapter.CustomHolder tempHolder) {
+        PostModel tempPost = documentSnapshot.toObject(PostModel.class);
+        Map<String, Integer> tempMap = tempPost.getMapVotes();
+        int tempCurrentVote = 0;
+        if (tempMap.containsKey(currentUserID))
+            tempCurrentVote = tempMap.get(currentUserID);
+        int newVote = (tempCurrentVote == 1) ? 0 : 1;
+        Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
+        //tempCurrentVote = newVote;
+        Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
+        Map<String, Integer> newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);
+        documentSnapshot.getReference().update("mapVotes", newMapValue);
+    }
+
+    @Override
+    public void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomPostAdapter.CustomHolder tempHolder) {
+        PostModel tempPost = documentSnapshot.toObject(PostModel.class);
+        Map<String, Integer> tempMap = tempPost.getMapVotes();
+        int tempCurrentVote = 0;
+        if (tempMap.containsKey(currentUserID))
+            tempCurrentVote = tempMap.get(currentUserID);
+        int newVote = (tempCurrentVote == -1) ? 0 : -1;
+        Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
+        //currentUserVote = newVote;
+        Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
+        Map<String, Integer> newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);
+        documentSnapshot.getReference().update("mapVotes", newMapValue);
+    }
+
+
+
 }
 

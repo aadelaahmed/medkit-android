@@ -334,4 +334,15 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         postDetailIntent.putExtra(PostModel.OBJECT_KEY, clickedPost);
         startActivity(postDetailIntent);
     }
+
+    @Override
+    public void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomPostAdapter.CustomHolder tempHolder) {
+
+    }
+
+    @Override
+    public void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomPostAdapter.CustomHolder tempHolder) {
+
+    }
+
 }
