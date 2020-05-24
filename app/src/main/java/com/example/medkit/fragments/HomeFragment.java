@@ -202,7 +202,10 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     public void onPostClick(PostModel clickedPost) {
         intent = new Intent(getActivity(), PostDetail.class);
         intent.putExtra(PostModel.OBJECT_KEY, clickedPost);
+        PostDetail.post_id = clickedPost.getPostKey();
+        PostDetail.target_id = clickedPost.getUserID();
         startActivity(intent);
     }
+
 }
 

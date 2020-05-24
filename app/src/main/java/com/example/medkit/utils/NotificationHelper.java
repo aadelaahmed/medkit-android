@@ -11,8 +11,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.medkit.model.NotificationModel;
+import com.example.medkit.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,7 +22,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.text.SimpleDateFormat;
@@ -39,51 +44,46 @@ public class NotificationHelper {
                                                final String targetUserID,
                                                final String postId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference rootPost = db.collection("Users/" + targetUserID + "/Notification");
-        DocumentReference docRef = rootPost.document();
-        String notiKey = docRef.getId();
+        CollectionReference rootPost = db.collection(User.USER_COLLECTION + "/" + targetUserID + "/" + NotificationModel.NOTIFICATION_COLLECTION);
+        final DocumentReference docRef = rootPost.document();
+        final String notiKey = docRef.getId();
         auth = FirebaseAuth.getInstance();
         currentUserID = auth.getCurrentUser().getUid();
         if (!currentUserID.equals(targetUserID)) {
-//            final FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
-            if (!TextUtils.isEmpty(messageText)) {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a", Locale.getDefault());
-                String currentDateandTime = sdf.format(new Date());
-                String fullMessage = "has commented on your post " + messageText;
-//                String id = mfirebase.collection("Users/" + targetUserID + "/Notification").document().getId();
-//                Map<String, Object> notificationMessage = new HashMap<>();
-//                notificationMessage.put("n_id", id);
-//                notificationMessage.put("message", fullMessage);
-//                notificationMessage.put("from", currentUserID);
-//                notificationMessage.put("post_id", postId);
-//                notificationMessage.put("is_read", false);
-//                notificationMessage.put("time", currentDateandTime);
-                NotificationModel notificationModel = new NotificationModel(currentUserID,
-                        postId,
-                        fullMessage,
-                        false,
-                        currentDateandTime,
-                        notiKey);
-                docRef.set(notificationModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: " + targetUserID + " " + messageText);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+            final FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
+            Log.d(TAG, "SendCommentNotification: " + messageText + targetUserID + postId);
+            mfirebase.collection(User.USER_COLLECTION).document(currentUserID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    String name = (String) documentSnapshot.get("fullName");
+                    SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a", Locale.getDefault());
+                    String currentDateandTime = sdf.format(new Date());
+                    String fullMessage = "has commented on your post";
+                    Log.d(TAG, "onEvent: " + name);
+                    ;
+                    NotificationModel notificationModel = new NotificationModel(currentUserID,
+                            postId,
+                            fullMessage,
+                            false,
+                            currentDateandTime,
+                            notiKey,
+                            name
+                    );
+                    docRef.set(notificationModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "onSuccess: " + targetUserID + " " + messageText);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
 //                    Toast.makeText(context,"Notification Failure",Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "onFailure: " + e.getMessage() + " " + targetUserID + " " + messageText);
-                    }
-                });
-//                mfirebase.collection("Users/" + targetUserID + "/Notification").document(id)
-//                        .update(notificationMessage).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        Log.d(TAG, "onSuccess: " + targetUserID + " " + messageText);
-//                    }
-//                })
-            }
+                            Log.d(TAG, "onFailure: " + e.getMessage() + " " + targetUserID + " " + messageText);
+                        }
+                    });
+                }
+            });
+
         }
     }
 
@@ -93,7 +93,7 @@ public class NotificationHelper {
         auth = FirebaseAuth.getInstance();
         currentUserID = auth.getCurrentUser().getUid();
         final FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
-        mfirebase.collection("Users/" + currentUserID + "/Notification")
+        mfirebase.collection(User.USER_COLLECTION + "/" + currentUserID + "/" + NotificationModel.NOTIFICATION_COLLECTION)
                 .document(notification_id).update(notMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

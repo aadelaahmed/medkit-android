@@ -344,7 +344,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             txtUserName = itemView.findViewById(R.id.post_user_name);
             btnUp = itemView.findViewById(R.id.up_vote_btn);
             btnDown = itemView.findViewById(R.id.down_vote_btn);
-            txtTime = itemView.findViewById(R.id.post_title_tv);
+            txtTime = itemView.findViewById(R.id.psot_time_tv);
             edtComment = itemView.findViewById(R.id.edt_comment_post);
             txtNumOfComments = itemView.findViewById(R.id.n_comments_tv);
             countVotes = itemView.findViewById(R.id.txt_counter);
@@ -394,6 +394,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         @Override
         public void onClick(View view) {
             PostModel tempPost = getSnapshots().getSnapshot(getAdapterPosition()).toObject(PostModel.class);
+
             onPostLitener.onPostClick(tempPost);
         }
     }

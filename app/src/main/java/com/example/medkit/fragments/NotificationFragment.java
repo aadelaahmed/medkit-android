@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.example.medkit.R;
 import com.example.medkit.databinding.FragmentNotificationBinding;
 import com.example.medkit.model.NotificationModel;
+import com.example.medkit.model.User;
 import com.example.medkit.utils.NotificationAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -78,7 +79,7 @@ public class NotificationFragment extends Fragment {
 
     private void fetchData() {
         mfirebase = FirebaseFirestore.getInstance();
-        mfirebase.collection("Users/" + User_id + "/Notification").orderBy("createdTime", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        mfirebase.collection(User.USER_COLLECTION + "/" + User_id + "/" + NotificationModel.NOTIFICATION_COLLECTION).orderBy("createdTime", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {

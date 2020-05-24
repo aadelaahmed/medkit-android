@@ -22,6 +22,7 @@ import com.bumptech.glide.request.target.Target;
 import com.example.medkit.R;
 import com.example.medkit.fragments.NotificationFragment;
 import com.example.medkit.model.NotificationModel;
+import com.example.medkit.model.User;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -60,16 +61,16 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         final String message = notification.getMessage();
         FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
 //        Log.d("notification", "onBindViewHolder: "+notification.getFrom());
-        mfirebase.collection("Users").document(from).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        mfirebase.collection(User.USER_COLLECTION).document(from).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 String name = (String) documentSnapshot.get("fullName");
-                String content = "<b>" + name + "</b> " + message.substring(0, 26) + ": <br> " + message.substring(26);
+                String content = "<b>" + name + "</b> " + message;
                 holder.contentTV.setText(Html.fromHtml(content));
                 String image = (String) documentSnapshot.get("photoUrl");
                 holder.timeTv.setText(notification.getTime());
                 Log.d("notification", "onBindViewHolder Image: " + image);
-                storageUsers = storageRef.getReference().child("userPhoto/" + notification.getFrom());
+                storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + notification.getFrom());
                 Glide.with(context).load(storageUsers).into(holder.userProfilePicture);
             }
         });

@@ -20,7 +20,7 @@ public class PostModel implements Parcelable {
     public static final String POST_KEY = "POST_KEY";
     public static final String USER_ID = "USE_ID";
     public static final String OBJECT_KEY = "OBJECT_KEY";
-    public static final String POST_COLLECTION = "POST_COLLECTION";
+    public static final String POST_COLLECTION = "Posts";
     public static final String POST_IMAGES_STORAGE = "postImages";
     public Map<String, Integer> mapVotes;
     private String userName;
