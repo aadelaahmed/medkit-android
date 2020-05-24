@@ -1,7 +1,6 @@
 package com.example.medkit.utils;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,16 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.medkit.R;
 import com.example.medkit.fragments.NotificationFragment;
 import com.example.medkit.model.NotificationModel;
@@ -32,6 +21,10 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
@@ -71,7 +64,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 holder.timeTv.setText(notification.getTime());
                 Log.d("notification", "onBindViewHolder Image: " + image);
                 storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + notification.getFrom());
-                Glide.with(context).load(storageUsers).into(holder.userProfilePicture);
+                GlideApp.with(context).load(storageUsers).into(holder.userProfilePicture);
             }
         });
 
@@ -105,7 +98,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             userProfilePicture = itemView.findViewById(R.id.notification_user_photo);
             container = itemView.findViewById(R.id.notification_container);
             timeTv = itemView.findViewById(R.id.notification_time);
-
         }
     }
 

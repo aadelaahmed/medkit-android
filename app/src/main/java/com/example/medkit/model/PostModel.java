@@ -13,12 +13,12 @@ import java.util.Map;
 
 public class PostModel implements Parcelable {
 
-    public static final String TITLE_KEY = "TITLE_KEY";
-    public static final String DESCRIPTION_KEY = "DESCRIPTION_KEY";
+    public static final String TITLE_KEY = "title";
+    public static final String DESCRIPTION_KEY = "description";
     public static final String TIME_KEY = "TIME_KEY";
     public static final String POST_IMAGE_FLAG = "POST_IMAGE_FLAG";
-    public static final String POST_KEY = "POST_KEY";
-    public static final String USER_ID = "USE_ID";
+    public static final String POST_KEY = "postKey";
+    public static final String USER_ID = "userId";
     public static final String OBJECT_KEY = "OBJECT_KEY";
     public static final String POST_COLLECTION = "Posts";
     public static final String POST_IMAGES_STORAGE = "postImages";

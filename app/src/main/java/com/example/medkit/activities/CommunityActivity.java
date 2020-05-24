@@ -10,11 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
 import com.example.medkit.fragments.HomeFragment;
@@ -23,17 +18,21 @@ import com.example.medkit.fragments.NotificationFragment;
 import com.example.medkit.model.NotificationModel;
 import com.example.medkit.model.User;
 import com.example.medkit.utils.GlideApp;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
@@ -42,6 +41,11 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 public class CommunityActivity extends AppCompatActivity {
 
@@ -53,6 +57,10 @@ public class CommunityActivity extends AppCompatActivity {
     FirebaseStorage storageInstance;
     StorageReference storageRef;
     DatabaseReference databaseReference;
+    private static final String TAG = "CommunityActivity";
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    CollectionReference rootUsers = db.collection(User.USER_COLLECTION);
+    User clickUser = null;
     private BottomNavigationView.OnNavigationItemSelectedListener listener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -96,8 +104,21 @@ public class CommunityActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 intent = new Intent(CommunityActivity.this, ProfileActivity.class);
-                intent.putExtra(User.USER_ID, currentUserId);
-                startActivity(intent);
+                rootUsers.whereEqualTo(User.USER_ID, currentUserId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot tempDoc : task.getResult()) {
+                            clickUser = tempDoc.toObject(User.class);
+                        }
+                        Log.d(TAG, "onComplete: " + clickUser.getUid());
+                        updateUI(clickUser);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: ");
+                    }
+                });
             }
         });
 
@@ -140,10 +161,12 @@ public class CommunityActivity extends AppCompatActivity {
 
         fetchData();
         // end notification
-
-        //TODO --> add badge to notification and backlight on item click
-
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment(this)).commit();
+    }
+
+    private void updateUI(User clickUser) {
+        intent.putExtra(User.OBJECT_KEY, clickUser);
+        startActivity(intent);
     }
 
     private void fetchData() {

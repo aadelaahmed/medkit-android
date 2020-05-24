@@ -9,14 +9,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.medkit.R;
-import com.example.medkit.activities.ProfileActivity;
 import com.example.medkit.model.Comment;
-import com.example.medkit.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,9 +38,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     String content, userName, userID;
     Intent intent;
     Comment tempModel;
-    public CommentAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context mContext) {
+    OnCommentClickListener commentClickListener;
+
+    public CommentAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context mContext, OnCommentClickListener commentClickListener) {
         super(options);
         this.mContext = mContext;
+        this.commentClickListener = commentClickListener;
     }
 
     @Override
@@ -59,14 +61,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
     @Override
     protected void onBindViewHolder(@NonNull final CommentViewHolder holder, int position, @NonNull Comment model) {
-        /*Timestamp temp = (Timestamp) getSnapshots().getSnapshot(position).getData().get("createdTime");
-        Date tempDate = temp.toDate();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
-        String createdTime = dateFormat.format(tempDate);*/
-
-        /*Date tempDate =new Date(model.getCreatedTime() * 1000);
-        String createdTime = new SimpleDateFormat("dd MMMM").format(tempDate);
-        Log.d("TAG", "onBindViewHolder comment: " + createdTime);*/
         tempModel = getSnapshots().getSnapshot(holder.getAdapterPosition()).toObject(Comment.class);
         content = tempModel.getContent();
         userName = tempModel.getUserName();
@@ -93,14 +87,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     }
 
 
-
-
-    private void updateUI() {
-        //TODO profile of concurrent user
-        intent = new Intent(mContext, ProfileActivity.class);
-        intent.putExtra(User.USER_ID, userID);
-        mContext.startActivity(intent);
-    }
 
     public void deleteComment(int adapterPosition) {
         getSnapshots().getSnapshot(adapterPosition).getReference().delete();
@@ -132,31 +118,36 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
+    public interface OnCommentClickListener {
+        void onUserClick(String userId);
+    }
 
-    public class CommentViewHolder extends RecyclerView.ViewHolder {
+
+    public class CommentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView txtUserName, txtContent, txtDate;
         CircleImageView imgUser;
-
+        Comment tempComment;
+        DocumentSnapshot documentSnapshot;
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             txtUserName = itemView.findViewById(R.id.comment_user_name);
             txtContent = itemView.findViewById(R.id.comment_content);
             txtDate = itemView.findViewById(R.id.comment_date);
             imgUser = itemView.findViewById(R.id.comment_user_photo);
+            imgUser.setOnClickListener(this);
+        }
 
-            imgUser.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    updateUI();
-                }
-            });
-
-            txtUserName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    updateUI();
-                }
-            });
+        @Override
+        public void onClick(View view) {
+            documentSnapshot = getSnapshots().getSnapshot(getAdapterPosition());
+            tempComment = documentSnapshot.toObject(Comment.class);
+            switch (view.getId()) {
+                case R.id.comment_user_photo:
+                    commentClickListener.onUserClick(tempComment.getUserId());
+                    break;
+            }
         }
     }
+
+
 }

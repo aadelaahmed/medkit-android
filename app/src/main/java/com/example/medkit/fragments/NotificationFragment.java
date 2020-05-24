@@ -70,10 +70,7 @@ public class NotificationFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(container.getContext()));
         recyclerView.setAdapter(notificationRecyclerViewAdapter);
         fetchData();
-        updateUnRead();
         binding.notificationList.getItemAnimator().setChangeDuration(0);
-
-
         return view;
     }
 
@@ -112,7 +109,6 @@ public class NotificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
         notificationList.clear();
 //        mfirebase.collection("Users/"+User_id+"/Notification").addSnapshotListener(new EventListener<QuerySnapshot>() {
 //            @Override

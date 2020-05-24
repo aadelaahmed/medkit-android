@@ -1,27 +1,21 @@
 package com.example.medkit.utils;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.medkit.R;
-import com.example.medkit.activities.ProfileActivity;
-import com.example.medkit.model.Comment;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.model.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -59,6 +53,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     /* Long clickCreatedTime;
      Date clickDate;*/
     OnPostLitener tempPostListener;
+
     public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext, OnPostLitener tempPostListener) {
         super(options);
         this.mContext = mContext;
@@ -104,8 +99,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             holder.btnUp.setSelected(true);
             if (holder.btnDown.isSelected())
                 holder.btnDown.setSelected(false);
-        }
-        else if (currentUserVote == -1) {
+        } else if (currentUserVote == -1) {
             holder.btnDown.setSelected(true);
             if (holder.btnUp.isSelected())
                 holder.btnUp.setSelected(false);
@@ -135,14 +129,14 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             }
         });*/
 
-        holder.imgUser.setOnClickListener(new View.OnClickListener() {
+       /* holder.imgUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 intent = new Intent(mContext, ProfileActivity.class);
                 intent.putExtra(User.USER_ID, tempModel.getUserID());
                 mContext.startActivity(intent);
             }
-        });
+        });*/
 
 
         /*holder.edtComment.setOnTouchListener(new View.OnTouchListener() {
@@ -170,14 +164,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             }
         });*/
 
-        holder.imgPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /*String tempPostId = getItem(holder.getAdapterPosition()).getPostKey();
-                storagePosts = storageRef.getReference().child("postImages/" + tempPostId);*/
-                clickPhoto();
-            }
-        });
+
         if (tempModel.getPostPhoto() != null)
             GlideApp.with(mContext).load(storagePosts).into(holder.imgPost);
         else
@@ -278,7 +265,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         showMessage(e.getMessage());
     }
 
-    private void addComment(int tempPostition, final String content, String userName, final String userId, final String postId) {
+    /*private void addComment(int tempPostition, final String content, String userName, final String userId, final String postId) {
         if (tempPostition != RecyclerView.NO_POSITION && !content.equals("")) {
             currentDoc = getSnapshots().getSnapshot(tempPostition).getReference();
             rootComment = currentDoc.collection("Comments");
@@ -303,7 +290,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             });
         } else
             showMessage("Please enter your comment");
-    }
+    }*/
 
     private void showMessage(String message) {
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
@@ -316,7 +303,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         return new CustomHolder(view, tempPostListener);
     }
 
-    private void clickPhoto() {
+    /*private void clickPhoto() {
         Dialog settingsDialog = new Dialog(mContext);
         settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         View view = LayoutInflater.from(mContext).inflate(R.layout.activity_photo_post, null);
@@ -324,15 +311,20 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         GlideApp.with(mContext).load(storagePosts).into(clickedPhoto);
         settingsDialog.setContentView(view);
         settingsDialog.show();
-    }
+    }*/
 
 
     public interface OnPostLitener {
         void onPostClick(PostModel clickedPost);
 
-        void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomHolder tempHolder);
+        void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID);
 
-        void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomHolder tempHolder);
+        void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID);
+
+        void onUserNameClick(PostModel clickedPost);
+
+        void onPostImageClick(String postKey);
+
     }
 
     public class CustomHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -345,6 +337,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         OnPostLitener onPostLitener;
         DocumentSnapshot documentSnapshot;
         PostModel tempPost;
+
         public CustomHolder(@NonNull final View itemView, OnPostLitener postLitener) {
             super(itemView);
             txtTitle = itemView.findViewById(R.id.post_title_tv);
@@ -363,6 +356,10 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             itemView.setOnClickListener(this);
             btnUp.setOnClickListener(this);
             btnDown.setOnClickListener(this);
+            imgPost.setOnClickListener(this);
+            txtUserName.setOnClickListener(this);
+            imgUser.setOnClickListener(this);
+            edtComment.setOnClickListener(this);
             /*itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -407,7 +404,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         @Override
         public void onClick(View view) {
             documentSnapshot = getSnapshots().getSnapshot(getAdapterPosition());
-            tempPost = getSnapshots().getSnapshot(getAdapterPosition()).toObject(PostModel.class);
+            tempPost = documentSnapshot.toObject(PostModel.class);
             currentUserID = currentUser.getUid();
             switch (view.getId()) {
                 case R.id.up_vote_btn:
@@ -416,7 +413,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                     view.setSelected(!view.isSelected());
                     Log.d("TAG", "onClick: prev down " + this.btnDown.isSelected());
                     Log.d("TAG", "onClick: up " + view.isSelected());
-                    onPostLitener.onUpVoteClick(documentSnapshot, currentUserID, this);
+                    onPostLitener.onUpVoteClick(documentSnapshot, currentUserID);
                     break;
                 case R.id.down_vote_btn:
                     if (this.btnUp.isSelected())
@@ -424,7 +421,19 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                     view.setSelected(!view.isSelected());
                     Log.d("TAG", "onClick: prev up " + this.btnUp.isSelected());
                     Log.d("TAG", "onClick: up " + view.isSelected());
-                    onPostLitener.onDownVoteClick(documentSnapshot, currentUserID, this);
+                    onPostLitener.onDownVoteClick(documentSnapshot, currentUserID);
+                    break;
+                case R.id.comment_user_photo:
+                    onPostLitener.onUserNameClick(tempPost);
+                    break;
+                case R.id.post_user_name:
+                    onPostLitener.onUserNameClick(tempPost);
+                    break;
+                case R.id.post_image:
+                    onPostLitener.onPostImageClick(tempPost.getPostKey());
+                    break;
+                case R.id.edt_comment_post:
+                    onPostLitener.onPostClick(tempPost);
                     break;
                 default:
                     onPostLitener.onPostClick(tempPost);

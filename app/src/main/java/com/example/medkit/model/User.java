@@ -1,16 +1,20 @@
 package com.example.medkit.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-public class User {
+public class User implements Parcelable {
      public final static String USER_ID = "uid";
      public final static String FULLNAME = "fullname";
      public final static String IMGURL = "imgUrl";
     public final static String BIO = "BIO_KEY";
     public static final String USER_COLLECTION = "Users";
     public static final String USER_IMAGES_STORAGE = "userPhoto";
+    public static final String OBJECT_KEY = "OBJECT_KEY";
     /*
      public final static String AGE = "AGE";
      public final static String GENDER = "GENDER";*/
@@ -38,6 +42,25 @@ public class User {
 
     public User() {
 
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    protected User(Parcel in) {
+        userId = in.readString();
+        createdTime = in.readLong();
+        email = in.readString();
+        fullName = in.readString();
     }
 
     //private String photoUrl;
@@ -88,4 +111,16 @@ public class User {
         this.userType = userType;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(userId);
+        parcel.writeLong(createdTime);
+        parcel.writeString(email);
+        parcel.writeString(fullName);
+    }
 }

@@ -31,15 +31,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,11 +55,12 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     public static final int mRequestCode = 50;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseStorage rootRef = FirebaseStorage.getInstance();
+    StorageReference storagePosts;
+    StorageReference storageUsers;
     CollectionReference rootUsers;
     CollectionReference rootPosts;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
-    CustomPostAdapter tempAdapter;
     Uri pickedImageUri;
     LoadingAlertDialog tempDialog = null;
     StorageReference childStorageRef;
@@ -69,6 +70,11 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     Intent intent;
     ListenerRegistration tempListener;
     Intent postDetailIntent;
+    Map<String, Integer> newMapValue, postVotes;
+    int newVote, tempCurrentVote;
+    PostModel tempPost;
+    Intent recIntent;
+    User userDataPofile;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,15 +88,25 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         });
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        rootUsers = db.collection("Users");
-        rootPosts = db.collection("Posts");
+        rootUsers = db.collection(User.USER_COLLECTION);
+        rootPosts = db.collection(PostModel.POST_COLLECTION);
         currentUserId = currentUser.getUid();
-        intent = getIntent();
+        /*intent = getIntent();
         userId = intent.getStringExtra(User.USER_ID);
         Log.d("TAG", "onCreate: " + userId);
         childStorageRef = rootRef.getReference("userPhoto/" + userId);
-        GlideApp.with(this).load(childStorageRef).into(binding.userProfilePicture);
-        if (currentUserId.equals(userId)) {
+        GlideApp.with(this).load(childStorageRef).into(binding.userProfilePicture);*/
+        iniUIProfile();
+        if (userDataPofile.getUid().equals(userId)) {
+            binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    clickPhoto();
+                }
+            });
+        }
+
+       /* if (currentUserId.equals(userId)) {
             getCurrentUserData();
             binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -107,10 +123,17 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
                 }
             });
 
-        }
+        }*/
         tempDialog = new LoadingAlertDialog(this);
         iniRecyclerView();
+    }
 
+    private void iniUIProfile() {
+        recIntent = getIntent();
+        userDataPofile = recIntent.getParcelableExtra(User.OBJECT_KEY);
+        binding.userProfileName.setText(userDataPofile.getFullName());
+        storageUsers = rootRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + userDataPofile.getUid());
+        GlideApp.with(this).load(storageUsers).into(binding.userProfilePicture);
     }
 
 
@@ -125,12 +148,12 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     }
 
 
-    private void getCurrentUserData() {
+   /* private void getCurrentUserData() {
         userName = currentUser.getDisplayName();
         binding.userProfileName.setText(userName);
-    }
+    }*/
 
-    private void getUserData(String tempUserId) {
+    /*private void getUserData(String tempUserId) {
         tempListener =
                 rootUsers.whereEqualTo("userId", tempUserId).addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -147,7 +170,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
 
                     }
                 });
-    }
+    }*/
 
     private void iniRecyclerView() {
         Query query = rootPosts
@@ -336,13 +359,53 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     }
 
     @Override
-    public void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomPostAdapter.CustomHolder tempHolder) {
+    public void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID) {
+        tempPost = documentSnapshot.toObject(PostModel.class);
+        postVotes = tempPost.getMapVotes();
+        tempCurrentVote = 0;
+        if (postVotes.containsKey(currentUserID))
+            tempCurrentVote = postVotes.get(currentUserID);
+        int newVote = (tempCurrentVote == 1) ? 0 : 1;
+        Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
+        //tempCurrentVote = newVote;
+        Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
+        newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);
+        documentSnapshot.getReference().update("mapVotes", newMapValue);
+    }
+
+    @Override
+    public void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID) {
+        tempPost = documentSnapshot.toObject(PostModel.class);
+        postVotes = tempPost.getMapVotes();
+        tempCurrentVote = 0;
+        if (postVotes.containsKey(currentUserID))
+            tempCurrentVote = postVotes.get(currentUserID);
+        newVote = (tempCurrentVote == -1) ? 0 : -1;
+        Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
+        //currentUserVote = newVote;
+        Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
+        newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);
+        documentSnapshot.getReference().update("mapVotes", newMapValue);
+    }
+
+    @Override
+    public void onUserNameClick(PostModel clickedPost) {
 
     }
 
     @Override
-    public void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID, CustomPostAdapter.CustomHolder tempHolder) {
-
+    public void onPostImageClick(String postKey) {
+        storagePosts = rootRef.getReference().child(PostModel.POST_IMAGES_STORAGE + "/" + postKey);
+        Dialog settingsDialog = new Dialog(this);
+        settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        View view = LayoutInflater.from(this).inflate(R.layout.activity_photo_post, null);
+        ImageView clickedPhoto = view.findViewById(R.id.img_clicked_post);
+        GlideApp.with(this).load(storagePosts).into(clickedPhoto);
+        settingsDialog.setContentView(view);
+        settingsDialog.show();
     }
+
 
 }
