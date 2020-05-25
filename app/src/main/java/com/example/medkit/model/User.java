@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class User implements Parcelable {
      public final static String USER_ID = "uid";
-     public final static String FULLNAME = "fullname";
+    public final static String FULLNAME = "fullName";
      public final static String IMGURL = "imgUrl";
     public final static String BIO = "BIO_KEY";
     public static final String USER_COLLECTION = "Users";

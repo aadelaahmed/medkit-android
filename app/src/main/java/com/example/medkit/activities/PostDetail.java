@@ -177,6 +177,7 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         binding.postDetailDateName.setText(dateWithName);
         storageCurrentUser = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
         storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + userId);
+        Log.d(TAG, "iniUI: " + userId);
         GlideApp.with(this).load(storageUsers).into(binding.postDetailUserOwnerImg);
         GlideApp.with(this).load(storageCurrentUser).into(binding.postDetailUserOwnerImg);
     }
@@ -273,5 +274,10 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
     @Override
     public void onUserClick(String userId) {
         navigateToProfile(userId);
+    }
+
+    @Override
+    public void onClappingClick(String userId) {
+
     }
 }

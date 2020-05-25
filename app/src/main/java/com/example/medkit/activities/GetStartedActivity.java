@@ -210,7 +210,7 @@ public class GetStartedActivity extends AppCompatActivity {
                         .setDisplayName(tempName)
                         .setPhotoUri(tempImage)
                         .build();
-        Log.d("TAG", "updateProfileUser: " + tempUpdate.toString());
+        Log.d("TAG", "updateProfileUser: " + tempName + tempUpdate.toString());
         currentUser.updateProfile(tempUpdate);
     }
 

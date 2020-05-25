@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityCommunityBinding;
+import com.example.medkit.fragments.DoctorsFragment;
 import com.example.medkit.fragments.HomeFragment;
 import com.example.medkit.fragments.MessageFragment;
 import com.example.medkit.fragments.NotificationFragment;
@@ -46,6 +47,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class CommunityActivity extends AppCompatActivity {
 
@@ -61,6 +63,41 @@ public class CommunityActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference rootUsers = db.collection(User.USER_COLLECTION);
     User clickUser = null;
+    final Fragment homeFragment = new HomeFragment(this);
+    final Fragment doctorFragment = new DoctorsFragment(this);
+    final Fragment notifiFragment = new NotificationFragment();
+    final Fragment chatFragment = new MessageFragment();
+    final FragmentManager fm = getSupportFragmentManager();
+    Fragment currentFragment = homeFragment;
+
+   /* private BottomNavigationView.OnNavigationItemSelectedListener listener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.home_item:
+                            fm.beginTransaction().hide(currentFragment).show(homeFragment).commit();
+                            currentFragment = homeFragment;
+                            return true;
+                        case R.id.doctors_item_search:
+                            fm.beginTransaction().hide(currentFragment).show(doctorFragment).commit();
+                            currentFragment = doctorFragment;
+                            return true;
+                        case R.id.notify_item:
+                            fm.beginTransaction().hide(currentFragment).show(notifiFragment).commit();
+                            currentFragment = notifiFragment;
+                            return true;
+                        case R.id.message_item:
+                            fm.beginTransaction().hide(currentFragment).show(chatFragment).commit();
+                            currentFragment = chatFragment;
+                            return true;
+
+                    }
+                    return false;
+                }
+            };*/
+
+
     private BottomNavigationView.OnNavigationItemSelectedListener listener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -70,6 +107,10 @@ public class CommunityActivity extends AppCompatActivity {
                         case R.id.home_item:
                             selectedFreagment = new HomeFragment(CommunityActivity.this);
                             binding.txtMedkit.setText("medkit");
+                            break;
+                        case R.id.doctors_item_search:
+                            selectedFreagment = new DoctorsFragment(CommunityActivity.this);
+                            binding.txtMedkit.setText("Doctors");
                             break;
                         case R.id.notify_item:
                             selectedFreagment = new NotificationFragment();
@@ -97,9 +138,21 @@ public class CommunityActivity extends AppCompatActivity {
         currentUserId = currentUser.getUid();
         storageInstance = FirebaseStorage.getInstance();
         storageRef = storageInstance.getReference(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
+
+
+        fm.beginTransaction().add(R.id.fragment_container, chatFragment, "chat_tag").hide(chatFragment).commit();
+        fm.beginTransaction().add(R.id.fragment_container, notifiFragment, "notify_tag").hide(notifiFragment).commit();
+        fm.beginTransaction().add(R.id.fragment_container, doctorFragment, "doctors_tag").hide(doctorFragment).commit();
+        fm.beginTransaction().add(R.id.fragment_container, homeFragment, "home_tag").commit();
         iniActionBar();
 
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);
+        binding.bottomNavigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+
+            }
+        });
         binding.viewUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -187,6 +240,8 @@ public class CommunityActivity extends AppCompatActivity {
             }
         });
     }
+
+
     private void iniActionBar() {
         if (currentUser != null) {
             //userPhoto = currentUser.getPhotoUrl();
@@ -213,7 +268,7 @@ public class CommunityActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        GlideApp.with(this).load(storageRef).into(binding.imgUserCommunity);
+        //GlideApp.with(this).load(storageRef).into(binding.imgUserCommunity);
     }
 
     @Override

@@ -11,7 +11,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -38,6 +41,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,6 +95,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         rootUsers = db.collection(User.USER_COLLECTION);
         rootPosts = db.collection(PostModel.POST_COLLECTION);
         currentUserId = currentUser.getUid();
+
         /*intent = getIntent();
         userId = intent.getStringExtra(User.USER_ID);
         Log.d("TAG", "onCreate: " + userId);
@@ -106,8 +111,8 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
             });
         }
 
-       /* if (currentUserId.equals(userId)) {
-            getCurrentUserData();
+        if (currentUserId.equals(userId)) {
+
             binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -115,7 +120,6 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
                 }
             });
         } else {
-            getUserData(userId);
             binding.userProfilePicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -123,7 +127,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
                 }
             });
 
-        }*/
+        }
         tempDialog = new LoadingAlertDialog(this);
         iniRecyclerView();
     }
@@ -131,6 +135,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     private void iniUIProfile() {
         recIntent = getIntent();
         userDataPofile = recIntent.getParcelableExtra(User.OBJECT_KEY);
+        userId = userDataPofile.getUid();
         binding.userProfileName.setText(userDataPofile.getFullName());
         storageUsers = rootRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + userDataPofile.getUid());
         GlideApp.with(this).load(storageUsers).into(binding.userProfilePicture);
@@ -172,6 +177,18 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
                 });
     }*/
 
+    private void getOverflowMenu() {
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void iniRecyclerView() {
         Query query = rootPosts
                 .whereEqualTo("userID", userId)
@@ -191,9 +208,34 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (userId.equals(currentUserId)) {
+            getOverflowMenu();
+            getMenuInflater().inflate(R.menu.profile_menu_items, menu);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_out: {
+                mAuth.signOut();
+                Intent intent = new Intent(this, SignHomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         customPostAdapter.startListening();
+
         //showMessage("start state");
         /*currentUser = mAuth.getCurrentUser();
         binding.userProfilePicture.setImageURI(currentUser.getPhotoUrl());
@@ -361,7 +403,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     @Override
     public void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID) {
         tempPost = documentSnapshot.toObject(PostModel.class);
-        postVotes = tempPost.getMapVotes();
+        postVotes = tempPost.getUpVotes();
         tempCurrentVote = 0;
         if (postVotes.containsKey(currentUserID))
             tempCurrentVote = postVotes.get(currentUserID);
@@ -377,7 +419,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     @Override
     public void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID) {
         tempPost = documentSnapshot.toObject(PostModel.class);
-        postVotes = tempPost.getMapVotes();
+        postVotes = tempPost.getUpVotes();
         tempCurrentVote = 0;
         if (postVotes.containsKey(currentUserID))
             tempCurrentVote = postVotes.get(currentUserID);

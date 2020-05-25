@@ -40,13 +40,11 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         overridePendingTransition(0,android.R.anim.fade_out);
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
-
         setContentView(binding.getRoot());
         ActionBar actionBar= getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
         tempDialog = new LoadingAlertDialog(this);
-
         /* textViewTouch = findViewById(R.id.text_view_touch);
         textViewLogin = findViewById(R.id.text_view_login);
         buttonLogin = findViewById(R.id.button_login);

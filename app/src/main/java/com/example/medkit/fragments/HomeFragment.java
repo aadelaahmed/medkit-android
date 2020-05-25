@@ -228,13 +228,18 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     public void onPostClick(PostModel clickedPost) {
         intent = new Intent(getActivity(), PostDetail.class);
         intent.putExtra(PostModel.OBJECT_KEY, clickedPost);
+        if (clickedPost.getPostPhoto() == null)
+            intent.putExtra(PostModel.POST_IMAGE_FLAG, false);
+        else {
+            intent.putExtra(PostModel.POST_IMAGE_FLAG, true);
+        }
         startActivity(intent);
     }
 
     @Override
     public void onUpVoteClick(DocumentSnapshot documentSnapshot, String currentUserID) {
         tempPost = documentSnapshot.toObject(PostModel.class);
-        postVotes = tempPost.getMapVotes();
+        postVotes = tempPost.getUpVotes();
         tempCurrentVote = 0;
         if (postVotes.containsKey(currentUserID))
             tempCurrentVote = postVotes.get(currentUserID);
@@ -244,13 +249,13 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
         newMapValue = new HashMap<>();
         newMapValue.put(currentUserID, newVote);
-        documentSnapshot.getReference().update("mapVotes", newMapValue);
+        documentSnapshot.getReference().update(PostModel.UP_VOTES, newMapValue);
     }
 
     @Override
     public void onDownVoteClick(DocumentSnapshot documentSnapshot, String currentUserID) {
         tempPost = documentSnapshot.toObject(PostModel.class);
-        postVotes = tempPost.getMapVotes();
+        postVotes = tempPost.getUpVotes();
         tempCurrentVote = 0;
         if (postVotes.containsKey(currentUserID))
             tempCurrentVote = postVotes.get(currentUserID);
@@ -260,12 +265,13 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
         newMapValue = new HashMap<>();
         newMapValue.put(currentUserID, newVote);
-        documentSnapshot.getReference().update("mapVotes", newMapValue);
+        documentSnapshot.getReference().update(PostModel.UP_VOTES, newMapValue);
     }
 
     @Override
     public void onUserNameClick(PostModel clickedPost) {
         intent = new Intent(mContext, ProfileActivity.class);
+        //try onComplete instead of onsuccess
         rootUsers.whereEqualTo(User.USER_ID, clickedPost.getUserID()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

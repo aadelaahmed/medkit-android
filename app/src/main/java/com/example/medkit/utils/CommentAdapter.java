@@ -5,9 +5,13 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.medkit.R;
 import com.example.medkit.model.Comment;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -66,6 +70,10 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         userName = tempModel.getUserName();
         userID = tempModel.getUserId();
         storageRef = storageInstance.getReference("userPhoto/" + userID);
+        RequestOptions requestOptions = new RequestOptions().transforms(new CenterCrop(), new RoundedCorners(90));
+        /*Glide.with(mContext).load(storageRef)
+                .apply(requestOptions)
+                .into(holder.imgUser);*/
         GlideApp.with(mContext).load(storageRef).into(holder.imgUser);
         holder.txtContent.setText(content);
         holder.txtUserName.setText(userName);
@@ -85,7 +93,6 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             }
         });*/
     }
-
 
 
     public void deleteComment(int adapterPosition) {
@@ -120,20 +127,25 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
     public interface OnCommentClickListener {
         void onUserClick(String userId);
+
+        void onClappingClick(String userId);
     }
 
 
     public class CommentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView txtUserName, txtContent, txtDate;
         CircleImageView imgUser;
+        ImageButton clapBtn;
         Comment tempComment;
         DocumentSnapshot documentSnapshot;
+
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             txtUserName = itemView.findViewById(R.id.comment_user_name);
             txtContent = itemView.findViewById(R.id.comment_content);
             txtDate = itemView.findViewById(R.id.comment_date);
             imgUser = itemView.findViewById(R.id.comment_user_photo);
+            clapBtn = itemView.findViewById(R.id.clapping_btn);
             imgUser.setOnClickListener(this);
         }
 
@@ -144,6 +156,13 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             switch (view.getId()) {
                 case R.id.comment_user_photo:
                     commentClickListener.onUserClick(tempComment.getUserId());
+                    break;
+                case R.id.clapping_btn:
+                    if (!view.isSelected())
+                        view.setSelected(true);
+
+
+                    commentClickListener.onClappingClick(tempComment.getUserId());
                     break;
             }
         }

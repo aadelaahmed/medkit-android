@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:background="@drawable/edittext_button_style_rounded"
+            android:background="@drawable/bg_row_comment"
             android:ems="10"
             android:hint="write a comment"
             android:inputType="textMultiLine"
@@ -123,14 +123,17 @@
         <Button
             android:id="@+id/post_detail_btn_add"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/edittext_button_style_rounded"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_btn_add_comment"
             android:text="Add"
-            app:layout_constraintBaseline_toBaselineOf="@+id/post_detail_comment"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/post_detail_comment"
             app:layout_constraintEnd_toEndOf="@id/guideline13"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/post_detail_comment" />
+            app:layout_constraintStart_toEndOf="@+id/post_detail_comment"
+            app:layout_constraintTop_toTopOf="@+id/post_detail_comment" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/post_detail_user_owner_img"
@@ -145,11 +148,12 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/post_detail_recycler_comments"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginRight="8dp"
-            android:background="@color/transparent"
+            android:fadingEdgeLength="0dp"
+            android:overScrollMode="never"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

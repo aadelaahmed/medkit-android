@@ -88,7 +88,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         GlideApp.with(mContext).load(storageUsers).into(holder.imgUser);
         currentUser = mAuth.getCurrentUser();
         currentUserID = currentUser.getUid();
-        mapVotes = tempModel.getMapVotes();
+        mapVotes = tempModel.getUpVotes();
         if (mapVotes.containsKey(currentUserID))
             currentUserVote = mapVotes.get(currentUserID);
         Log.d("TAG", "onClick user vote: " + currentUserVote);

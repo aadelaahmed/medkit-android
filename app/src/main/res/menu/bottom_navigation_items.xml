@@ -8,15 +8,18 @@
         tools:ignore="MenuTitle" />
 
     <item
+        android:id="@+id/doctors_item_search"
+        android:icon="@drawable/ic_doctor"
+        tools:ignore="MenuTitle" />
+
+    <item
         android:id="@+id/notify_item"
         android:icon="@drawable/ic_alarm"
-
         tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/message_item"
         android:icon="@drawable/ic_chat"
-
         tools:ignore="MenuTitle" />
 
 </menu>

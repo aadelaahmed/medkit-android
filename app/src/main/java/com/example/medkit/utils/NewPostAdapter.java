@@ -127,7 +127,7 @@ public class NewPostAdapter extends FirestorePostAdapter<NewPostAdapter.CustomVi
     private void addUpVote(CustomViewHolder holder) {
         int userVote = 0;
         PostModel tempPost = getSnapshot(holder.getAdapterPosition()).toObject(PostModel.class);
-        Map<String, Integer> tempMap = tempPost.getMapVotes();
+        Map<String, Integer> tempMap = tempPost.getUpVotes();
         if (tempMap.containsKey(currentUserID))
             userVote = mapVotes.get(currentUserID);
         int cntr = Integer.parseInt(holder.countVotes.getText().toString());
@@ -153,7 +153,7 @@ public class NewPostAdapter extends FirestorePostAdapter<NewPostAdapter.CustomVi
     private void addDownVote(CustomViewHolder holder) {
         int userVote = 0;
         PostModel tempPost = getSnapshot(holder.getAdapterPosition()).toObject(PostModel.class);
-        Map<String, Integer> tempMap = tempPost.getMapVotes();
+        Map<String, Integer> tempMap = tempPost.getUpVotes();
         if (tempMap.containsKey(currentUserID))
             userVote = mapVotes.get(currentUserID);
         int cntr = Integer.parseInt(holder.countVotes.getText().toString());
@@ -199,7 +199,7 @@ public class NewPostAdapter extends FirestorePostAdapter<NewPostAdapter.CustomVi
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         currentUserID = currentUser.getUid();
-        mapVotes = model.getMapVotes();
+        mapVotes = model.getUpVotes();
         if (mapVotes.containsKey(currentUserID))
             currentUserVote = mapVotes.get(currentUserID);
         computeVotes(model, holder);

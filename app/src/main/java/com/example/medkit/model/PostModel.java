@@ -22,42 +22,7 @@ public class PostModel implements Parcelable {
     public static final String OBJECT_KEY = "OBJECT_KEY";
     public static final String POST_COLLECTION = "Posts";
     public static final String POST_IMAGES_STORAGE = "postImages";
-    public Map<String, Integer> mapVotes;
-    private String userName;
-    private String title;
-    private String description;
-    private String postPhoto;
-    private String userPhoto;
-    private String userID;
-    private String postKey;
-    private String category;
-    private Bitmap userProfilePicture;
-    private Bitmap image;
-    private int upVotes;
-    private int downVotes;
-    private int nComments;
-    private boolean isUpVoted;
-    private boolean isDownVoted;
-    private Long createdTime;
-
-    public PostModel(String title, String description, String userName, String postPhoto, String userID, String category) {
-        this.title = title;
-        this.description = description;
-        this.userName = userName;
-        this.postPhoto = postPhoto;
-        this.userID = userID;
-        this.category = category;
-        Date temp = Calendar.getInstance().getTime();
-        this.createdTime = temp.getTime();
-        this.mapVotes = new HashMap<>();
-    }
-
-
-
-    public PostModel() {
-
-    }
-
+    public static final String UP_VOTES = "upVotes";
     public static final Creator<PostModel> CREATOR = new Creator<PostModel>() {
         @Override
         public PostModel createFromParcel(Parcel in) {
@@ -69,6 +34,25 @@ public class PostModel implements Parcelable {
             return new PostModel[size];
         }
     };
+    private String userName;
+    private String title;
+    private String description;
+    private String postPhoto;
+    private String userPhoto;
+    private String userID;
+    private String postKey;
+    private String category;
+    private Bitmap userProfilePicture;
+    private Bitmap image;
+    private int nComments;
+    private Long createdTime;
+    public Map<String, Integer> upVotes;
+
+
+    public PostModel() {
+
+    }
+
 
     protected PostModel(Parcel in) {
         userName = in.readString();
@@ -81,11 +65,7 @@ public class PostModel implements Parcelable {
         category = in.readString();
         userProfilePicture = in.readParcelable(Bitmap.class.getClassLoader());
         image = in.readParcelable(Bitmap.class.getClassLoader());
-        upVotes = in.readInt();
-        downVotes = in.readInt();
         nComments = in.readInt();
-        isUpVoted = in.readByte() != 0;
-        isDownVoted = in.readByte() != 0;
         if (in.readByte() == 0) {
             createdTime = null;
         } else {
@@ -93,12 +73,24 @@ public class PostModel implements Parcelable {
         }
     }
 
-    public Map<String, Integer> getMapVotes() {
-        return mapVotes;
+    public PostModel(String title, String description, String userName, String postPhoto, String userID, String category) {
+        this.title = title;
+        this.description = description;
+        this.userName = userName;
+        this.postPhoto = postPhoto;
+        this.userID = userID;
+        this.category = category;
+        Date temp = Calendar.getInstance().getTime();
+        this.createdTime = temp.getTime();
+        this.upVotes = new HashMap<>();
     }
 
-    public void setMapVotes(Map<String, Integer> mapVotes) {
-        this.mapVotes = mapVotes;
+    public Map<String, Integer> getUpVotes() {
+        return upVotes;
+    }
+
+    public void setUpVotes(Map<String, Integer> upVotes) {
+        this.upVotes = upVotes;
     }
 
     public Long getCreatedTime() {
@@ -208,23 +200,6 @@ public class PostModel implements Parcelable {
         this.image = image;
     }
 
-    @Exclude
-    public int getUpVotes() {
-        return upVotes;
-    }
-
-    public void setUpVotes(int upVotes) {
-        this.upVotes = upVotes;
-    }
-
-    @Exclude
-    public int getDownVotes() {
-        return downVotes;
-    }
-
-    public void setDownVotes(int downVotes) {
-        this.downVotes = downVotes;
-    }
 
     @Exclude
     public int getnComments() {
@@ -235,23 +210,6 @@ public class PostModel implements Parcelable {
         this.nComments = nComments;
     }
 
-    @Exclude
-    public boolean isUpVoted() {
-        return isUpVoted;
-    }
-
-    public void setUpVoted(boolean upVoted) {
-        isUpVoted = upVoted;
-    }
-
-    @Exclude
-    public boolean isDownVoted() {
-        return isDownVoted;
-    }
-
-    public void setDownVoted(boolean downVoted) {
-        isDownVoted = downVoted;
-    }
 
     @Override
     public int describeContents() {
@@ -270,11 +228,7 @@ public class PostModel implements Parcelable {
         parcel.writeString(category);
         parcel.writeParcelable(userProfilePicture, i);
         parcel.writeParcelable(image, i);
-        parcel.writeInt(upVotes);
-        parcel.writeInt(downVotes);
         parcel.writeInt(nComments);
-        parcel.writeByte((byte) (isUpVoted ? 1 : 0));
-        parcel.writeByte((byte) (isDownVoted ? 1 : 0));
         if (createdTime == null) {
             parcel.writeByte((byte) 0);
         } else {
