@@ -67,6 +67,7 @@ public class NotificationFragment extends Fragment {
         notificationList = new ArrayList<>();
 
         notificationRecyclerViewAdapter = new NotificationAdapter(notificationList, getContext());
+        recyclerView.setHasFixedSize(false);
         recyclerView.setLayoutManager(new LinearLayoutManagerWrapper(container.getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(notificationRecyclerViewAdapter);
         fetchData();
@@ -110,7 +111,7 @@ public class NotificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        notificationList.clear();
+//        notificationList.clear();
 //        mfirebase.collection("Users/"+User_id+"/Notification").addSnapshotListener(new EventListener<QuerySnapshot>() {
 //            @Override
 //            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {

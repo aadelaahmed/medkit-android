@@ -84,10 +84,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                notification.setRead(true, notification.getN_id());
-                notifyItemChanged(position);
-                NotificationFragment.updateUnRead();
+                if (!notification.isRead()) {
+                    notification.setRead(true, notification.getN_id());
+                    notifyItemChanged(position);
+//                notifyDataSetChanged();
+                    NotificationFragment.updateUnRead();
 //                Toast.makeText(context,notification.getPost_id(),Toast.LENGTH_LONG).show();
+                }
                 mfirebase.collection(PostModel.POST_COLLECTION).document(notification.getPost_id()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
