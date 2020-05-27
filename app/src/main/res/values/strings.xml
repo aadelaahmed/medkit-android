@@ -19,7 +19,6 @@
     <string name="introductory_picture">Upload your photo to easy communicate with others.</string>
     <string name="finish">Finish</string>
     <string name="skip">skip</string>
-
     <string name="specialty">What\'s your specialty?</string>
     <string name="enter_speciality">(Required)</string>
     <string name="bio">What\'s your bio?</string>
@@ -40,18 +39,24 @@
     <string name="facebook_app_id">202265224401850</string>
     <string name="fb_login_protocol_scheme">fb202265224401850</string>
     <string-array name="category_spinner">
-        <item>All Diseases</item>
-        <item>Corona</item>
-        <item>Diabetes</item>
-        <item>Heart</item>
-        <item>Bones</item>
-        <item>Muscles</item>
+        <item>General - عام</item>
+        <item>Corona - كورونا</item>
+        <item>Diabetes - سكر</item>
+        <item>Heart - قلب</item>
+        <item>Ophthalmology - عيون</item>
+        <item>Laboratories - تحاليل</item>
+        <item>Bones - عظام</item>
+        <item>Muscles - االام عضلات</item>
+        <item>Dentistry - اسنان</item>
+        <item>Physiotherapy - علاج طبيعى</item>
+        <item>Nutrition - تغذية</item>
+        <item>Psychitary - نفسى</item>
     </string-array>
     <string-array name="speciality_spinner">
         <item>الجراحة العامة - General Surgery</item>
         <item>العظام - Orthopedics</item>
         <item>القلب - cardiology</item>
-        <item>التجميل - Aesthetic medicine</item>
+        <item>التجميل - Cosmotics medicine</item>
         <item>الأمراض الجلدية - Dermatology</item>
         <item>المسالك البولية - Urology</item>
         <item>الباطنة و الجهاز الهضمي - Gastroenterology</item>

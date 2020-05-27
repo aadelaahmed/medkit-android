@@ -52,6 +52,7 @@ public class MessageFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_message, container, false);
+        getActivity().overridePendingTransition(0, android.R.anim.fade_out);
         firestoreAdapter = new RecyclerViewAdapter(FirebaseFirestore.getInstance().collection("Users"));
         RecyclerView recyclerView = view.findViewById(R.id.chat_recycler_view);
         recyclerView.setLayoutManager( new LinearLayoutManager((inflater.getContext())));

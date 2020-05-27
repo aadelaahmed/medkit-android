@@ -58,14 +58,10 @@ public class NotificationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentNotificationBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
         auth = FirebaseAuth.getInstance();
         User_id = auth.getCurrentUser().getUid();
-
-
         recyclerView = view.findViewById(R.id.notification_list);
         notificationList = new ArrayList<>();
-
         notificationRecyclerViewAdapter = new NotificationAdapter(notificationList, getContext());
         recyclerView.setHasFixedSize(false);
         recyclerView.setLayoutManager(new LinearLayoutManagerWrapper(container.getContext(), LinearLayoutManager.VERTICAL, false));

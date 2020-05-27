@@ -9,8 +9,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.Toast;
 
+import com.example.medkit.R;
 import com.example.medkit.databinding.ActivityAddPostBinding;
 import com.example.medkit.model.PostModel;
 import com.example.medkit.utils.LoadingAlertDialog;
@@ -24,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.reginald.editspinner.EditSpinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,7 +50,8 @@ public class AddPostActivity extends AppCompatActivity {
     PostModel addedPost;
     LoadingAlertDialog tempDialog;
     DocumentReference docRef;
-
+    EditSpinner spinnerCategory;
+    ListAdapter listCategoty;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +60,10 @@ public class AddPostActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         rootRef = FirebaseStorage.getInstance();
+        spinnerCategory = binding.edtCategory;
+        listCategoty = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item,
+                getResources().getStringArray(R.array.category_spinner));
+        spinnerCategory.setAdapter(listCategoty);
         binding.btnUploadPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,8 +77,7 @@ public class AddPostActivity extends AppCompatActivity {
                 tempDialog.startAlertDialog();
                 title = binding.edtTitle.getText().toString().trim();
                 description = binding.edtDescription.getText().toString().trim();
-                category = binding.edtCategory.getText().toString().trim();
-
+                category = spinnerCategory.getText().toString();
                 if (!title.isEmpty() && !category.isEmpty()) {
                     addedPost = new PostModel(
                             title,

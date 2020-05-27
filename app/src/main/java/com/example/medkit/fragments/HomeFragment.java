@@ -9,10 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.medkit.R;
@@ -42,11 +40,10 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLitener {
     RecyclerView recyclerPosts;
@@ -64,7 +61,10 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     Map<String, Integer> newMapValue, postVotes;
     int newVote, tempCurrentVote;
     PostModel tempPost;
-
+    String textSpinner;
+    Query firstQuery, newCategoryQuery;
+    FirestoreRecyclerOptions<PostModel> firstOptions, newCategoryOptions;
+    boolean firstTimeSpinner = true;
     public HomeFragment() {
 
     }
@@ -73,12 +73,17 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         this.mContext = mContext;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
+        getActivity().overridePendingTransition(0, android.R.anim.fade_out);
         ArrayAdapter<CharSequence> diseases = ArrayAdapter.createFromResource(
                 getActivity(),
                 R.array.category_spinner,
@@ -91,33 +96,54 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
                 startActivity(new Intent(mContext, AddPostActivity.class));
             }
         });
-        binding.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        iniRecyclerView();
+        /*binding.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String text = parent.getItemAtPosition(position).toString();
-                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
-                ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(R.color.colorPrimary));
+                textSpinner = parent.getItemAtPosition(position).toString();
+                if (firstTimeSpinner)
+                {
+                    firstTimeSpinner = false;
+                    ((TextView) view).setGravity(Gravity.END);
+                }
+
+                else{
+                    Toast.makeText(getApplicationContext(), textSpinner, Toast.LENGTH_SHORT).show();
+                    ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(R.color.colorPrimary));
+                    ((TextView) view).setGravity(Gravity.END);
+                    updatePostsQuery(textSpinner);
+
+                }
+
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
-        });
-
-        iniRecyclerView();
+        });*/
         return view;
     }
 
+    private void updatePostsQuery(String textSpinner) {
+        newCategoryQuery = rootPost.orderBy("createdTime", Query.Direction.DESCENDING)
+                .whereEqualTo("category", textSpinner);
+        newCategoryOptions = new FirestoreRecyclerOptions.Builder<PostModel>()
+                .setQuery(newCategoryQuery, PostModel.class)
+                .build();
+        customPostAdapter.updateOptions(newCategoryOptions);
+    }
+
     private void iniRecyclerView() {
-        Query query = rootPost.orderBy("createdTime", Query.Direction.DESCENDING);
-        FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
-                .setQuery(query, PostModel.class)
+        firstQuery = rootPost.orderBy(PostModel.CREATED_TIME_KEY, Query.Direction.DESCENDING);
+        firstOptions = new FirestoreRecyclerOptions.Builder<PostModel>()
+                .setQuery(firstQuery, PostModel.class)
                 .build();
         recyclerPosts = binding.postsList;
-        customPostAdapter = new CustomPostAdapter(tempOption, mContext, this);
+        customPostAdapter = new CustomPostAdapter(firstOptions, mContext, this);
         recyclerPosts.setAdapter(customPostAdapter);
         recyclerPosts.setLayoutManager(new LinearLayoutManager(mContext));
+        recyclerPosts.setItemAnimator(new DefaultItemAnimator());
         ((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
@@ -125,12 +151,6 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     public void onStart() {
         super.onStart();
         customPostAdapter.startListening();
-       /* if (newAdapter != null)
-            newAdapter.startListener();*/
-        //binding.postsList.setAdapter(tempAdapter);
-        //showMessage("start state");
-        //recyclerPosts.setAdapter(tempAdapter);
-        //tempAdapter.startListening();
        /* rootPost.orderBy("createdTime", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -199,6 +219,7 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -207,20 +228,21 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         customPostAdapter.stopListening();
-       /* if (newAdapter != null)
-            newAdapter.stopListener();*/
-        //showMessage("stop state");
-        //tempAdapter.stopListening();
-        // mListener.remove();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //binding = null;
+
     }
 
 
@@ -267,6 +289,7 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         newMapValue.put(currentUserID, newVote);
         documentSnapshot.getReference().update(PostModel.UP_VOTES, newMapValue);
     }
+
 
     @Override
     public void onUserNameClick(PostModel clickedPost) {

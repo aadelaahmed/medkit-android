@@ -89,7 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        app:labelVisibilityMode="unlabeled"
+        app:elevation="@dimen/design_bottom_navigation_size"
         app:menu="@menu/bottom_navigation_items" />
 
 </RelativeLayout>

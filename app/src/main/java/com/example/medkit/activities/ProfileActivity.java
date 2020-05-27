@@ -50,6 +50,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
@@ -191,8 +192,8 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     }
     private void iniRecyclerView() {
         Query query = rootPosts
-                .whereEqualTo("userID", userId)
-                .orderBy("createdTime", Query.Direction.DESCENDING);
+                .whereEqualTo(PostModel.USER_ID, userId)
+                .orderBy(PostModel.CREATED_TIME_KEY, Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<PostModel> tempOption = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(query, PostModel.class)
                 .build();
@@ -202,7 +203,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         recyclerPosts.setLayoutManager(new LinearLayoutManager(this));
         recyclerPosts.setAdapter(customPostAdapter);
         ((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
-        recyclerPosts.getItemAnimator().setChangeDuration(0);
+        recyclerPosts.setItemAnimator(new DefaultItemAnimator());
         //binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
     }
@@ -210,9 +211,9 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (userId.equals(currentUserId)) {
-            getOverflowMenu();
+            //getOverflowMenu();
             getMenuInflater().inflate(R.menu.profile_menu_items, menu);
-            return true;
+            return super.onCreateOptionsMenu(menu);
         }
         return false;
     }
@@ -220,15 +221,14 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.sign_out: {
+            case R.id.sign_out:
                 mAuth.signOut();
                 Intent intent = new Intent(this, SignHomeActivity.class);
                 startActivity(intent);
                 finish();
-            }
-            return true;
+                return true;
         }
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

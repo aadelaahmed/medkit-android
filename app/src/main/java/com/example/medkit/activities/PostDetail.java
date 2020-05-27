@@ -37,7 +37,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
@@ -83,7 +82,6 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         iniUI();
         binding.postDetailUserOwnerImg.setOnClickListener(this);
         binding.postDetailUserImg.setOnClickListener(this);
-
         binding.postDetailComment.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View view, MotionEvent event) {
@@ -166,6 +164,10 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         }
         title = clickPost.getTitle();
         description = clickPost.getDescription();
+        if (description.equals(""))
+            binding.postDetailDescription.setVisibility(View.GONE);
+        else
+            binding.postDetailDescription.setText(description);
         SimpleDateFormat sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
         createdTime = sdf.format(clickPost.getCreatedTime());
         userName = clickPost.getUserName();
@@ -173,13 +175,13 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         currentDoc = rootPost.document(postKey);
         rootComment = currentDoc.collection(Comment.COMMENT_COLLECTION);
         binding.postDetailTitle.setText(title);
-        binding.postDetailDescription.setText(description);
         binding.postDetailDateName.setText(dateWithName);
         storageCurrentUser = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
         storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + userId);
         Log.d(TAG, "iniUI: " + userId);
         GlideApp.with(this).load(storageUsers).into(binding.postDetailUserOwnerImg);
         GlideApp.with(this).load(storageCurrentUser).into(binding.postDetailUserOwnerImg);
+        GlideApp.with(this).load(storageCurrentUser).into(binding.postDetailUserImg);
     }
 
     private void clickPhoto() {

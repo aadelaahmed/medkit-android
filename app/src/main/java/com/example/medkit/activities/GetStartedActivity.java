@@ -111,7 +111,7 @@ public class GetStartedActivity extends AppCompatActivity {
     }
 
     private void checkEmailVerification() throws IOException {
-        if (tempNormalReg == "noraml register") {
+        if (tempNormalReg != null) {
             if (currentUser.isEmailVerified()) {
                 tempAlertDialog.startAlertDialog();
                 getSharedData();
@@ -162,7 +162,6 @@ public class GetStartedActivity extends AppCompatActivity {
             userType.put(User.USERTYPE, uType);
             newUser = new User(userType, emailUser, fullName);
         }
-        String tempNormalReg = sharedPreferences.getString(User.NORMAL_REGISTER, null);
         String userKey = currentUser.getUid();
         newUser.setUid(userKey);
         uploadIntoFirebaseStorage(newUser, userKey);
@@ -174,7 +173,7 @@ public class GetStartedActivity extends AppCompatActivity {
         // Uri tempImgUri = Uri.parse(imageUser);
         AsyncTask<String, Void, Uri> x = new ImageFirebaseStorage().execute(imageUser);
         try {
-            resImageUri = x.get(3000, TimeUnit.MILLISECONDS);
+            resImageUri = x.get(5000, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
             Log.d("TAG", "uploadIntoFirebaseStorage: " + e.getMessage());
             e.printStackTrace();

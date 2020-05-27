@@ -56,6 +56,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
      Date clickDate;*/
     OnPostLitener tempPostListener;
 
+
     public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext, OnPostLitener tempPostListener) {
         super(options);
         this.mContext = mContext;
@@ -269,6 +270,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         showMessage(e.getMessage());
     }
 
+
+
     /*private void addComment(int tempPostition, final String content, String userName, final String userId, final String postId) {
         if (tempPostition != RecyclerView.NO_POSITION && !content.equals("")) {
             currentDoc = getSnapshots().getSnapshot(tempPostition).getReference();
@@ -336,7 +339,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         TextView txtTitle, txtDescription, txtCategory, txtUserName, txtTime, txtNumOfComments, countVotes, edtComment;
         ImageView imgUser;
         ImageView imgPost;
-        ImageButton btnUp, btnDown;
+        ImageButton btnUp, btnDown, btnComment;
         //PostModel clickedPost;
         OnPostLitener onPostLitener;
         DocumentSnapshot documentSnapshot;
@@ -356,6 +359,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             edtComment = itemView.findViewById(R.id.edt_comment_post);
             txtNumOfComments = itemView.findViewById(R.id.n_comments_tv);
             countVotes = itemView.findViewById(R.id.txt_counter);
+            btnComment = itemView.findViewById(R.id.comment_icon);
             this.onPostLitener = postLitener;
             itemView.setOnClickListener(this);
             btnUp.setOnClickListener(this);

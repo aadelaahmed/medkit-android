@@ -112,7 +112,7 @@ public class SignHomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 tempProviders.loadingDialog.startAlertDialog();
                 startActivity(new Intent(SignHomeActivity.this, SignInActivity.class));
-                finish();
+
             }
         });
     }

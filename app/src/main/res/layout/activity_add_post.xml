@@ -113,7 +113,7 @@
             app:layout_constraintStart_toStartOf="@+id/guideline11"
             app:layout_constraintTop_toBottomOf="@+id/edt_description" />
 
-        <EditText
+        <com.reginald.editspinner.EditSpinner
             android:id="@+id/edt_category"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -121,8 +121,13 @@
             android:layout_marginEnd="24dp"
             android:ems="10"
             android:hint="select category of post"
-            android:inputType="textPersonName"
+            android:editable="false"
+            app:dropDownDrawable="@drawable/ic_arrow_down"
+            app:dropDownDrawableHeight="30dp"
+            app:dropDownDrawableSpacing="15dp"
+            app:dropDownDrawableWidth="30dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="@+id/guideline11"
             app:layout_constraintTop_toBottomOf="@+id/txt_category" />
 
