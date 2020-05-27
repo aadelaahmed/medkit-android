@@ -26,6 +26,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -83,6 +85,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         holder.txtDescription.setText(tempModel.getDescription());
         holder.txtCategory.setText(tempModel.getCategory());
         holder.txtUserName.setText(tempModel.getUserName());
+        SimpleDateFormat sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
+        holder.txtTime.setText(sdf.format(tempModel.getCreatedTime()));
         storagePosts = storageRef.getReference().child(PostModel.POST_IMAGES_STORAGE + "/" + tempModel.getPostKey());
         storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + tempModel.getUserID());
         GlideApp.with(mContext).load(storageUsers).into(holder.imgUser);
@@ -348,7 +352,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             txtUserName = itemView.findViewById(R.id.post_user_name);
             btnUp = itemView.findViewById(R.id.up_vote_btn);
             btnDown = itemView.findViewById(R.id.down_vote_btn);
-            txtTime = itemView.findViewById(R.id.post_title_tv);
+            txtTime = itemView.findViewById(R.id.psot_time_tv);
             edtComment = itemView.findViewById(R.id.edt_comment_post);
             txtNumOfComments = itemView.findViewById(R.id.n_comments_tv);
             countVotes = itemView.findViewById(R.id.txt_counter);

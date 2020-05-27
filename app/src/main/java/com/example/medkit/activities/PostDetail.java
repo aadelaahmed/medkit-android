@@ -38,6 +38,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -165,9 +166,8 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         }
         title = clickPost.getTitle();
         description = clickPost.getDescription();
-        Date clickDate = new Date(clickPost.getCreatedTime() * 1000);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM");
-        createdTime = dateFormat.format(clickDate);
+        SimpleDateFormat sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
+        createdTime = sdf.format(clickPost.getCreatedTime());
         userName = clickPost.getUserName();
         dateWithName = createdTime + " | by " + userName;
         currentDoc = rootPost.document(postKey);
