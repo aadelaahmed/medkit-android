@@ -25,6 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -77,6 +79,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
         GlideApp.with(mContext).load(storageRef).into(holder.imgUser);
         holder.txtContent.setText(content);
         holder.txtUserName.setText(userName);
+        SimpleDateFormat sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
+        holder.txtDate.setText(sdf.format(tempModel.getCreatedTime()));
        /* usersCollection.document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {

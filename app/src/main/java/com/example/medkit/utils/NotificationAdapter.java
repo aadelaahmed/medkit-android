@@ -68,7 +68,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 String content = "<b>" + name + "</b> " + message;
                 holder.contentTV.setText(Html.fromHtml(content));
                 String image = (String) documentSnapshot.get("photoUrl");
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
                 holder.timeTv.setText(sdf.format(notification.getCreatedTime()));
                 Log.d("notification", "onBindViewHolder Image: " + image);
                 storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + notification.getFrom());
@@ -85,7 +85,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             @Override
             public void onClick(View v) {
                 notification.setRead(true, notification.getN_id());
-                notifyDataSetChanged();
+                notifyItemChanged(position);
                 NotificationFragment.updateUnRead();
 //                Toast.makeText(context,notification.getPost_id(),Toast.LENGTH_LONG).show();
                 mfirebase.collection(PostModel.POST_COLLECTION).document(notification.getPost_id()).addSnapshotListener(new EventListener<DocumentSnapshot>() {

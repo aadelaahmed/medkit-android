@@ -67,7 +67,6 @@ public class NotificationFragment extends Fragment {
         notificationList = new ArrayList<>();
 
         notificationRecyclerViewAdapter = new NotificationAdapter(notificationList, getContext());
-        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManagerWrapper(container.getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(notificationRecyclerViewAdapter);
         fetchData();
