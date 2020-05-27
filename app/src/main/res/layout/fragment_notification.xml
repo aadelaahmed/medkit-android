@@ -35,7 +35,7 @@
             android:id="@+id/notification_cnt_tv"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
-            android:text="20"
+            android:text="0"
             android:background="@drawable/round_red"
             android:layout_marginStart="16dp"
             app:layout_constraintBottom_toBottomOf="@+id/textView8"

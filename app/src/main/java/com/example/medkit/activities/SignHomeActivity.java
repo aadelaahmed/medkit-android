@@ -127,7 +127,7 @@ public class SignHomeActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-         currentUser = firebaseAuth.getCurrentUser();
+        currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
                 startActivity(new Intent(SignHomeActivity.this, CommunityActivity.class));
         }

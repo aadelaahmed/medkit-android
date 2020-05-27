@@ -47,7 +47,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 public class PostDetail extends AppCompatActivity implements View.OnClickListener, CommentAdapter.OnCommentClickListener {
-    public static String target_id;
     public static String post_id;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
@@ -123,9 +122,10 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         content = binding.postDetailComment.getText().toString().trim();
         binding.postDetailComment.setText("");
         currentUserId = currentUser.getUid();
-        currentUserName = currentUser.getDisplayName();
+        currentUserName = getSharedPreferences("pref", MODE_PRIVATE).getString("user_name", null);
+        Log.d(TAG, "addComment: " + currentUserName);
         if (!content.isEmpty() && currentUser != null) {
-            newComment = new Comment(content, currentUserId, userName);
+            newComment = new Comment(content, currentUserId, currentUserName);
             rootComment.document().set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -133,7 +133,7 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
                         binding.postDetailComment.setText("");
                         // notification
                         Log.d("notification", "from post details: " + post_id);
-                        NotificationHelper.SendCommentNotification(content, target_id, post_id);
+                        NotificationHelper.SendCommentNotification(currentUserName, content, clickPost.getUserID(), clickPost.getPostKey());
                         // end notification
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -279,5 +279,11 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
     @Override
     public void onClappingClick(String userId) {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

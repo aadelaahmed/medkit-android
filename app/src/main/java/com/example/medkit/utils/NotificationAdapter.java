@@ -1,16 +1,20 @@
 package com.example.medkit.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.medkit.R;
+import com.example.medkit.activities.PostDetail;
 import com.example.medkit.fragments.NotificationFragment;
 import com.example.medkit.model.NotificationModel;
+import com.example.medkit.model.PostModel;
 import com.example.medkit.model.User;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -19,7 +23,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,7 +59,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         final NotificationModel notification = notificationList.get(position);
         String from = notification.getFrom();
         final String message = notification.getMessage();
-        FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
+        final FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
 //        Log.d("notification", "onBindViewHolder: "+notification.getFrom());
         mfirebase.collection(User.USER_COLLECTION).document(from).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -61,7 +68,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 String content = "<b>" + name + "</b> " + message;
                 holder.contentTV.setText(Html.fromHtml(content));
                 String image = (String) documentSnapshot.get("photoUrl");
-                holder.timeTv.setText(notification.getTime());
+                SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a", Locale.getDefault());
+                holder.timeTv.setText(sdf.format(notification.getCreatedTime()));
                 Log.d("notification", "onBindViewHolder Image: " + image);
                 storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + notification.getFrom());
                 GlideApp.with(context).load(storageUsers).into(holder.userProfilePicture);
@@ -77,8 +85,23 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             @Override
             public void onClick(View v) {
                 notification.setRead(true, notification.getN_id());
-                notifyItemChanged(position);
+                notifyDataSetChanged();
                 NotificationFragment.updateUnRead();
+//                Toast.makeText(context,notification.getPost_id(),Toast.LENGTH_LONG).show();
+                mfirebase.collection(PostModel.POST_COLLECTION).document(notification.getPost_id()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                        PostModel post = documentSnapshot.toObject(PostModel.class);
+                        Intent intent = new Intent(context, PostDetail.class);
+                        intent.putExtra(PostModel.OBJECT_KEY, post);
+                        if (post.getPostPhoto() == null)
+                            intent.putExtra(PostModel.POST_IMAGE_FLAG, false);
+                        else {
+                            intent.putExtra(PostModel.POST_IMAGE_FLAG, true);
+                        }
+                        context.startActivity(intent);
+                    }
+                });
             }
         });
     }

@@ -10,6 +10,7 @@ import com.example.medkit.R;
 import com.example.medkit.databinding.FragmentNotificationBinding;
 import com.example.medkit.model.NotificationModel;
 import com.example.medkit.model.User;
+import com.example.medkit.utils.LinearLayoutManagerWrapper;
 import com.example.medkit.utils.NotificationAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -67,7 +68,7 @@ public class NotificationFragment extends Fragment {
 
         notificationRecyclerViewAdapter = new NotificationAdapter(notificationList, getContext());
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(container.getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManagerWrapper(container.getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(notificationRecyclerViewAdapter);
         fetchData();
         binding.notificationList.getItemAnimator().setChangeDuration(0);
@@ -87,7 +88,8 @@ public class NotificationFragment extends Fragment {
                         notificationRecyclerViewAdapter.notifyDataSetChanged();
                         updateUnRead();
                     }
-                }
+                } else
+                    updateUnRead();
             }
         });
         //    addSnapshotListener(new EventListener<QuerySnapshot>() {

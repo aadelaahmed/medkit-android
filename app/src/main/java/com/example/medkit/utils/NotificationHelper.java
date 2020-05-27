@@ -1,6 +1,7 @@
 package com.example.medkit.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -40,7 +41,8 @@ public class NotificationHelper {
     static String TAG = "notification";
     private static FirebaseAuth auth;
 
-    public static void SendCommentNotification(final String messageText,
+    public static void SendCommentNotification(final String userName,
+                                               final String messageText,
                                                final String targetUserID,
                                                final String postId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -50,37 +52,26 @@ public class NotificationHelper {
         auth = FirebaseAuth.getInstance();
         currentUserID = auth.getCurrentUser().getUid();
         if (!currentUserID.equals(targetUserID)) {
-            final FirebaseFirestore mfirebase = FirebaseFirestore.getInstance();
             Log.d(TAG, "SendCommentNotification: " + messageText + targetUserID + postId);
-            mfirebase.collection(User.USER_COLLECTION).document(currentUserID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            String fullMessage = "has commented on your post";
+            Log.d(TAG, "onEvent: " + userName);
+            NotificationModel notificationModel = new NotificationModel(currentUserID,
+                    postId,
+                    fullMessage,
+                    false,
+                    notiKey,
+                    userName
+            );
+            docRef.set(notificationModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
-                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                    String name = (String) documentSnapshot.get("fullName");
-                    SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a", Locale.getDefault());
-                    String currentDateandTime = sdf.format(new Date());
-                    String fullMessage = "has commented on your post";
-                    Log.d(TAG, "onEvent: " + name);
-                    ;
-                    NotificationModel notificationModel = new NotificationModel(currentUserID,
-                            postId,
-                            fullMessage,
-                            false,
-                            currentDateandTime,
-                            notiKey,
-                            name
-                    );
-                    docRef.set(notificationModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: " + targetUserID + " " + messageText);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
+                public void onSuccess(Void aVoid) {
+                    Log.d(TAG, "onSuccess: " + targetUserID + " " + messageText);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
 //                    Toast.makeText(context,"Notification Failure",Toast.LENGTH_LONG).show();
-                            Log.d(TAG, "onFailure: " + e.getMessage() + " " + targetUserID + " " + messageText);
-                        }
-                    });
+                    Log.d(TAG, "onFailure: " + e.getMessage() + " " + targetUserID + " " + messageText);
                 }
             });
 

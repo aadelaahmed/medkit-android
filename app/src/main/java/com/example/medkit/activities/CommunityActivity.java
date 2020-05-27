@@ -2,7 +2,9 @@ package com.example.medkit.activities;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -68,7 +70,7 @@ public class CommunityActivity extends AppCompatActivity {
     final Fragment notifiFragment = new NotificationFragment();
     final Fragment chatFragment = new MessageFragment();
     final FragmentManager fm = getSupportFragmentManager();
-    Fragment currentFragment = homeFragment;
+    SharedPreferences sharedpreferences;
 
    /* private BottomNavigationView.OnNavigationItemSelectedListener listener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -133,6 +135,7 @@ public class CommunityActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         binding = ActivityCommunityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         currentUserId = currentUser.getUid();
@@ -253,6 +256,8 @@ public class CommunityActivity extends AppCompatActivity {
             String email = tempArr[0];
             binding.txtEmailCommunity.setText(email);
             String userName = currentUser.getDisplayName();
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putString("user_name", userName).apply();
             binding.txtNameCommunity.setText(userName);
         } else {
             //currentUser.reload();

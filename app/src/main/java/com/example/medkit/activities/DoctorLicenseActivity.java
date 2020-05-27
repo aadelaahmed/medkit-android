@@ -36,7 +36,7 @@ public class DoctorLicenseActivity extends AppCompatActivity {
     private static final int REQUESCODE = 5;
     Bitmap bitmap = null;
     String encodedImage = null;
-    String apiPath = "https://id-detect2.herokuapp.com/";
+    String apiPath = "https://id-detect.herokuapp.com/";
     private ActivityDoctorLicenseBinding binding;
     private Uri imageLicense = null;
     private int PReqCode = 5;
@@ -77,8 +77,8 @@ public class DoctorLicenseActivity extends AppCompatActivity {
                     call.enqueue(new Callback<Prediction>() {
                         @Override
                         public void onResponse(Call<Prediction> call, Response<Prediction> response) {
-                            Log.d(TAG, "onResponse: " + response.body().getPrediction()[0]);
-                            if (response.body().getPrediction()[0] == 1) {
+                            Log.d(TAG, "onResponse: " + response.body().getPrediction());
+                            if (response.body().getPrediction() == 1) {
                                 binding.testTv.setText("License Detected");
                                 binding.testTv.setTextColor(Color.parseColor("#00B900"));
                                 binding.btnContinueLicense.setText("Contiue");
