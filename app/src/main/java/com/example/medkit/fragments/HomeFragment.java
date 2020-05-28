@@ -135,6 +135,7 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     }
 
     private void iniRecyclerView() {
+        getActivity().overridePendingTransition(0, android.R.anim.fade_out);
         firstQuery = rootPost.orderBy(PostModel.CREATED_TIME_KEY, Query.Direction.DESCENDING);
         firstOptions = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(firstQuery, PostModel.class)

@@ -121,7 +121,6 @@ public class SignHomeActivity extends AppCompatActivity {
     public void onBackPressed() {
         tempProviders.loadingDialog.dismissAlertDialog();
         finish();
-        overridePendingTransition(0, android.R.anim.fade_out);
         super.onBackPressed();
     }
     @Override

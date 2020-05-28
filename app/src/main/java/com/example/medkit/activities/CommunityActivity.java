@@ -123,7 +123,11 @@ public class CommunityActivity extends AppCompatActivity {
                             binding.txtMedkit.setText("messaging");
                             break;
                     }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFreagment).commit();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, selectedFreagment)
+                            .setCustomAnimations(R.anim.enter_from_right_fragment, R.anim.exit_to_right_fragment, R.anim.enter_from_right_fragment, R.anim.exit_to_right_fragment)
+                            .addToBackStack(null)
+                            .commit();
                     return true;
                 }
             };
@@ -143,10 +147,10 @@ public class CommunityActivity extends AppCompatActivity {
         storageRef = storageInstance.getReference(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
 
 
-        fm.beginTransaction().add(R.id.fragment_container, chatFragment, "chat_tag").hide(chatFragment).commit();
+        /*fm.beginTransaction().add(R.id.fragment_container, chatFragment, "chat_tag").hide(chatFragment).commit();
         fm.beginTransaction().add(R.id.fragment_container, notifiFragment, "notify_tag").hide(notifiFragment).commit();
         fm.beginTransaction().add(R.id.fragment_container, doctorFragment, "doctors_tag").hide(doctorFragment).commit();
-        fm.beginTransaction().add(R.id.fragment_container, homeFragment, "home_tag").commit();
+        fm.beginTransaction().add(R.id.fragment_container, homeFragment, "home_tag").commit();*/
         iniActionBar();
 
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);

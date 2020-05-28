@@ -61,7 +61,7 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
     StorageReference storageUsers;
     StorageReference storagePosts;
     StorageReference storageCurrentUser;
-    String userId, currentUserId, postKey, postImage, userName, content, currentUserName, title, description, dateWithName, createdTime;
+    String userId, currentUserId, postKey, postImage, userName, content, currentUserName, title, description, dateWithName, createdTime, category;
     Intent intent, recIntent;
     Comment newComment;
     PostModel clickPost;
@@ -178,6 +178,8 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         binding.postDetailDateName.setText(dateWithName);
         storageCurrentUser = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
         storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + userId);
+        category = clickPost.getCategory();
+        binding.postCategoryTv.setText(category);
         Log.d(TAG, "iniUI: " + userId);
         GlideApp.with(this).load(storageUsers).into(binding.postDetailUserOwnerImg);
         GlideApp.with(this).load(storageCurrentUser).into(binding.postDetailUserOwnerImg);

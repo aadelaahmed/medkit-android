@@ -28,13 +28,14 @@
             android:id="@+id/post_detail_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="8dp"
             android:lineSpacingExtra="4dp"
             android:text="TextView"
             android:textColor="@color/black"
             android:textSize="22sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/guideline13"
+            app:layout_constraintEnd_toStartOf="@+id/post_category_tv"
             app:layout_constraintStart_toStartOf="@+id/guideline12"
             app:layout_constraintTop_toBottomOf="@+id/post_detail_img" />
 
@@ -88,6 +89,18 @@
             app:layout_constraintTop_toBottomOf="@id/post_detail_date_name"
             tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit,rum eiusmod tempor incididunt ut labore et dolore magna aliqua" />
 
+        <TextView
+            android:id="@+id/post_category_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/blue_round_tv"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Diabetes"
+            android:textColor="@color/white"
+            app:layout_constraintBaseline_toBaselineOf="@+id/post_detail_title"
+            app:layout_constraintEnd_toEndOf="@id/guideline13" />
+
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/post_detail_user_img"
             android:layout_width="40dp"
@@ -136,8 +149,8 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/post_detail_user_owner_img"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_marginStart="16dp"
             android:src="@drawable/userphoto"
             app:layout_constraintBottom_toBottomOf="@+id/post_detail_date_name"

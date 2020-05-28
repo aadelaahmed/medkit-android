@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_scrollFlags="scroll|enterAlways"
-    tools:context=".fragments.HomeFragment"
+    android:background="#f4f4f4"
     android:orientation="vertical"
-    android:background="#f4f4f4">
+    app:layout_scrollFlags="scroll|enterAlways"
+    tools:context=".fragments.HomeFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:paddingBottom="16dp">
+
         <TextView
             android:id="@+id/textView8"
             android:layout_width="wrap_content"
@@ -54,12 +55,12 @@
             android:layout_marginEnd="8dp"
             android:background="@drawable/edittext_button_style_rounded"
             android:clickable="true"
-            android:ems="10"
             android:drawableRight="@drawable/ic_camera"
+            android:ems="10"
             android:hint="Tap to share your problem here..."
-            android:paddingEnd="16dp"
             android:importantForAutofill="no"
             android:paddingTop="8dp"
+            android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -74,6 +75,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:overScrollMode="never"
-        android:background="#f4f4f4" />
+        android:background="#f4f4f4"
+        android:overScrollMode="never" />
 </LinearLayout>

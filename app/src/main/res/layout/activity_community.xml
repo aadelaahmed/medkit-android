@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
     tools:context=".activities.CommunityActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -56,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="TextView"
+            android:textColor="@color/colorHintText"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/img_user_community"
             app:layout_constraintTop_toTopOf="@+id/img_user_community" />
@@ -90,6 +90,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/white"
         app:elevation="@dimen/design_bottom_navigation_size"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation_items" />
 
 </RelativeLayout>
