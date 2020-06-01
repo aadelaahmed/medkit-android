@@ -39,18 +39,18 @@
     <string name="facebook_app_id">202265224401850</string>
     <string name="fb_login_protocol_scheme">fb202265224401850</string>
     <string-array name="category_spinner">
-        <item>General - عام</item>
-        <item>Corona - كورونا</item>
-        <item>Diabetes - سكر</item>
-        <item>Heart - قلب</item>
-        <item>Ophthalmology - عيون</item>
-        <item>Laboratories - تحاليل</item>
-        <item>Bones - عظام</item>
-        <item>Muscles - االام عضلات</item>
-        <item>Dentistry - اسنان</item>
-        <item>Physiotherapy - علاج طبيعى</item>
-        <item>Nutrition - تغذية</item>
-        <item>Psychitary - نفسى</item>
+        <item>General</item>
+        <item>Corona</item>
+        <item>Diabetes</item>
+        <item>Heart</item>
+        <item>Ophthalmology</item>
+        <item>Laboratories</item>
+        <item>Bones</item>
+        <item>Muscles</item>
+        <item>Dentistry</item>
+        <item>Physiotherapy</item>
+        <item>Nutrition</item>
+        <item>Psychitary</item>
     </string-array>
     <string-array name="speciality_spinner">
         <item>الجراحة العامة - General Surgery</item>

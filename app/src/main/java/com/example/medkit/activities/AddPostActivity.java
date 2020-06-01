@@ -46,12 +46,14 @@ public class AddPostActivity extends AppCompatActivity {
     StorageReference rootStorage;
     Uri pickedImageUri = null;
     String imageUrlStr = null;
-    String title, description, category;
+    String title, description, category, postKey, currentUserId, currentUserName;
     PostModel addedPost;
     LoadingAlertDialog tempDialog;
     DocumentReference docRef;
     EditSpinner spinnerCategory;
     ListAdapter listCategoty;
+    Boolean flagImagePost = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,18 +80,27 @@ public class AddPostActivity extends AppCompatActivity {
                 title = binding.edtTitle.getText().toString().trim();
                 description = binding.edtDescription.getText().toString().trim();
                 category = spinnerCategory.getText().toString();
+                docRef = rootPost.document();
+                postKey = docRef.getId();
+                currentUserId = currentUser.getUid();
+                currentUserName = currentUser.getDisplayName();
                 if (!title.isEmpty() && !category.isEmpty()) {
+                   /* if (description.equals(""))
+                        description = null;*/
+                    if (description == null)
+                        description = "";
                     addedPost = new PostModel(
+                            postKey,
+                            currentUserId,
+                            0,
+                            currentUserName,
                             title,
                             description,
-                            currentUser.getDisplayName(),
-                            imageUrlStr,
-                            currentUser.getUid(),
-                            category
+                            category,
+                            flagImagePost,
+                            0
                     );
-                    docRef = rootPost.document();
-                    String postKey = docRef.getId();
-                    addedPost.setPostKey(postKey);
+
                     binding.imgPost.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -118,25 +129,11 @@ public class AddPostActivity extends AppCompatActivity {
         rootStorage.putFile(pickedImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                rootStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        currentUser = mAuth.getCurrentUser();
-                        //currentUser.reload();
-                        imageUrlStr = uri.toString();
-                        addedPost.setPostPhoto(imageUrlStr);
-                        uploadPost(addedPost);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                                /*binding.btnAddPost.setVisibility(View.VISIBLE);
-                                binding.progressBar.setVisibility(View.GONE);*/
-                        tempDialog.startAlertDialog();
-                        //binding.btnUploadPhoto.setPressed(true);
-                        showMessage(e.getMessage());
-                    }
-                });
+                currentUser = mAuth.getCurrentUser();
+                //currentUser.reload();
+                //imageUrlStr = uri.toString();
+                addedPost.setPostPhoto(true);
+                uploadPost(addedPost);
             }
         });
     }

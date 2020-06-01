@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.medkit.R;
@@ -34,7 +37,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -58,13 +60,14 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     StorageReference storageUsers;
     CollectionReference rootUsers = FirebaseFirestore.getInstance().collection(User.USER_COLLECTION);
     User clickUser;
-    Map<String, Integer> newMapValue, postVotes;
+    Map<String, Integer> postVotes;
     int newVote, tempCurrentVote;
     PostModel tempPost;
     String textSpinner;
     Query firstQuery, newCategoryQuery;
     FirestoreRecyclerOptions<PostModel> firstOptions, newCategoryOptions;
     boolean firstTimeSpinner = true;
+
     public HomeFragment() {
 
     }
@@ -97,22 +100,17 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
             }
         });
         iniRecyclerView();
-        /*binding.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 textSpinner = parent.getItemAtPosition(position).toString();
-                if (firstTimeSpinner)
-                {
+                ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(R.color.colorPrimary));
+                ((TextView) parent.getChildAt(0)).setGravity(Gravity.END);
+                if (firstTimeSpinner) {
                     firstTimeSpinner = false;
-                    ((TextView) view).setGravity(Gravity.END);
-                }
-
-                else{
-                    Toast.makeText(getApplicationContext(), textSpinner, Toast.LENGTH_SHORT).show();
-                    ((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(R.color.colorPrimary));
-                    ((TextView) view).setGravity(Gravity.END);
+                } else {
+                    Toast.makeText(mContext, textSpinner, Toast.LENGTH_SHORT).show();
                     updatePostsQuery(textSpinner);
-
                 }
 
             }
@@ -121,13 +119,13 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
-        });*/
+        });
         return view;
     }
 
     private void updatePostsQuery(String textSpinner) {
-        newCategoryQuery = rootPost.orderBy("createdTime", Query.Direction.DESCENDING)
-                .whereEqualTo("category", textSpinner);
+        newCategoryQuery = rootPost.whereEqualTo(PostModel.CATEGORY_KEY, textSpinner)
+                .orderBy(PostModel.CREATED_TIME_KEY, Query.Direction.DESCENDING);
         newCategoryOptions = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(newCategoryQuery, PostModel.class)
                 .build();
@@ -135,7 +133,6 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
     }
 
     private void iniRecyclerView() {
-        getActivity().overridePendingTransition(0, android.R.anim.fade_out);
         firstQuery = rootPost.orderBy(PostModel.CREATED_TIME_KEY, Query.Direction.DESCENDING);
         firstOptions = new FirestoreRecyclerOptions.Builder<PostModel>()
                 .setQuery(firstQuery, PostModel.class)
@@ -270,9 +267,10 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
         //tempCurrentVote = newVote;
         Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
-        newMapValue = new HashMap<>();
-        newMapValue.put(currentUserID, newVote);
-        documentSnapshot.getReference().update(PostModel.UP_VOTES, newMapValue);
+        /*newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);*/
+        //documentSnapshot.getReference().update(PostModel.UP_VOTES, newMapValue, SetOptions.merge());
+        documentSnapshot.getReference().update(PostModel.UP_VOTES + "." + currentUserID, newVote);
     }
 
     @Override
@@ -286,9 +284,9 @@ public class HomeFragment extends Fragment implements CustomPostAdapter.OnPostLi
         Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
         //currentUserVote = newVote;
         Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
-        newMapValue = new HashMap<>();
-        newMapValue.put(currentUserID, newVote);
-        documentSnapshot.getReference().update(PostModel.UP_VOTES, newMapValue);
+        /*newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);*/
+        documentSnapshot.getReference().update(PostModel.UP_VOTES + "." + currentUserID, newVote);
     }
 
 

@@ -5,9 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="8dp"
     android:layout_marginTop="8dp"
-    android:layout_marginRight="8dp"
     app:cardBackgroundColor="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,30 +37,20 @@
             android:textColor="@color/textActiveColor"
             android:textSize="13sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/comment_user_photo"
             app:layout_constraintStart_toEndOf="@+id/comment_user_photo"
             app:layout_constraintTop_toTopOf="@+id/comment_user_photo"
             tools:text="Ahmed Medra" />
 
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            app:layout_constraintBottom_toBottomOf="@+id/post_user_name"
-            app:layout_constraintEnd_toStartOf="@+id/psot_time_tv"
-            app:layout_constraintTop_toTopOf="@+id/post_user_name"
-            app:srcCompat="@drawable/ic_watch" />
 
         <TextView
             android:id="@+id/psot_time_tv"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="2 min"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+            android:textSize="8sp"
+            app:layout_constraintBottom_toBottomOf="@+id/comment_user_photo"
+            app:layout_constraintStart_toStartOf="@+id/post_user_name"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/imageView4" />
+            tools:text="2 min" />
 
         <ImageView
             android:id="@+id/post_image"
@@ -81,12 +69,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:layout_marginRight="8dp"
             android:text="I need help for my arm"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:textColor="@color/textActiveColor"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/post_category_tv"
-            app:layout_constraintStart_toStartOf="@+id/comment_user_photo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/post_image" />
 
         <TextView
@@ -99,17 +88,15 @@
             android:paddingEnd="8dp"
             android:text="Diabetes"
             android:textColor="@color/white"
-            app:layout_constraintBaseline_toBaselineOf="@+id/post_title_tv"
+            app:layout_constraintBaseline_toBaselineOf="@+id/post_user_name"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <ImageButton
             android:id="@+id/up_vote_btn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:background="@color/transparent"
-            android:focusable="false"
-            android:textAllCaps="false"
             app:layout_constraintStart_toStartOf="@+id/comment_user_photo"
             app:layout_constraintTop_toBottomOf="@+id/barrier2"
             app:srcCompat="@drawable/bg_up_vote" />
@@ -117,11 +104,9 @@
         <ImageButton
             android:id="@+id/down_vote_btn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:background="@color/transparent"
-            android:focusable="false"
-            android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="@+id/txt_counter"
             app:layout_constraintStart_toEndOf="@+id/txt_counter"
             app:layout_constraintTop_toTopOf="@+id/txt_counter"
@@ -150,7 +135,7 @@
             android:hint="Tap here to add comment"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/n_comments_tv"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/up_vote_btn"
             app:layout_constraintTop_toBottomOf="@+id/up_vote_btn"
@@ -161,7 +146,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="TextView"
+            android:textColor="@color/darkGrayText"
+            tools:text="TextView"
             app:layout_constraintBottom_toBottomOf="@+id/up_vote_btn"
             app:layout_constraintStart_toEndOf="@+id/up_vote_btn"
             app:layout_constraintTop_toTopOf="@+id/up_vote_btn" />
@@ -193,6 +179,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
             android:text="28"
+            android:textColor="@color/darkGrayText"
             app:layout_constraintBottom_toBottomOf="@+id/down_vote_btn"
             app:layout_constraintEnd_toStartOf="@+id/comment_icon"
             app:layout_constraintTop_toTopOf="@+id/down_vote_btn" />

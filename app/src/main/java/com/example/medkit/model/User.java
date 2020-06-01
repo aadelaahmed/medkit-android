@@ -15,6 +15,9 @@ public class User implements Parcelable {
     public static final String USER_COLLECTION = "Users";
     public static final String USER_IMAGES_STORAGE = "userPhoto";
     public static final String OBJECT_KEY = "OBJECT_KEY";
+    public static final String COMMENT_COUNTER = "commentCounter";
+    public static final String CLAPPING_COUNTER = "clappingCounter";
+
     /*
      public final static String AGE = "AGE";
      public final static String GENDER = "GENDER";*/
@@ -39,9 +42,20 @@ public class User implements Parcelable {
     private String email;
     private String fullName;
     private Map<String, Object> userType;
-
+    private int clappingCounter;
+    private int commentCounter;
     public User() {
 
+    }
+
+
+    protected User(Parcel in) {
+        userId = in.readString();
+        createdTime = in.readLong();
+        email = in.readString();
+        fullName = in.readString();
+        clappingCounter = in.readInt();
+        commentCounter = in.readInt();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -56,22 +70,18 @@ public class User implements Parcelable {
         }
     };
 
-    protected User(Parcel in) {
-        userId = in.readString();
-        createdTime = in.readLong();
-        email = in.readString();
-        fullName = in.readString();
-    }
-
     //private String photoUrl;
     public String getUid() {
         return userId;
     }
 
-    public User(Map<String, Object> userType, String email, String fullName) {
+    public User(int clappingCounter, int commentCounter, String email, String fullName, String userId, Map<String, Object> userType) {
         this.userType = userType;
         this.email = email;
         this.fullName = fullName;
+        this.userId = userId;
+        this.clappingCounter = clappingCounter;
+        this.commentCounter = commentCounter;
         Date tempDate = Calendar.getInstance().getTime();
         this.createdTime = tempDate.getTime();
     }
@@ -111,6 +121,30 @@ public class User implements Parcelable {
         this.userType = userType;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public int getClappingCounter() {
+        return clappingCounter;
+    }
+
+    public void setClappingCounter(int clappingCounter) {
+        this.clappingCounter = clappingCounter;
+    }
+
+    public int getCommentCounter() {
+        return commentCounter;
+    }
+
+    public void setCommentCounter(int commentCounter) {
+        this.commentCounter = commentCounter;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -122,5 +156,7 @@ public class User implements Parcelable {
         parcel.writeLong(createdTime);
         parcel.writeString(email);
         parcel.writeString(fullName);
+        parcel.writeInt(clappingCounter);
+        parcel.writeInt(commentCounter);
     }
 }

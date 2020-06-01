@@ -29,6 +29,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -38,6 +40,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,14 +64,16 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
     StorageReference storageUsers;
     StorageReference storagePosts;
     StorageReference storageCurrentUser;
-    String userId, currentUserId, postKey, postImage, userName, content, currentUserName, title, description, dateWithName, createdTime, category;
+    String userId, currentUserId, postKey, commentKey, postImage, userName, content, currentUserName, title, description, dateWithName, createdTime, category;
     Intent intent, recIntent;
-    Comment newComment;
+    Comment newComment, currentComment;
     PostModel clickPost;
     boolean imgFlag;
     CollectionReference rootUsers = db.collection(User.USER_COLLECTION);
     User clickUser;
-
+    DocumentReference commentDoc;
+    int currentUserClapping = 0, newVote;
+    Map<String, Integer> mapCurrentClapping;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,12 +129,15 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
         currentUserName = getSharedPreferences("pref", MODE_PRIVATE).getString("user_name", null);
         Log.d(TAG, "addComment: " + currentUserName);
         if (!content.isEmpty() && currentUser != null) {
-            newComment = new Comment(content, currentUserId, currentUserName);
-            rootComment.document().set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
+            commentDoc = rootComment.document();
+            commentKey = commentDoc.getId();
+            newComment = new Comment(commentKey, content, postKey, currentUserId, currentUserName, 0L);
+            commentDoc.set(newComment).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         showMessage("success add comment");
                         binding.postDetailComment.setText("");
+                        rootPost.document(postKey).update(PostModel.COMMENT_COUNTER, FieldValue.increment(1));
                         // notification
                         Log.d("notification", "from post details: " + post_id);
                         NotificationHelper.SendCommentNotification(currentUserName, content, clickPost.getUserID(), clickPost.getPostKey());
@@ -152,13 +160,12 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
     private void iniUI() {
         recIntent = getIntent();
         clickPost = recIntent.getParcelableExtra(PostModel.OBJECT_KEY);
-        imgFlag = recIntent.getBooleanExtra(PostModel.POST_IMAGE_FLAG, false);
+        //imgFlag = recIntent.getBooleanExtra(PostModel.POST_IMAGE_FLAG, false);
         postKey = clickPost.getPostKey();
         userId = clickPost.getUserID();
-        if (!imgFlag) {
+        if (!clickPost.getPostPhoto())
             binding.postDetailImg.setVisibility(View.GONE);
-        } else {
-            //postImage = recIntent.getStringExtra(PostModel.POST_IMAGE_KEY);
+        else {
             storagePosts = storageRef.getReference().child(PostModel.POST_IMAGES_STORAGE + "/" + postKey);
             GlideApp.with(this).load(storagePosts).into(binding.postDetailImg);
         }
@@ -281,8 +288,13 @@ public class PostDetail extends AppCompatActivity implements View.OnClickListene
     }
 
     @Override
-    public void onClappingClick(String userId) {
-
+    public void onClappingClick(DocumentSnapshot documentSnapshot, String userId) {
+        currentComment = documentSnapshot.toObject(Comment.class);
+        mapCurrentClapping = currentComment.getClappings();
+        if (mapCurrentClapping.containsKey(currentUserId))
+            currentUserClapping = mapCurrentClapping.get(currentUserId);
+        newVote = (currentUserClapping == 0) ? 1 : 0;
+        documentSnapshot.getReference().update(Comment.CLAPPING + "." + currentUserId, newVote);
     }
 
     @Override

@@ -65,11 +65,12 @@ public class CommunityActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference rootUsers = db.collection(User.USER_COLLECTION);
     User clickUser = null;
-    final Fragment homeFragment = new HomeFragment(this);
-    final Fragment doctorFragment = new DoctorsFragment(this);
-    final Fragment notifiFragment = new NotificationFragment();
-    final Fragment chatFragment = new MessageFragment();
-    final FragmentManager fm = getSupportFragmentManager();
+    Fragment homeFragment = new HomeFragment(this);
+    Fragment doctorFragment = new DoctorsFragment(this);
+    Fragment notifiFragment = new NotificationFragment();
+    Fragment chatFragment = new MessageFragment();
+    Fragment currentFragment = homeFragment;
+    FragmentManager fm = getSupportFragmentManager();
     SharedPreferences sharedpreferences;
 
    /* private BottomNavigationView.OnNavigationItemSelectedListener listener =
@@ -147,10 +148,10 @@ public class CommunityActivity extends AppCompatActivity {
         storageRef = storageInstance.getReference(User.USER_IMAGES_STORAGE + "/" + currentUser.getUid());
 
 
-        /*fm.beginTransaction().add(R.id.fragment_container, chatFragment, "chat_tag").hide(chatFragment).commit();
-        fm.beginTransaction().add(R.id.fragment_container, notifiFragment, "notify_tag").hide(notifiFragment).commit();
-        fm.beginTransaction().add(R.id.fragment_container, doctorFragment, "doctors_tag").hide(doctorFragment).commit();
-        fm.beginTransaction().add(R.id.fragment_container, homeFragment, "home_tag").commit();*/
+        /*fm.beginTransaction().add(R.id.fragment_container, chatFragment).hide(chatFragment).commit();
+        fm.beginTransaction().add(R.id.fragment_container, notifiFragment).hide(notifiFragment).commit();
+        fm.beginTransaction().add(R.id.fragment_container, doctorFragment).hide(doctorFragment).commit();
+        fm.beginTransaction().add(R.id.fragment_container, homeFragment).commit();*/
         iniActionBar();
 
         binding.bottomNavigationView.setOnNavigationItemSelectedListener(listener);

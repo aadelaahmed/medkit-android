@@ -1,10 +1,7 @@
 package com.example.medkit.model;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.google.firebase.firestore.Exclude;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -25,6 +22,10 @@ public class PostModel implements Parcelable {
     public static final String POST_IMAGES_STORAGE = "postImages";
     public static final String UP_VOTES = "upVotes";
     public static final String CATEGORY_KEY = "category";
+    public static final String COMMENT_COUNTER = "commentCounter";
+    private String userName;
+    private String title;
+    private String description;
     public static final Creator<PostModel> CREATOR = new Creator<PostModel>() {
         @Override
         public PostModel createFromParcel(Parcel in) {
@@ -36,55 +37,60 @@ public class PostModel implements Parcelable {
             return new PostModel[size];
         }
     };
-    private String userName;
-    private String title;
-    private String description;
-    private String postPhoto;
-    private String userPhoto;
     private String userID;
     private String postKey;
     private String category;
-    private Bitmap userProfilePicture;
-    private Bitmap image;
-    private int nComments;
     private Long createdTime;
+    private Boolean postPhoto;
+    private Integer commentCounter;
     public Map<String, Integer> upVotes;
-
 
     public PostModel() {
 
     }
 
+    private Integer upVotesCounter;
+
+
+    public PostModel(String postKey, String userID, int upVotesCounter, String userName, String title, String description, String category, Boolean postPhoto, int commentCounter) {
+        this.postKey = postKey;
+        this.userID = userID;
+        this.userName = userName;
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.postPhoto = postPhoto;
+        Date temp = Calendar.getInstance().getTime();
+        this.createdTime = temp.getTime();
+        this.upVotes = new HashMap<>();
+        this.commentCounter = commentCounter;
+        this.upVotesCounter = upVotesCounter;
+    }
 
     protected PostModel(Parcel in) {
         userName = in.readString();
         title = in.readString();
         description = in.readString();
-        postPhoto = in.readString();
-        userPhoto = in.readString();
+        byte tmpPostPhoto = in.readByte();
+        postPhoto = tmpPostPhoto == 0 ? null : tmpPostPhoto == 1;
         userID = in.readString();
         postKey = in.readString();
         category = in.readString();
-        userProfilePicture = in.readParcelable(Bitmap.class.getClassLoader());
-        image = in.readParcelable(Bitmap.class.getClassLoader());
-        nComments = in.readInt();
         if (in.readByte() == 0) {
             createdTime = null;
         } else {
             createdTime = in.readLong();
         }
-    }
-
-    public PostModel(String title, String description, String userName, String postPhoto, String userID, String category) {
-        this.title = title;
-        this.description = description;
-        this.userName = userName;
-        this.postPhoto = postPhoto;
-        this.userID = userID;
-        this.category = category;
-        Date temp = Calendar.getInstance().getTime();
-        this.createdTime = temp.getTime();
-        this.upVotes = new HashMap<>();
+        if (in.readByte() == 0) {
+            commentCounter = null;
+        } else {
+            commentCounter = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            upVotesCounter = null;
+        } else {
+            upVotesCounter = in.readInt();
+        }
     }
 
     public Map<String, Integer> getUpVotes() {
@@ -99,39 +105,20 @@ public class PostModel implements Parcelable {
         return createdTime;
     }
 
-    public void setCreatedTime(long createdTime) {
-        this.createdTime = createdTime;
-    }
-
-    @Override
-    public String toString() {
-        return "PostModel{" +
-                "userName='" + userName + '\'' +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", postPhoto='" + postPhoto + '\'' +
-                ", userPhoto='" + userPhoto + '\'' +
-                ", userID='" + userID + '\'' +
-                ", postKey='" + postKey + '\'' +
-                ", category='" + category + '\'' +
-                '}';
-    }
-
-    public String getPostPhoto() {
+    public Boolean getPostPhoto() {
         return postPhoto;
     }
 
-    public void setPostPhoto(String postPhoto) {
+    public void setPostPhoto(Boolean postPhoto) {
         this.postPhoto = postPhoto;
     }
 
-    @Exclude
-    public String getUserPhoto() {
-        return userPhoto;
+    public Integer getUpVotesCounter() {
+        return upVotesCounter;
     }
 
-    public void setUserPhoto(String userPhoto) {
-        this.userPhoto = userPhoto;
+    public void setUpVotesCounter(Integer upVotesCounter) {
+        this.upVotesCounter = upVotesCounter;
     }
 
     public String getUserID() {
@@ -158,6 +145,17 @@ public class PostModel implements Parcelable {
         this.userName = userName;
     }
 
+    public void setCreatedTime(Long createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Integer getCommentCounter() {
+        return commentCounter;
+    }
+
+    public void setCommentCounter(Integer commentCounter) {
+        this.commentCounter = commentCounter;
+    }
 
     public String getTitle() {
         return title;
@@ -183,36 +181,6 @@ public class PostModel implements Parcelable {
         this.category = category;
     }
 
-    @Exclude
-    public Bitmap getUserProfilePicture() {
-        return userProfilePicture;
-    }
-
-    public void setUserProfilePicture(Bitmap userProfilePicture) {
-        this.userProfilePicture = userProfilePicture;
-    }
-
-
-    @Exclude
-    public Bitmap getImage() {
-        return image;
-    }
-
-    public void setImage(Bitmap image) {
-        this.image = image;
-    }
-
-
-    @Exclude
-    public int getnComments() {
-        return nComments;
-    }
-
-    public void setnComments(int nComments) {
-        this.nComments = nComments;
-    }
-
-
     @Override
     public int describeContents() {
         return 0;
@@ -220,22 +188,33 @@ public class PostModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+
         parcel.writeString(userName);
         parcel.writeString(title);
         parcel.writeString(description);
-        parcel.writeString(postPhoto);
-        parcel.writeString(userPhoto);
+        parcel.writeByte((byte) (postPhoto == null ? 0 : postPhoto ? 1 : 2));
         parcel.writeString(userID);
         parcel.writeString(postKey);
         parcel.writeString(category);
-        parcel.writeParcelable(userProfilePicture, i);
-        parcel.writeParcelable(image, i);
-        parcel.writeInt(nComments);
         if (createdTime == null) {
             parcel.writeByte((byte) 0);
         } else {
             parcel.writeByte((byte) 1);
             parcel.writeLong(createdTime);
         }
+        if (commentCounter == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeInt(commentCounter);
+        }
+        if (upVotesCounter == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeInt(upVotesCounter);
+        }
     }
+
+
 }

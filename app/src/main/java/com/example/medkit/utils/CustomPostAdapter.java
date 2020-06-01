@@ -48,14 +48,14 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
     int currentUserVote = 0; //vote of current user for each post
     Map<String, Integer> mapVotes;
     private static final String TAG = "CustomPostAdapter";
-    int tempPosition;
+    int tempPosition, currentCommentCounter;
     PostModel tempModel;
     String currentUserID, description; //, content, userName, title, clickDesc, createdTime, clickUserName, clickPostKey, clickUserID;
     Intent intent;
     /* Long clickCreatedTime;
      Date clickDate;*/
     OnPostLitener tempPostListener;
-
+    SimpleDateFormat sdf;
 
     public CustomPostAdapter(@NonNull FirestoreRecyclerOptions<PostModel> options, Context mContext, OnPostLitener tempPostListener) {
         super(options);
@@ -86,7 +86,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         holder.txtDescription.setText(tempModel.getDescription());
         holder.txtCategory.setText(tempModel.getCategory());
         holder.txtUserName.setText(tempModel.getUserName());
-        SimpleDateFormat sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
+        holder.txtNumOfComments.setText(String.valueOf(tempModel.getCommentCounter()));
+        sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
         holder.txtTime.setText(sdf.format(tempModel.getCreatedTime()));
         storagePosts = storageRef.getReference().child(PostModel.POST_IMAGES_STORAGE + "/" + tempModel.getPostKey());
         storageUsers = storageRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + tempModel.getUserID());
@@ -97,6 +98,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         if (mapVotes.containsKey(currentUserID))
             currentUserVote = mapVotes.get(currentUserID);
         Log.d("TAG", "onClick user vote: " + currentUserVote);
+        //holder.countVotes.setText(String.valueOf(tempModel.getUpVotesCounter()));
         //getUserName(holder);
         computeVotes(holder);
         //Log.d("TAG", "onClick: bind up: "+holder.btnUp);
@@ -108,6 +110,9 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             holder.btnDown.setSelected(true);
             if (holder.btnUp.isSelected())
                 holder.btnUp.setSelected(false);
+        } else if (currentUserVote == 0) {
+            holder.btnUp.setSelected(false);
+            holder.btnDown.setSelected(false);
         }
         //currentDoc = getSnapshots().getSnapshot(position).getReference();
        /* holder.btnUp.setOnClickListener(new View.OnClickListener() {
@@ -170,7 +175,7 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
         });*/
 
 
-        if (tempModel.getPostPhoto() != null)
+        if (tempModel.getPostPhoto())
             GlideApp.with(mContext).load(storagePosts).into(holder.imgPost);
         else
             holder.imgPost.setVisibility(View.GONE);
@@ -368,6 +373,8 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
             txtUserName.setOnClickListener(this);
             imgUser.setOnClickListener(this);
             edtComment.setOnClickListener(this);
+            btnComment.setOnClickListener(this);
+            txtNumOfComments.setOnClickListener(this);
             /*itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -441,6 +448,12 @@ public class CustomPostAdapter extends FirestoreRecyclerAdapter<PostModel, Custo
                     onPostLitener.onPostImageClick(tempPost.getPostKey());
                     break;
                 case R.id.edt_comment_post:
+                    onPostLitener.onPostClick(tempPost);
+                    break;
+                case R.id.comment_icon:
+                    onPostLitener.onPostClick(tempPost);
+                    break;
+                case R.id.n_comments_tv:
                     onPostLitener.onPostClick(tempPost);
                     break;
                 default:

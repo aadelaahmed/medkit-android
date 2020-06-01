@@ -42,7 +42,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -50,7 +49,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
@@ -76,7 +74,7 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
     ListenerRegistration tempListener;
     Intent postDetailIntent;
     Map<String, Integer> newMapValue, postVotes;
-    int newVote, tempCurrentVote;
+    int newVote, tempCurrentVote, userNumClappins, userNumAnswers;
     PostModel tempPost;
     Intent recIntent;
     User userDataPofile;
@@ -137,6 +135,10 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         recIntent = getIntent();
         userDataPofile = recIntent.getParcelableExtra(User.OBJECT_KEY);
         userId = userDataPofile.getUid();
+        userNumClappins = userDataPofile.getClappingCounter();
+        userNumAnswers = userDataPofile.getCommentCounter();
+        binding.txtApplaudse.setText(String.valueOf(userNumClappins) + " Applauds");
+        binding.txtAnswers.setText(String.valueOf(userNumAnswers) + " Answers");
         binding.userProfileName.setText(userDataPofile.getFullName());
         storageUsers = rootRef.getReference().child(User.USER_IMAGES_STORAGE + "/" + userDataPofile.getUid());
         GlideApp.with(this).load(storageUsers).into(binding.userProfilePicture);
@@ -203,7 +205,6 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         recyclerPosts.setLayoutManager(new LinearLayoutManager(this));
         recyclerPosts.setAdapter(customPostAdapter);
         ((SimpleItemAnimator) recyclerPosts.getItemAnimator()).setSupportsChangeAnimations(false);
-        recyclerPosts.setItemAnimator(new DefaultItemAnimator());
         //binding.profilePostsContainer.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
     }
@@ -411,9 +412,9 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
         //tempCurrentVote = newVote;
         Log.d("TAG", "addUpVote: tuesday" + tempCurrentVote);
-        newMapValue = new HashMap<>();
-        newMapValue.put(currentUserID, newVote);
-        documentSnapshot.getReference().update("mapVotes", newMapValue);
+        /*newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);*/
+        documentSnapshot.getReference().update(PostModel.UP_VOTES + "." + currentUserID, newVote);
     }
 
     @Override
@@ -427,9 +428,9 @@ public class ProfileActivity extends AppCompatActivity implements CustomPostAdap
         Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
         //currentUserVote = newVote;
         Log.d("TAG", "addDownVote: tuesday" + tempCurrentVote);
-        newMapValue = new HashMap<>();
-        newMapValue.put(currentUserID, newVote);
-        documentSnapshot.getReference().update("mapVotes", newMapValue);
+        /*newMapValue = new HashMap<>();
+        newMapValue.put(currentUserID, newVote);*/
+        documentSnapshot.getReference().update(PostModel.UP_VOTES + "." + currentUserID, newVote);
     }
 
     @Override

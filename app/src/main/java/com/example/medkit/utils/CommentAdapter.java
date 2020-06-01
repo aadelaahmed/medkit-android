@@ -9,9 +9,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.medkit.R;
 import com.example.medkit.model.Comment;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -45,7 +42,10 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     Intent intent;
     Comment tempModel;
     OnCommentClickListener commentClickListener;
-
+    int currentUserClapping = 0;
+    Map<String, Integer> mapClapping;
+    String currentUserId;
+    SimpleDateFormat sdf;
     public CommentAdapter(@NonNull FirestoreRecyclerOptions<Comment> options, Context mContext, OnCommentClickListener commentClickListener) {
         super(options);
         this.mContext = mContext;
@@ -67,19 +67,31 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
 
     @Override
     protected void onBindViewHolder(@NonNull final CommentViewHolder holder, int position, @NonNull Comment model) {
+        currentUserClapping = 0;
         tempModel = getSnapshots().getSnapshot(holder.getAdapterPosition()).toObject(Comment.class);
         content = tempModel.getContent();
         userName = tempModel.getUserName();
         userID = tempModel.getUserId();
         storageRef = storageInstance.getReference("userPhoto/" + userID);
-        RequestOptions requestOptions = new RequestOptions().transforms(new CenterCrop(), new RoundedCorners(90));
+        mapClapping = tempModel.getClappings();
+        currentUser = mAuth.getCurrentUser();
+        currentUserId = currentUser.getUid();
+        if (mapClapping.containsKey(currentUserId))
+            currentUserClapping = mapClapping.get(currentUserId);
+        if (currentUserClapping == 1)
+            holder.clapBtn.setSelected(true);
+        else
+            holder.clapBtn.setSelected(false);
+        computeVotes(holder);
+        //RequestOptions requestOptions = new RequestOptions().transforms(new CenterCrop(), new RoundedCorners(90));
         /*Glide.with(mContext).load(storageRef)
                 .apply(requestOptions)
                 .into(holder.imgUser);*/
         GlideApp.with(mContext).load(storageRef).into(holder.imgUser);
         holder.txtContent.setText(content);
         holder.txtUserName.setText(userName);
-        SimpleDateFormat sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
+        sdf = new SimpleDateFormat("d MMM h:mm a", Locale.getDefault());
+        //holder.txtClappingCounter.setText("+"+String.valueOf(tempModel.getClappingCounter()));
         holder.txtDate.setText(sdf.format(tempModel.getCreatedTime()));
        /* usersCollection.document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -113,10 +125,18 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             return false;
     }
 
+    private void computeVotes(CommentViewHolder holder) {
+        int cntrClapping = 0;
+        for (String tempStrKey : mapClapping.keySet()) {
+            if (mapClapping.get(tempStrKey) == 1)
+                cntrClapping++;
+        }
+        holder.txtClappingCounter.setText("+" + String.valueOf(cntrClapping));
+    }
+
     @Override
     public void onDataChanged() {
         super.onDataChanged();
-
     }
 
     @Override
@@ -132,12 +152,12 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
     public interface OnCommentClickListener {
         void onUserClick(String userId);
 
-        void onClappingClick(String userId);
+        void onClappingClick(DocumentSnapshot documentSnapshot, String userId);
     }
 
 
     public class CommentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView txtUserName, txtContent, txtDate;
+        TextView txtUserName, txtContent, txtDate, txtClappingCounter;
         CircleImageView imgUser;
         ImageButton clapBtn;
         Comment tempComment;
@@ -150,7 +170,9 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
             txtDate = itemView.findViewById(R.id.comment_date);
             imgUser = itemView.findViewById(R.id.comment_user_photo);
             clapBtn = itemView.findViewById(R.id.clapping_btn);
+            txtClappingCounter = itemView.findViewById(R.id.clapping_counter);
             imgUser.setOnClickListener(this);
+            clapBtn.setOnClickListener(this);
         }
 
         @Override
@@ -162,11 +184,8 @@ public class CommentAdapter extends FirestoreRecyclerAdapter<Comment, CommentAda
                     commentClickListener.onUserClick(tempComment.getUserId());
                     break;
                 case R.id.clapping_btn:
-                    if (!view.isSelected())
-                        view.setSelected(true);
-
-
-                    commentClickListener.onClappingClick(tempComment.getUserId());
+                    view.setSelected(!view.isSelected());
+                    commentClickListener.onClappingClick(documentSnapshot, tempComment.getUserId());
                     break;
             }
         }

@@ -46,7 +46,7 @@ public class GetStartedActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     FirebaseUser currentUser;
-    String emailUser = null;
+    String emailUser = null, userKey, uType;
     FirebaseStorage rootStorage;
     String fullName;
     String imageUser;
@@ -55,7 +55,9 @@ public class GetStartedActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthStateListener;
     private ActivityGetStartedBinding binding;
     LoadingAlertDialog tempAlertDialog;
-
+    User newUser;
+    boolean isDoctor;
+    Map<String, Object> userType;
     @Override
     protected void onStart() {
         super.onStart();
@@ -136,14 +138,14 @@ public class GetStartedActivity extends AppCompatActivity {
 
     private void getSharedData() throws IOException {
         sharedPreferences = getSharedPreferences(SignHomeActivity.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
-        boolean isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
+        isDoctor = sharedPreferences.getBoolean(User.IS_DOCTOR, false);
         fullName = sharedPreferences.getString(User.FULLNAME, null);
         emailUser = sharedPreferences.getString(User.EMAIL, null);
         imageUser = sharedPreferences.getString(User.USER_PHOTO, null);
+        userKey = currentUser.getUid();
         Log.d("TAG", "getSharedData: check image user " + imageUser);
-        String uType = "";
-        User newUser;
-        Map<String, Object> userType = new HashMap<>();
+        uType = "";
+        userType = new HashMap<>();
         if (isDoctor) {
             uType = "Doctor";
             String gFaculty = sharedPreferences.getString(User.G_FACULTY, null);
@@ -156,14 +158,13 @@ public class GetStartedActivity extends AppCompatActivity {
             userType.put(User.LOCATION, location);
             userType.put(User.USERTYPE, uType);
             //Photo url =storagerefrence + User ID ,so we pass the the six-th parameter in constructor as uId
-            newUser = new User(userType, emailUser, fullName);
+            newUser = new User(0, 0, emailUser, fullName, userKey, userType);
         } else {
             uType = "Patient";
             userType.put(User.USERTYPE, uType);
-            newUser = new User(userType, emailUser, fullName);
+            newUser = new User(0, 0, emailUser, fullName, userKey, userType);
         }
-        String userKey = currentUser.getUid();
-        newUser.setUid(userKey);
+        //newUser.setUid(userKey);
         uploadIntoFirebaseStorage(newUser, userKey);
     }
 
